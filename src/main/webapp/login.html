@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | Weddingly</title>
+
+    <!-- Added FontAwesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+
+<div class="page-container">
+
+    <!-- Left Side -->
+    <div class="welcome-section">
+
+        <div class="brand">
+            <i class="fa-solid fa-ring"></i> WEDDINGLY
+        </div>
+
+        <div class="welcome-content">
+
+            <h1>
+                Plan Your<br>
+                Perfect Wedding
+            </h1>
+
+            <p>
+                Manage your wedding, book vendors,
+                and share your experience with our
+                wedding planning system.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <i class="fa-solid fa-church"></i>
+                    <p>Wedding Planning</p>
+                </div>
+
+                <div class="feature">
+                    <i class="fa-regular fa-calendar-check"></i>
+                    <p>Easy Booking</p>
+                </div>
+
+                <div class="feature">
+                    <i class="fa-solid fa-star"></i>
+                    <p>Reviews & Ratings</p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Right Side -->
+    <div class="login-section">
+
+        <div class="login-box">
+
+            <div class="login-header">
+
+                <div class="login-icon">
+                    <i class="fa-solid fa-heart" style="color: #c4517e;"></i>
+                </div>
+
+                <h2>Welcome Back!</h2>
+
+                <p>
+                    Login to your wedding planning account
+                </p>
+
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm">
+
+                <!-- Email -->
+                <div class="input-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <button type="button" id="togglePassword" class="show-password">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember + Forgot -->
+                <div class="login-options">
+                    <label class="remember">
+                        <input type="checkbox" id="rememberMe">
+                        Remember me
+                    </label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="login-button">LOGIN</button>
+
+            </form>
+
+            <!-- Register -->
+            <div class="register-section">
+                <p>
+                    Don't have an account?
+                    <a href="register.html">Create Account</a>
+                </p>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>Plan • Book • Celebrate <i class="fa-solid fa-heart" style="color: #c4517e;"></i></p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/login.js"></script>
+
+</body>
+</html>
