@@ -1,0 +1,9 @@
+[ {
+  "availability" : "Available",
+  "category" : "Photography",
+  "contactNumber" : "0771234567",
+  "email" : "abc@gmail.com",
+  "price" : 75000.0,
+  "vendorId" : "V001",
+  "vendorName" : "ABC Photography"
+} ]

@@ -1,8 +1,14 @@
 package com.wedding.vendor.service;
 
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.wedding.vendor.model.Vendor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,18 +20,27 @@ public class VendorService {
 
     private final Map<String, Vendor> vendors = new LinkedHashMap<>();
 
-    // Get all vendors
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final Path storageFile = Paths.get("vendors.json");
+
+    public VendorService() {
+        loadFromFile();
+    }
+
+    // READ: Get all vendors
     public List<Vendor> getAllVendors() {
         return new ArrayList<>(vendors.values());
     }
 
-    // Get vendor by ID
+    // READ: Get vendor by ID
     public Optional<Vendor> getVendorById(String vendorId) {
         return Optional.ofNullable(vendors.get(vendorId));
     }
 
-    // Add vendor
+    // CREATE: Add vendor
     public Vendor addVendor(Vendor vendor) {
+
         if (vendor.getVendorId() == null
                 || vendor.getVendorId().isBlank()) {
             throw new IllegalArgumentException("Vendor ID is required.");
@@ -49,10 +64,12 @@ public class VendorService {
         vendor.setVendorId(id);
         vendors.put(id, vendor);
 
+        saveToFile();
+
         return vendor;
     }
 
-    // Update vendor
+    // UPDATE: Update vendor
     public Optional<Vendor> updateVendor(
             String vendorId, Vendor updatedVendor) {
 
@@ -78,11 +95,61 @@ public class VendorService {
         existingVendor.setPrice(updatedVendor.getPrice());
         existingVendor.setAvailability(updatedVendor.getAvailability());
 
+        saveToFile();
+
         return Optional.of(existingVendor);
     }
 
-    // Delete vendor
+    // DELETE: Delete vendor
     public boolean deleteVendor(String vendorId) {
-        return vendors.remove(vendorId) != null;
+
+        Vendor removedVendor = vendors.remove(vendorId);
+
+        if (removedVendor != null) {
+            saveToFile();
+            return true;
+        }
+
+        return false;
+    }
+
+    // SAVE: Write vendor data to JSON file
+    private void saveToFile() {
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(
+                    storageFile.toFile(),
+                    new ArrayList<>(vendors.values())
+            );
+        } catch (RuntimeException e)  {
+            throw new IllegalStateException(
+                    "Could not save vendor data: " + e.getMessage(), e);
+        }
+    }
+
+    // LOAD: Read vendor data when the application starts
+    private void loadFromFile() {
+
+        if (!Files.exists(storageFile)) {
+            return;
+        }
+
+        try {
+            List<Vendor> savedVendors = objectMapper.readValue(
+                    storageFile.toFile(),
+                    new TypeReference<List<Vendor>>() {}
+            );
+
+            for (Vendor vendor : savedVendors) {
+                if (vendor != null
+                        && vendor.getVendorId() != null
+                        && !vendor.getVendorId().isBlank()) {
+                    vendors.put(vendor.getVendorId(), vendor);
+                }
+            }
+
+        } catch (RuntimeException e) {
+            System.err.println(
+                    "Could not load vendor data: " + e.getMessage());
+        }
     }
 }
