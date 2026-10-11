@@ -16,6 +16,20 @@ public class BudgetTest {
 
         service.addBudget(budget);
 
+        Budget updatedBudget = new Budget(
+                "BG001",
+                "W001",
+                "Catering",
+                175000,
+                "Updated food package"
+        );
+
+        boolean updated = service.updateBudget("BG001", updatedBudget);
+        System.out.println("Budget updated: " + updated);
+
+        boolean deleted = service.deleteBudget("BG001");
+        System.out.println("Budget deleted: " + deleted);
+
         for (Budget b : service.getAllBudgets()) {
             System.out.println("Budget ID: " + b.getBudgetId());
             System.out.println("Wedding ID: " + b.getWeddingId());
