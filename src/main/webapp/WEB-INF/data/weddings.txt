@@ -1,0 +1,5 @@
+# id	coupleNames	weddingDate	venue	guestCount	budget	theme	notes
+0aaff592-85c2-4395-8588-d6d0432abc37	Geeth and Imasha	2027-12-12	matara	545	45454564	Classic Elegance	
+f9e61897-12fa-4883-9c3e-9d9418adb8e2	Sadu and Mihin	2027-12-12	matara	545	45454564	Traditional	
+f84427ce-0068-4dfd-b239-259ec17673c7	himasha	2027-12-12	matara	545	45454564	Romantic Garden	
+69ee5530-c70e-4e41-a4ad-cefd03b02be9	himasha	2027-12-12	matara	545	45454564	Beach Celebration	
