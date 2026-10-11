@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Planner | Budget Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            color: #263247;
+        }
+
+        header {
+            background: #302653;
+            color: white;
+            padding: 24px 8%;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #ded8f3;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .summary {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .summary h2 {
+            margin-top: 0;
+            font-size: 17px;
+            color: #6b6680;
+        }
+
+        .amount {
+            font-size: 30px;
+            font-weight: bold;
+            color: #302653;
+        }
+
+        .panel {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 12px #0000000d;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d5d8e2;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .primary {
+            background: #5946a5;
+            color: white;
+        }
+
+        .secondary {
+            background: #e9e6f5;
+            color: #302653;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 10px;
+            border-bottom: 1px solid #ececf2;
+        }
+
+        th {
+            background: #f8f7fc;
+        }
+
+        .actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .message {
+            margin-top: 15px;
+            color: #287548;
+        }
+
+        @media (max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full {
+                grid-column: auto;
+            }
+
+            header {
+                padding: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Wedding Planner</h1>
+    <p>Budget Management Dashboard</p>
+</header>
+
+<main>
+
+    <section class="summary">
+        <h2>Total Planned Budget</h2>
+        <div class="amount" id="totalBudget">LKR 0.00</div>
+        <p>Manage your wedding expenses in one place.</p>
+    </section>
+
+    <section class="panel">
+        <h2 id="formTitle">Add Budget Item</h2>
+
+        <form id="budgetForm">
+            <div class="form-grid">
+
+                <div>
+                    <label for="budgetId">Budget ID</label>
+                    <input id="budgetId" placeholder="Example: BG001" required>
+                </div>
+
+                <div>
+                    <label for="weddingId">Wedding ID</label>
+                    <input id="weddingId" placeholder="Example: W001" required>
+                </div>
+
+                <div>
+                    <label for="category">Category</label>
+                    <select id="category" required>
+                        <option value="">Select category</option>
+                        <option>Catering</option>
+                        <option>Photography</option>
+                        <option>Venue</option>
+                        <option>Decoration</option>
+                        <option>Clothing</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="amount">Amount (LKR)</label>
+                    <input id="amount" type="number" min="0.01"
+                           step="0.01" placeholder="150000" required>
+                </div>
+
+                <div class="full">
+                    <label for="description">Description</label>
+                    <textarea id="description"
+                              placeholder="Enter budget details"
+                              required></textarea>
+                </div>
+
+                <div class="full">
+                    <button class="primary" type="submit" id="saveButton">
+                        Add Budget
+                    </button>
+                    <button class="secondary" type="button"
+                            id="cancelButton" hidden>
+                        Cancel Edit
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+        <p class="message" id="message" role="status"></p>
+    </section>
+
+    <section class="panel">
+        <h2>Budget Items</h2>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Budget ID</th>
+                    <th>Wedding ID</th>
+                    <th>Category</th>
+                    <th>Amount (LKR)</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="budgetTable">
+                <tr>
+                    <td colspan="6">No budget items to display.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+
+<script>
+    const form = document.getElementById("budgetForm");
+    const table = document.getElementById("budgetTable");
+    const totalDisplay = document.getElementById("totalBudget");
+    const message = document.getElementById("message");
+
+    let budgets = [];
+    let editingId = null;
+
+    function renderBudgets() {
+        table.innerHTML = "";
+
+        const total = budgets.reduce(
+            (sum, budget) => sum + budget.amount, 0
+        );
+
+        totalDisplay.textContent = "LKR " +
+            total.toLocaleString("en-LK", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+        if (budgets.length === 0) {
+            table.innerHTML =
+                '<tr><td colspan="6">No budget items to display.</td></tr>';
+            return;
+        }
+
+        budgets.forEach(budget => {
+            const row = document.createElement("tr");
+
+            [
+                budget.id,
+                budget.weddingId,
+                budget.category,
+                "LKR " + budget.amount.toLocaleString(),
+                budget.description
+            ].forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+            const actions = document.createElement("td");
+            const editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.className = "secondary";
+            editButton.type = "button";
+
+            editButton.addEventListener("click", () => {
+                document.getElementById("budgetId").value = budget.id;
+                document.getElementById("budgetId").readOnly = true;
+                document.getElementById("weddingId").value = budget.weddingId;
+                document.getElementById("category").value = budget.category;
+                document.getElementById("amount").value = budget.amount;
+                document.getElementById("description").value =
+                    budget.description;
+
+                editingId = budget.id;
+                document.getElementById("formTitle").textContent =
+                    "Update Budget Item";
+                document.getElementById("saveButton").textContent =
+                    "Update Budget";
+                document.getElementById("cancelButton").hidden = false;
+                message.textContent = "";
+                form.scrollIntoView({ behavior: "smooth" });
+            });
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.className = "secondary";
+            deleteButton.type = "button";
+
+            deleteButton.addEventListener("click", () => {
+                if (confirm("Delete budget " + budget.id + "?")) {
+                    budgets = budgets.filter(item => item.id !== budget.id);
+                    renderBudgets();
+                    message.textContent = "Budget deleted from this page.";
+                }
+            });
+
+            actions.className = "actions";
+            actions.append(editButton, deleteButton);
+            row.appendChild(actions);
+            table.appendChild(row);
+        });
+    }
+
+    form.addEventListener("submit", event => {
+        event.preventDefault();
+
+        const id = document.getElementById("budgetId").value.trim();
+        const weddingId = document.getElementById("weddingId").value.trim();
+        const category = document.getElementById("category").value;
+        const amount = Number(document.getElementById("amount").value);
+        const description =
+            document.getElementById("description").value.trim();
+
+        if (!id || !weddingId || !category || !description ||
+            !Number.isFinite(amount) || amount <= 0) {
+            message.textContent = "Please enter valid budget details.";
+            return;
+        }
+
+        const duplicate = budgets.some(
+            item => item.id === id && item.id !== editingId
+        );
+
+        if (duplicate) {
+            message.textContent = "This Budget ID already exists.";
+            return;
+        }
+
+        const budget = { id, weddingId, category, amount, description };
+
+        if (editingId !== null) {
+            budgets = budgets.map(item =>
+                item.id === editingId ? budget : item
+            );
+            message.textContent = "Budget updated on this page.";
+        } else {
+            budgets.push(budget);
+            message.textContent = "Budget added to this page.";
+        }
+
+        form.reset();
+        editingId = null;
+        document.getElementById("budgetId").readOnly = false;
+        document.getElementById("formTitle").textContent = "Add Budget Item";
+        document.getElementById("saveButton").textContent = "Add Budget";
+        document.getElementById("cancelButton").hidden = true;
+
+        renderBudgets();
+    });
+
+    document.getElementById("cancelButton").addEventListener("click", () => {
+        form.reset();
+        editingId = null;
+        document.getElementById("budgetId").readOnly = false;
+        document.getElementById("formTitle").textContent = "Add Budget Item";
+        document.getElementById("saveButton").textContent = "Add Budget";
+        document.getElementById("cancelButton").hidden = true;
+        message.textContent = "";
+    });
+
+    renderBudgets();
+</script>
+</body>
+</html>
+
+
+</body>
+</html>

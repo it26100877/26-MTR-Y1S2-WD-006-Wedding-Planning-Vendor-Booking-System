@@ -1,1 +1,1 @@
-BG002|W001|Photography|50000.0|Wedding photography package
+BG001|W001|Catering|175000.0|Updated food package
