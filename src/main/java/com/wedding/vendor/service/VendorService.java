@@ -1,14 +1,12 @@
 package com.wedding.vendor.service;
 
-import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.ObjectMapper;
 import com.wedding.vendor.model.Vendor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,30 +14,69 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class VendorService {
+public class VendorService implements VendorOperations {
 
     private final Map<String, Vendor> vendors = new LinkedHashMap<>();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private final Path storageFile = Paths.get("vendors.json");
+    // Vendor data is stored in the project working directory.
+    private final Path dataFile = Path.of("vendors.txt");
 
     public VendorService() {
         loadFromFile();
     }
 
-    // READ: Get all vendors
     public List<Vendor> getAllVendors() {
         return new ArrayList<>(vendors.values());
     }
 
-    // READ: Get vendor by ID
     public Optional<Vendor> getVendorById(String vendorId) {
         return Optional.ofNullable(vendors.get(vendorId));
     }
 
-    // CREATE: Add vendor
     public Vendor addVendor(Vendor vendor) {
+        validateVendor(vendor);
+
+        String id = vendor.getVendorId();
+
+        if (vendors.containsKey(id)) {
+            throw new IllegalArgumentException("Vendor ID already exists.");
+        }
+
+        vendors.put(id, vendor);
+        saveToFile();
+
+        return vendor;
+    }
+
+    public Optional<Vendor> updateVendor(String vendorId, Vendor vendor) {
+        if (!vendors.containsKey(vendorId)) {
+            return Optional.empty();
+        }
+
+        validateVendor(vendor);
+        vendor.setVendorId(vendorId);
+
+        vendors.put(vendorId, vendor);
+        saveToFile();
+
+        return Optional.of(vendor);
+    }
+
+    public boolean deleteVendor(String vendorId) {
+        Vendor removed = vendors.remove(vendorId);
+
+        if (removed != null) {
+            saveToFile();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void validateVendor(Vendor vendor) {
+        if (vendor == null) {
+            throw new IllegalArgumentException("Vendor details are required.");
+        }
 
         if (vendor.getVendorId() == null
                 || vendor.getVendorId().isBlank()) {
@@ -50,106 +87,80 @@ public class VendorService {
                 || vendor.getVendorName().isBlank()) {
             throw new IllegalArgumentException("Vendor name is required.");
         }
-
-        String id = vendor.getVendorId().trim();
-
-        if (vendors.containsKey(id)) {
-            throw new IllegalArgumentException("Vendor ID already exists.");
-        }
-
-        if (vendor.getPrice() < 0) {
-            throw new IllegalArgumentException("Price cannot be negative.");
-        }
-
-        vendor.setVendorId(id);
-        vendors.put(id, vendor);
-
-        saveToFile();
-
-        return vendor;
     }
 
-    // UPDATE: Update vendor
-    public Optional<Vendor> updateVendor(
-            String vendorId, Vendor updatedVendor) {
-
-        Vendor existingVendor = vendors.get(vendorId);
-
-        if (existingVendor == null) {
-            return Optional.empty();
-        }
-
-        if (updatedVendor.getVendorName() == null
-                || updatedVendor.getVendorName().isBlank()) {
-            throw new IllegalArgumentException("Vendor name is required.");
-        }
-
-        if (updatedVendor.getPrice() < 0) {
-            throw new IllegalArgumentException("Price cannot be negative.");
-        }
-
-        existingVendor.setVendorName(updatedVendor.getVendorName());
-        existingVendor.setCategory(updatedVendor.getCategory());
-        existingVendor.setContactNumber(updatedVendor.getContactNumber());
-        existingVendor.setEmail(updatedVendor.getEmail());
-        existingVendor.setPrice(updatedVendor.getPrice());
-        existingVendor.setAvailability(updatedVendor.getAvailability());
-
-        saveToFile();
-
-        return Optional.of(existingVendor);
-    }
-
-    // DELETE: Delete vendor
-    public boolean deleteVendor(String vendorId) {
-
-        Vendor removedVendor = vendors.remove(vendorId);
-
-        if (removedVendor != null) {
-            saveToFile();
-            return true;
-        }
-
-        return false;
-    }
-
-    // SAVE: Write vendor data to JSON file
-    private void saveToFile() {
-        try {
-            objectMapper.writerWithDefaultPrettyPrinter().writeValue(
-                    storageFile.toFile(),
-                    new ArrayList<>(vendors.values())
-            );
-        } catch (RuntimeException e)  {
-            throw new IllegalStateException(
-                    "Could not save vendor data: " + e.getMessage(), e);
-        }
-    }
-
-    // LOAD: Read vendor data when the application starts
     private void loadFromFile() {
-
-        if (!Files.exists(storageFile)) {
+        if (!Files.exists(dataFile)) {
             return;
         }
 
         try {
-            List<Vendor> savedVendors = objectMapper.readValue(
-                    storageFile.toFile(),
-                    new TypeReference<List<Vendor>>() {}
-            );
+            List<String> lines =
+                    Files.readAllLines(dataFile, StandardCharsets.UTF_8);
 
-            for (Vendor vendor : savedVendors) {
-                if (vendor != null
-                        && vendor.getVendorId() != null
-                        && !vendor.getVendorId().isBlank()) {
-                    vendors.put(vendor.getVendorId(), vendor);
+            for (String line : lines) {
+                if (line.isBlank()) {
+                    continue;
                 }
+
+                String[] fields = line.split("\\|", -1);
+
+                if (fields.length != 7) {
+                    continue;
+                }
+
+                Vendor vendor = new Vendor();
+                vendor.setVendorId(fields[0]);
+                vendor.setVendorName(fields[1]);
+                vendor.setCategory(fields[2]);
+                vendor.setContactNumber(fields[3]);
+                vendor.setEmail(fields[4]);
+                vendor.setPrice(Double.parseDouble(fields[5]));
+                vendor.setAvailability(fields[6]);
+
+                vendors.put(vendor.getVendorId(), vendor);
             }
 
-        } catch (RuntimeException e) {
-            System.err.println(
-                    "Could not load vendor data: " + e.getMessage());
+        } catch (IOException | NumberFormatException e) {
+            throw new IllegalStateException(
+                    "Could not load vendor data from "
+                            + dataFile.toAbsolutePath(), e);
         }
+    }
+
+    private void saveToFile() {
+        List<String> lines = new ArrayList<>();
+
+        for (Vendor vendor : vendors.values()) {
+            String line = String.join("|",
+                    safe(vendor.getVendorId()),
+                    safe(vendor.getVendorName()),
+                    safe(vendor.getCategory()),
+                    safe(vendor.getContactNumber()),
+                    safe(vendor.getEmail()),
+                    Double.toString(vendor.getPrice()),
+                    safe(vendor.getAvailability()));
+
+            lines.add(line);
+        }
+
+        try {
+            Files.write(
+                    dataFile,
+                    lines,
+                    StandardCharsets.UTF_8
+            );
+
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                    "Could not save vendor data to "
+                            + dataFile.toAbsolutePath(), e);
+        }
+    }
+
+    private String safe(String value) {
+        return value == null ? "" : value.replace("|", "/")
+                                    .replace("\n", " ")
+                                    .replace("\r", " ");
     }
 }
