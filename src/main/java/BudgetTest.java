@@ -6,15 +6,31 @@ public class BudgetTest {
 
         BudgetService service = new BudgetService();
 
+
         Budget budget = new Budget(
-                "BG001",
+                "BG002",
                 "W001",
-                "Catering",
-                150000,
-                "Food package"
+                "Photography",
+                50000,
+                "Wedding photography package"
         );
 
-        service.addBudget(budget);
+        boolean exists = false;
+
+        for (Budget b : service.getAllBudgets()) {
+            if (b.getBudgetId().equals(budget.getBudgetId())) {
+                exists = true;
+                break;
+            }
+        }
+
+        if (!exists) {
+            service.addBudget(budget);
+            System.out.println("Budget added and saved.");
+        } else {
+            System.out.println("Budget already exists.");
+        }
+
 
         Budget updatedBudget = new Budget(
                 "BG001",
