@@ -7,6 +7,12 @@ public class Budget {
     private String description;
     private double amount;
 
+    // Empty constructor - required for JSON conversion
+    public Budget() {
+    }
+
+
+    // Parameterized constructor
     public Budget(String budgetId, String weddingId, String category, double amount, String description) {
         this.budgetId = budgetId;
         this.weddingId = weddingId;

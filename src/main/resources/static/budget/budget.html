@@ -266,6 +266,9 @@
 
 
 <script>
+
+    const API_URL = "/api/budgets";
+
     const form = document.getElementById("budgetForm");
     const table = document.getElementById("budgetTable");
     const totalDisplay = document.getElementById("totalBudget");
@@ -274,18 +277,53 @@
     let budgets = [];
     let editingId = null;
 
+    function showMessage(text, isError = false) {
+        message.textContent = text;
+        message.style.color = isError ? "#b42318" : "#287548";
+    }
+
+    async function requestApi(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                ...options.headers
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Request failed: HTTP " + response.status);
+        }
+
+        return response;
+    }
+
+    async function loadBudgets() {
+        try {
+            const response = await requestApi(API_URL);
+            budgets = await response.json();
+            renderBudgets();
+        } catch (error) {
+            showMessage(
+                "Could not load budgets. Check whether Spring Boot is running.",
+                true
+            );
+            console.error(error);
+        }
+    }
+
     function renderBudgets() {
         table.innerHTML = "";
 
         const total = budgets.reduce(
-            (sum, budget) => sum + budget.amount, 0
+            (sum, budget) => sum + Number(budget.amount || 0),
+            0
         );
 
-        totalDisplay.textContent = "LKR " +
-            total.toLocaleString("en-LK", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+        totalDisplay.textContent = "LKR " + total.toLocaleString("en-LK", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 
         if (budgets.length === 0) {
             table.innerHTML =
@@ -297,25 +335,27 @@
             const row = document.createElement("tr");
 
             [
-                budget.id,
+                budget.budgetId,
                 budget.weddingId,
                 budget.category,
-                "LKR " + budget.amount.toLocaleString(),
+                "LKR " + Number(budget.amount).toLocaleString("en-LK"),
                 budget.description
             ].forEach(value => {
                 const cell = document.createElement("td");
-                cell.textContent = value;
+                cell.textContent = value ?? "";
                 row.appendChild(cell);
             });
 
             const actions = document.createElement("td");
+            actions.className = "actions";
+
             const editButton = document.createElement("button");
             editButton.textContent = "Edit";
             editButton.className = "secondary";
             editButton.type = "button";
 
             editButton.addEventListener("click", () => {
-                document.getElementById("budgetId").value = budget.id;
+                document.getElementById("budgetId").value = budget.budgetId;
                 document.getElementById("budgetId").readOnly = true;
                 document.getElementById("weddingId").value = budget.weddingId;
                 document.getElementById("category").value = budget.category;
@@ -323,13 +363,14 @@
                 document.getElementById("description").value =
                     budget.description;
 
-                editingId = budget.id;
+                editingId = budget.budgetId;
                 document.getElementById("formTitle").textContent =
                     "Update Budget Item";
                 document.getElementById("saveButton").textContent =
                     "Update Budget";
                 document.getElementById("cancelButton").hidden = false;
-                message.textContent = "";
+                showMessage("");
+
                 form.scrollIntoView({ behavior: "smooth" });
             });
 
@@ -338,79 +379,129 @@
             deleteButton.className = "secondary";
             deleteButton.type = "button";
 
-            deleteButton.addEventListener("click", () => {
-                if (confirm("Delete budget " + budget.id + "?")) {
-                    budgets = budgets.filter(item => item.id !== budget.id);
-                    renderBudgets();
-                    message.textContent = "Budget deleted from this page.";
+            deleteButton.addEventListener("click", async () => {
+                if (!confirm("Delete budget " + budget.budgetId + "?")) {
+                    return;
+                }
+
+                try {
+                    const response = await requestApi(
+                        API_URL + "/" + encodeURIComponent(budget.budgetId),
+                        { method: "DELETE" }
+                    );
+
+                    const deleted = await response.json();
+
+                    if (!deleted) {
+                        showMessage("Budget was not found.", true);
+                        return;
+                    }
+
+                    await loadBudgets();
+                    showMessage("Budget deleted successfully.");
+                } catch (error) {
+                    showMessage("Could not delete the budget.", true);
+                    console.error(error);
                 }
             });
 
-            actions.className = "actions";
             actions.append(editButton, deleteButton);
             row.appendChild(actions);
             table.appendChild(row);
         });
     }
 
-    form.addEventListener("submit", event => {
+    function resetForm() {
+        form.reset();
+        editingId = null;
+
+        document.getElementById("budgetId").readOnly = false;
+        document.getElementById("formTitle").textContent = "Add Budget Item";
+        document.getElementById("saveButton").textContent = "Add Budget";
+        document.getElementById("cancelButton").hidden = true;
+    }
+
+    form.addEventListener("submit", async event => {
         event.preventDefault();
 
-        const id = document.getElementById("budgetId").value.trim();
+        const budgetId = document.getElementById("budgetId").value.trim();
         const weddingId = document.getElementById("weddingId").value.trim();
         const category = document.getElementById("category").value;
         const amount = Number(document.getElementById("amount").value);
         const description =
             document.getElementById("description").value.trim();
 
-        if (!id || !weddingId || !category || !description ||
-            !Number.isFinite(amount) || amount <= 0) {
-            message.textContent = "Please enter valid budget details.";
+        if (
+            !budgetId || !weddingId || !category || !description ||
+            !Number.isFinite(amount) || amount <= 0
+        ) {
+            showMessage("Please enter valid budget details.", true);
             return;
         }
 
         const duplicate = budgets.some(
-            item => item.id === id && item.id !== editingId
+            item => item.budgetId === budgetId && item.budgetId !== editingId
         );
 
         if (duplicate) {
-            message.textContent = "This Budget ID already exists.";
+            showMessage("This Budget ID already exists.", true);
             return;
         }
 
-        const budget = { id, weddingId, category, amount, description };
+        const budget = {
+            budgetId,
+            weddingId,
+            category,
+            amount,
+            description
+        };
 
-        if (editingId !== null) {
-            budgets = budgets.map(item =>
-                item.id === editingId ? budget : item
+        try {
+            if (editingId !== null) {
+                const response = await requestApi(
+                    API_URL + "/" + encodeURIComponent(editingId),
+                    {
+                        method: "PUT",
+                        body: JSON.stringify(budget)
+                    }
+                );
+
+                const updated = await response.json();
+
+                if (!updated) {
+                    showMessage("Budget was not found for updating.", true);
+                    return;
+                }
+
+                resetForm();
+                await loadBudgets();
+                showMessage("Budget updated successfully.");
+            } else {
+                await requestApi(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(budget)
+                });
+
+                resetForm();
+                await loadBudgets();
+                showMessage("Budget added successfully.");
+            }
+        } catch (error) {
+            showMessage(
+                "Could not save the budget. Check the backend and try again.",
+                true
             );
-            message.textContent = "Budget updated on this page.";
-        } else {
-            budgets.push(budget);
-            message.textContent = "Budget added to this page.";
+            console.error(error);
         }
-
-        form.reset();
-        editingId = null;
-        document.getElementById("budgetId").readOnly = false;
-        document.getElementById("formTitle").textContent = "Add Budget Item";
-        document.getElementById("saveButton").textContent = "Add Budget";
-        document.getElementById("cancelButton").hidden = true;
-
-        renderBudgets();
     });
 
     document.getElementById("cancelButton").addEventListener("click", () => {
-        form.reset();
-        editingId = null;
-        document.getElementById("budgetId").readOnly = false;
-        document.getElementById("formTitle").textContent = "Add Budget Item";
-        document.getElementById("saveButton").textContent = "Add Budget";
-        document.getElementById("cancelButton").hidden = true;
-        message.textContent = "";
+        resetForm();
+        showMessage("");
     });
 
-    renderBudgets();
+    loadBudgets();
+
 </script>
 </body>
 </html>
