@@ -18,7 +18,9 @@ public class CustomerService {
                 customer.getCustomerId().trim() + "," +
                         customer.getName().trim() + "," +
                         customer.getPhone().trim() + "," +
-                        customer.getEmail().trim() + "\n"
+                        customer.getEmail().trim() + "," +
+                        (customer.getPassword() == null ? "" : customer.getPassword()) +
+                        "\n"
         );
 
         writer.close();
@@ -55,6 +57,10 @@ public class CustomerService {
                         data[3].trim()
                 );
 
+                if (data.length >= 5) {
+                    customer.setPassword(data[4]);
+                }
+
                 customers.add(customer);
             }
         }
@@ -78,27 +84,34 @@ public class CustomerService {
 
             if (existingId.equalsIgnoreCase(updateId)) {
 
-                String name = updatedCustomer.getName().trim();
-                String phone = updatedCustomer.getPhone().trim();
-                String email = updatedCustomer.getEmail().trim();
+                String name = updatedCustomer.getName();
+                String phone = updatedCustomer.getPhone();
+                String email = updatedCustomer.getEmail();
+                String password = updatedCustomer.getPassword();
 
-                if (name.isEmpty()) {
+                if (name == null || name.trim().isEmpty()) {
                     name = customer.getName();
                 }
 
-                if (phone.isEmpty()) {
+                if (phone == null || phone.trim().isEmpty()) {
                     phone = customer.getPhone();
                 }
 
-                if (email.isEmpty()) {
+                if (email == null || email.trim().isEmpty()) {
                     email = customer.getEmail();
+                }
+
+                if (password == null || password.isEmpty()) {
+                    password = customer.getPassword();
                 }
 
                 writer.write(
                         existingId + "," +
-                                name + "," +
-                                phone + "," +
-                                email + "\n"
+                                name.trim() + "," +
+                                phone.trim() + "," +
+                                email.trim() + "," +
+                                (password == null ? "" : password) +
+                                "\n"
                 );
 
             } else {
@@ -107,7 +120,9 @@ public class CustomerService {
                         existingId + "," +
                                 customer.getName().trim() + "," +
                                 customer.getPhone().trim() + "," +
-                                customer.getEmail().trim() + "\n"
+                                customer.getEmail().trim() + "," +
+                                (customer.getPassword() == null ? "" : customer.getPassword()) +
+                                "\n"
                 );
             }
         }
@@ -133,11 +148,15 @@ public class CustomerService {
                         existingId + "," +
                                 customer.getName().trim() + "," +
                                 customer.getPhone().trim() + "," +
-                                customer.getEmail().trim() + "\n"
+                                customer.getEmail().trim() + "," +
+                                (customer.getPassword() == null ? "" : customer.getPassword()) +
+                                "\n"
                 );
             }
         }
 
         writer.close();
     }
+
+
 }

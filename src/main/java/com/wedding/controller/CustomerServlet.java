@@ -15,6 +15,7 @@ import java.util.List;
 @WebServlet("/customers")
 public class CustomerServlet extends HttpServlet {
 
+
     private CustomerService customerService = new CustomerService();
 
     @Override
@@ -25,6 +26,7 @@ public class CustomerServlet extends HttpServlet {
         String name = request.getParameter("name");
         String phone = request.getParameter("phone");
         String email = request.getParameter("email");
+        String password = request.getParameter("password");
         String action = request.getParameter("action");
 
         if (customerId != null) customerId = customerId.trim();
@@ -44,7 +46,8 @@ public class CustomerServlet extends HttpServlet {
 
             if ((name == null || name.isEmpty()) &&
                     (phone == null || phone.isEmpty()) &&
-                    (email == null || email.isEmpty())) {
+                    (email == null || email.isEmpty()) &&
+                    (password == null || password.isEmpty())) {
 
                 response.getWriter().println(
                         "ERROR: Enter at least one field to update."
@@ -86,6 +89,10 @@ public class CustomerServlet extends HttpServlet {
                     email == null ? "" : email
             );
 
+            if (password != null && !password.isEmpty()) {
+                customer.setPassword(password);
+            }
+
             customerService.updateCustomer(customer);
 
             response.sendRedirect("customers");
@@ -123,6 +130,13 @@ public class CustomerServlet extends HttpServlet {
                 return;
             }
 
+            if (password == null || password.trim().length() < 8) {
+                response.getWriter().println(
+                        "ERROR: Password must contain at least 8 characters."
+                );
+                return;
+            }
+
             List<Customer> customers = customerService.getCustomers();
 
             int nextNumber = 1;
@@ -154,6 +168,8 @@ public class CustomerServlet extends HttpServlet {
                     email
             );
 
+            customer.setPassword(password);
+
             customerService.addCustomer(customer);
 
             request.setAttribute("registeredCustomerId", newCustomerId);
@@ -173,4 +189,6 @@ public class CustomerServlet extends HttpServlet {
         request.getRequestDispatcher("customers.jsp")
                 .forward(request, response);
     }
+
+
 }
