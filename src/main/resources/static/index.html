@@ -439,7 +439,23 @@
         .toolbar h2 { flex: 0 0 82px; }
         .toolbar select { width: auto; min-width: 145px; flex: 1 1 150px; }
         .toolbar input { width: auto; flex: 1 1 180px; max-width: 240px; }
+        .toolbar .clear-filters {
+            flex: 0 0 auto;
+            background: #FFFFFF;
+            color: var(--charcoal);
+            border: 1px solid var(--gold);
+            padding: 10px 14px;
+        }
+        .toolbar .clear-filters:hover { background: #F2E7D5; }
         .table-wrap { margin-top: 16px; }
+        .table-wrap table { min-width: 620px; }
+        #resultsSummary { color: #77716B; font: 13px Arial, sans-serif; margin: 4px 0 10px; }
+        button:focus-visible, a:focus-visible { outline: 3px solid #B38A4B; outline-offset: 3px; }
+        .form-hint { color: #77716B; font: 12px/1.5 Arial, sans-serif; margin-top: 10px; }
+        @media (max-width: 850px) {
+            .toolbar .clear-filters { width: 100%; }
+            .table-wrap table { min-width: 650px; }
+        }
         @media (max-width: 850px) {
             .services-section { padding: 30px 14px; }
             .service-grid { grid-template-columns: minmax(0, 1fr); }
@@ -592,10 +608,10 @@
 
             <form id="vendorForm">
                 <label for="vendorId">Vendor ID</label>
-                <input id="vendorId" required placeholder="e.g. V002">
+                <input id="vendorId" name="vendorId" autocomplete="off" required maxlength="30" placeholder="e.g. V002">
 
                 <label for="vendorName">Vendor Name</label>
-                <input id="vendorName" required placeholder="Enter vendor name">
+                <input id="vendorName" name="vendorName" required maxlength="100" placeholder="Enter vendor name">
 
                 <label for="category">Category</label>
                 <select id="category" required>
@@ -611,13 +627,13 @@
                 </select>
 
                 <label for="contactNumber">Contact Number</label>
-                <input id="contactNumber" required placeholder="0771234567">
+                <input id="contactNumber" name="contactNumber" type="tel" autocomplete="tel" required maxlength="30" placeholder="0771234567">
 
                 <label for="email">Email</label>
-                <input id="email" type="email" required placeholder="vendor@email.com">
+                <input id="email" name="email" type="email" autocomplete="email" required maxlength="120" placeholder="vendor@email.com">
 
                 <label for="price">Price (LKR)</label>
-                <input id="price" type="number" min="0" step="0.01" required>
+                <input id="price" name="price" type="number" min="0" step="0.01" required inputmode="decimal">
 
                 <label for="availability">Availability</label>
                 <select id="availability">
@@ -632,6 +648,7 @@
                     <button type="button" class="secondary"
                             id="cancelButton" hidden>Cancel</button>
                 </div>
+                <p class="form-hint">Required fields must be completed. Vendor data is saved by the backend.</p>
             </form>
         </div>
 
@@ -657,9 +674,11 @@
                 <option value="Unavailable">Unavailable</option>
             </select>
 
-            <input id="searchInput" type="search"
-                   placeholder="Search vendors...">
+            <input id="searchInput" type="search" aria-label="Search vendors"
+                   placeholder="Search name, email, category or ID...">
+            <button type="button" id="clearFiltersButton" class="clear-filters">Clear Filters</button>
         </div>
+        <p id="resultsSummary" aria-live="polite">Loading vendors...</p>
 
             <div class="table-wrap">
                 <table>
@@ -741,16 +760,19 @@
     }
 
     function renderVendors() {
-        const term = document.getElementById("searchInput").value.toLowerCase();
+        const term = document.getElementById("searchInput").value.trim().toLowerCase();
         const category = document.getElementById("categoryFilter").value;
         const availability = document.getElementById("availabilityFilter").value;
 
         const list = vendors.filter(v =>
             (!category || v.category === category) &&
             (!availability || v.availability === availability) &&
-            [v.vendorId, v.vendorName, v.category, v.contactNumber]
+            [v.vendorId, v.vendorName, v.category, v.contactNumber, v.email, v.price, v.availability]
                 .some(value => String(value ?? "").toLowerCase().includes(term))
         );
+
+        const summary = document.getElementById("resultsSummary");
+        summary.textContent = `Showing ${list.length} of ${vendors.length} vendor${vendors.length === 1 ? "" : "s"}`;
 
         if (!list.length) {
             table.innerHTML =
@@ -870,6 +892,12 @@
     document.getElementById("searchInput").addEventListener("input", renderVendors);
     document.getElementById("categoryFilter").addEventListener("change", renderVendors);
     document.getElementById("availabilityFilter").addEventListener("change", renderVendors);
+    document.getElementById("clearFiltersButton").addEventListener("click", () => {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("categoryFilter").value = "";
+        document.getElementById("availabilityFilter").value = "";
+        renderVendors();
+    });
 
     document.querySelectorAll("[data-choose-category]").forEach(button => {
         button.addEventListener("click", () => {
