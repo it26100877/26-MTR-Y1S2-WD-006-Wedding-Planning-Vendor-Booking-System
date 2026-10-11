@@ -1,5 +1,5 @@
-import model.Budget;
-import service.BudgetService;
+import lk.sliit.group006.model.Budget;
+import lk.sliit.group006.service.BudgetService;
 
 public class BudgetTest {
     public static void main(String[] args) {

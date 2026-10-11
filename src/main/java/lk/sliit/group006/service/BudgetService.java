@@ -1,7 +1,7 @@
 
-package service;
+package lk.sliit.group006.service;
 
-import model.Budget;
+import lk.sliit.group006.model.Budget;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package model;
+package lk.sliit.group006.model;
 
 public class Budget {
     private String budgetId;
