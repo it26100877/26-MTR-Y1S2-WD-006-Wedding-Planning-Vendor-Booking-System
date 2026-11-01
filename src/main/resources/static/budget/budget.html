@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -118,29 +117,6 @@
             margin-top: 7px;
         }
 
-        .coming-section {
-            background: #FFFFFF;
-            border: 1px solid #E9DFD2;
-            border-radius: 10px;
-            min-height: 180px;
-            padding: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .coming-section h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            color: #8F1238;
-            margin-bottom: 10px;
-        }
-
-        .coming-section p {
-            font-size: 13px;
-            color: #81746D;
-        }
         /* Budget Overview Cards */
 
         .overview-section {
@@ -204,6 +180,102 @@
                 grid-template-columns: 1fr;
             }
         }
+
+
+        /* Recent Budget Items Table */
+
+        .expenses-section {
+            margin-top: 35px;
+            margin-bottom: 30px;
+        }
+
+        .table-container {
+            background: #FFFFFF;
+            border: 1px solid #E9DFD2;
+            border-radius: 10px;
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 25px;
+            color: #351E25;
+            font-weight: 500;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .expense-table thead {
+            background: #F8F4EE;
+        }
+
+        .expense-table th {
+            text-align: left;
+            padding: 15px 12px;
+            color: #554B45;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid #E9DFD2;
+        }
+
+        .expense-table td {
+            padding: 16px 12px;
+            font-size: 13px;
+            color: #554B45;
+            border-bottom: 1px solid #F0EAE2;
+        }
+
+        .expense-table tbody tr:hover {
+            background: #FCFAF7;
+        }
+
+        .expense-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .budget-id {
+            font-weight: 600;
+            color: #8F1238;
+        }
+
+        .budget-amount {
+            font-weight: 600;
+            color: #8F1238;
+            white-space: nowrap;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 35px !important;
+            color: #91847B !important;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px;
+            }
+
+            .table-header {
+                align-items: flex-start;
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .top-header {
@@ -321,61 +393,152 @@
 
     </section>
 
+
+
+    <!-- Recent Budget Items -->
+    <section class="expenses-section">
+
+        <div class="table-container">
+
+            <div class="table-header">
+                <h2 class="table-title">Recent Budget Items</h2>
+            </div>
+
+            <div class="table-wrapper">
+                <table class="expense-table">
+                    <thead>
+                    <tr>
+                        <th>Budget ID</th>
+                        <th>Wedding ID</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount (LKR)</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="budgetTable">
+                    <tr>
+                        <td colspan="5" class="empty-message">
+                            Loading budget items...
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
 </main>
 <script>
-    async function loadBudgetOverview() {
+    const API_URL = "/api/budgets";
+
+    // Format numeric amounts as Sri Lankan Rupees.
+    function formatLkr(amount) {
+        const value = Number(amount);
+        if (!Number.isFinite(value)) {
+            return "LKR 0.00";
+        }
+
+        return "LKR " + value.toLocaleString("en-LK", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    // Create a table cell using textContent to safely display API data.
+    function createCell(value, className = "") {
+        const cell = document.createElement("td");
+        cell.textContent = value == null ? "" : String(value);
+        if (className) {
+            cell.className = className;
+        }
+        return cell;
+    }
+
+    function renderBudgetTable(budgets) {
+        const tableBody = document.getElementById("budgetTable");
+        tableBody.replaceChildren();
+
+        if (!Array.isArray(budgets) || budgets.length === 0) {
+            const row = document.createElement("tr");
+            const cell = createCell("No budget items found.", "empty-message");
+            cell.colSpan = 5;
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+            return;
+        }
+
+        budgets.forEach((budget) => {
+            const row = document.createElement("tr");
+
+            row.appendChild(createCell(budget.budgetId, "budget-id"));
+            row.appendChild(createCell(budget.weddingId));
+            row.appendChild(createCell(budget.category));
+            row.appendChild(createCell(budget.description));
+            row.appendChild(createCell(formatLkr(budget.amount), "budget-amount"));
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    async function loadBudgetData() {
         try {
-            const response = await fetch("/api/budgets");
+            const response = await fetch(API_URL);
 
             if (!response.ok) {
-                throw new Error("Failed to load budgets");
+                throw new Error("Budget API request failed: HTTP " + response.status);
             }
 
             const budgets = await response.json();
 
-            // Calculate total budget
+            if (!Array.isArray(budgets)) {
+                throw new Error("The Budget API did not return a list of records.");
+            }
+
+            // Update the overview cards.
             const total = budgets.reduce((sum, budget) => {
-                return sum + (Number(budget.amount) || 0);
+                const amount = Number(budget.amount);
+                return sum + (Number.isFinite(amount) ? amount : 0);
             }, 0);
 
-            // Count budget records
-            const count = budgets.length;
-
-            // Count unique categories
             const categories = new Set(
                 budgets
-                    .map(budget => budget.category?.trim().toLowerCase())
-                    .filter(Boolean)
+                    .map(budget => String(budget.category ?? "").trim().toLowerCase())
+                    .filter(category => category.length > 0)
             );
 
-            // Format LKR currency
-            const formattedTotal = "LKR " + total.toLocaleString("en-LK", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            document.getElementById("totalBudget").textContent = formatLkr(total);
+            document.getElementById("budgetCount").textContent = budgets.length;
+            document.getElementById("categoryCount").textContent = categories.size;
 
-            // Update overview cards
-            document.getElementById("totalBudget").textContent =
-                formattedTotal;
-
-            document.getElementById("budgetCount").textContent =
-                count;
-
-            document.getElementById("categoryCount").textContent =
-                categories.size;
+            // Display the same API records in the Recent Budget Items table.
+            renderBudgetTable(budgets);
 
         } catch (error) {
-            console.error("Budget API Error:", error);
+            console.error("Budget loading error:", error);
 
-            document.getElementById("totalBudget").textContent =
-                "Unavailable";
-
+            document.getElementById("totalBudget").textContent = "Unavailable";
             document.getElementById("budgetCount").textContent = "-";
             document.getElementById("categoryCount").textContent = "-";
+
+            const tableBody = document.getElementById("budgetTable");
+            tableBody.replaceChildren();
+
+            const row = document.createElement("tr");
+            const cell = createCell(
+                "Could not load budget items. Check that Spring Boot is running and try refreshing.",
+                "empty-message"
+            );
+            cell.colSpan = 5;
+            row.appendChild(cell);
+            tableBody.appendChild(row);
         }
     }
 
-    loadBudgetOverview();
+    // Load the overview and table together from the existing GET endpoint.
+    loadBudgetData();
 </script>
 </body>
 </html>
