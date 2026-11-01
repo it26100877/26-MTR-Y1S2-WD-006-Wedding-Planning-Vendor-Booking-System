@@ -1698,6 +1698,86 @@
             }
         }
 
+        /* Simpler Add Expense form: category calculators are optional and collapsed by default. */
+        .category-details-disclosure {
+            grid-column: 1 / -1;
+            border: 1px solid #D7C9AD;
+            border-radius: 9px;
+            background: rgba(251, 250, 247, 0.94);
+            overflow: hidden;
+        }
+
+        .category-details-disclosure > summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 15px 17px;
+            color: #8F1238;
+            cursor: pointer;
+            list-style: none;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .category-details-disclosure > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .category-details-disclosure > summary::after {
+            content: "+";
+            flex: 0 0 auto;
+            color: #9B8356;
+            font-size: 23px;
+            line-height: 1;
+        }
+
+        .category-details-disclosure[open] > summary::after {
+            content: "−";
+        }
+
+        .category-details-summary-hint {
+            margin-left: auto;
+            color: #817A70;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .category-details-disclosure .category-specific-section {
+            margin: 0 14px 14px;
+            padding: 17px;
+            background: #F6F4EF;
+        }
+
+        .category-details-disclosure[open] > summary {
+            border-bottom: 1px solid #E7E1D6;
+        }
+
+        .expense-form-grid > .form-field {
+            min-width: 0;
+        }
+
+        @media (max-width: 700px) {
+            .category-details-disclosure > summary {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .category-details-summary-hint {
+                margin-left: 0;
+                text-align: left;
+            }
+            .category-details-disclosure > summary::after {
+                position: absolute;
+                right: 28px;
+            }
+            .category-details-disclosure > summary {
+                position: relative;
+                padding-right: 48px;
+            }
+        }
+
         /* Respect the HTML hidden attribute even on elements styled with display:flex. */
         [hidden] {
             display: none !important;
@@ -1979,13 +2059,19 @@
                         <span class="form-error" id="amountError"></span>
                     </div>
 
-                    <div class="category-specific-section full-width" id="categorySpecificSection" hidden>
-                        <div class="category-specific-heading">
-                            <h3 id="categorySpecificTitle">Category Details</h3>
-                            <p id="categorySpecificHelp">Enter the details for this expense category.</p>
+                    <details class="category-details-disclosure full-width" id="categoryDetailsDisclosure" hidden>
+                        <summary>
+                            <span class="category-details-summary-title" id="categoryDetailsSummaryTitle">Add optional category details</span>
+                            <span class="category-details-summary-hint">Only open this if you want the system to calculate the total for you.</span>
+                        </summary>
+                        <div class="category-specific-section" id="categorySpecificSection" hidden>
+                            <div class="category-specific-heading">
+                                <h3 id="categorySpecificTitle">Category Details</h3>
+                                <p id="categorySpecificHelp">Enter the details for this expense category.</p>
+                            </div>
+                            <div class="expense-form-grid category-detail-grid" id="categoryDetailGrid"></div>
                         </div>
-                        <div class="expense-form-grid category-detail-grid" id="categoryDetailGrid"></div>
-                    </div>
+                    </details>
 
                     <div class="form-field full-width" id="customCategoryField" hidden>
                         <label for="expenseCustomCategory">Custom Category Name</label>
@@ -2230,6 +2316,10 @@
 
     // Track whether the form is creating a new record or editing an existing one.
     let editingBudgetId = null;
+    let categoryCalculatorEnabled = false;
+    let manualAmountBeforeCalculator = "";
+    let preservedEditingDetails = {};
+    let preservedEditingDetailsCategory = "";
 
     function getNextBudgetId() {
         const usedNumbers = allBudgets
@@ -2262,7 +2352,12 @@
         const formMessage = document.getElementById("expenseFormMessage");
 
         editingBudgetId = null;
+        categoryCalculatorEnabled = false;
+        manualAmountBeforeCalculator = "";
+        preservedEditingDetails = {};
+        preservedEditingDetailsCategory = "";
         document.getElementById("expenseForm").reset();
+        document.getElementById("categoryDetailsDisclosure").open = false;
         populateExpenseCategoryOptions(allBudgets, "");
         setExpenseFormMode(false);
         renderCategorySpecificFields("", {});
@@ -2287,6 +2382,11 @@
         const parsedDescription = parseStoredDescription(String(budget.description ?? ""));
 
         editingBudgetId = String(budget.budgetId ?? "");
+        categoryCalculatorEnabled = false;
+        manualAmountBeforeCalculator = "";
+        preservedEditingDetails = { ...parsedDescription.details };
+        preservedEditingDetailsCategory = String(budget.category ?? "");
+        document.getElementById("categoryDetailsDisclosure").open = false;
         document.getElementById("expenseBudgetId").value = budget.budgetId ?? "";
         document.getElementById("expenseWeddingId").value = budget.weddingId ?? "";
         populateExpenseCategoryOptions(allBudgets, String(budget.category ?? ""));
@@ -2296,8 +2396,11 @@
 
         setExpenseFormMode(true);
         renderCategorySpecificFields(String(budget.category ?? ""), parsedDescription.details);
-        // For legacy entries without saved category details, keep the stored total visible.
-        if (Object.keys(parsedDescription.details).length === 0) {
+        // Reopen optional details for an item that already has a saved category breakdown.
+        if (Object.keys(parsedDescription.details).length > 0 && CATEGORY_FIELD_SCHEMAS[budget.category]) {
+            manualAmountBeforeCalculator = String(budget.amount ?? "");
+            document.getElementById("categoryDetailsDisclosure").open = true;
+        } else {
             document.getElementById("expenseAmount").value = budget.amount ?? "";
         }
 
@@ -2312,7 +2415,12 @@
     function closeExpenseForm() {
         document.getElementById("expenseForm").reset();
         document.getElementById("expenseFormSection").hidden = true;
+        document.getElementById("categoryDetailsDisclosure").open = false;
         editingBudgetId = null;
+        categoryCalculatorEnabled = false;
+        manualAmountBeforeCalculator = "";
+        preservedEditingDetails = {};
+        preservedEditingDetailsCategory = "";
         setExpenseFormMode(false);
         renderCategorySpecificFields("", {});
 
@@ -2560,8 +2668,8 @@
         amountInput.placeholder = isManual ? "Enter the total amount" : "Calculated from category details";
         amountLabel.textContent = isManual ? "Amount (LKR)" : "Calculated Amount (LKR)";
         amountHelp.textContent = isManual
-            ? "Enter the total amount for this custom expense."
-            : "This amount is calculated automatically using the category details.";
+            ? "Enter the full agreed total. Category details are optional."
+            : "Calculated automatically from the optional category details below.";
     }
 
     function addCategoryNote(parent, text) {
@@ -2777,14 +2885,21 @@
 
     function renderCategorySpecificFields(selectedValue, initialValues = {}) {
         const section = document.getElementById("categorySpecificSection");
+        const disclosure = document.getElementById("categoryDetailsDisclosure");
+        const disclosureTitle = document.getElementById("categoryDetailsSummaryTitle");
         const grid = document.getElementById("categoryDetailGrid");
         const customField = document.getElementById("customCategoryField");
         const customInput = document.getElementById("expenseCustomCategory");
         const categoryHelp = document.getElementById("categorySpecificHelp");
 
         grid.replaceChildren();
+        disclosure.open = false;
+        disclosure.hidden = true;
+        categoryCalculatorEnabled = false;
+        manualAmountBeforeCalculator = "";
         customField.hidden = selectedValue !== CUSTOM_CATEGORY_VALUE;
-        section.hidden = !selectedValue;
+        section.hidden = true;
+        setAmountInputMode(true);
 
         if (selectedValue === CUSTOM_CATEGORY_VALUE) {
             addCategoryNote(grid, "Enter a name for your new category. The amount for a custom category is entered manually.");
@@ -2800,19 +2915,17 @@
             if (selectedValue) {
                 addCategoryNote(grid, "This is a saved custom category. Enter its amount manually and describe the expense below.");
                 categoryHelp.textContent = "Custom category details";
-                setAmountInputMode(true);
-                document.getElementById("expenseAmount").value = initialValues.amount || "";
-            } else {
-                setAmountInputMode(false);
-                document.getElementById("expenseAmount").value = "";
-                document.getElementById("expenseAmount").placeholder = "Select a category first";
             }
+            setAmountInputMode(true);
             return;
         }
 
         customInput.value = "";
+        disclosure.hidden = false;
+        disclosureTitle.textContent = `Add ${selectedValue} details for automatic calculation (optional)`;
+        section.hidden = false;
         categoryHelp.textContent = schema.help;
-        setAmountInputMode(false);
+        setAmountInputMode(true);
 
         // Convert older Makeup & Hair records that used one shared rate into individual rows.
         const valuesToRender = { ...initialValues };
@@ -2833,10 +2946,12 @@
         const formulaNote = document.createElement("p");
         formulaNote.className = "calculation-status";
         formulaNote.id = "categoryCalculationNote";
-        formulaNote.textContent = `Calculation: ${schema.formula}`;
+        formulaNote.textContent = `Automatic calculation: ${schema.formula}`;
         grid.appendChild(formulaNote);
 
-        calculateCategoryAmount();
+        // The quick-add path is manual by default. The calculator activates only
+        // when the user expands the optional details panel.
+        setAmountInputMode(true);
     }
 
     function readCategoryDetails() {
@@ -2850,6 +2965,10 @@
     function validateCategoryDetails(selectedValue, categoryName) {
         const errors = {};
         const customInput = document.getElementById("expenseCustomCategory");
+
+        if (!categoryCalculatorEnabled && selectedValue !== CUSTOM_CATEGORY_VALUE) {
+            return errors;
+        }
 
         if (selectedValue === CUSTOM_CATEGORY_VALUE) {
             if (!categoryName) {
@@ -2939,6 +3058,8 @@
         const selectedValue = document.getElementById("expenseCategory").value;
         const amountInput = document.getElementById("expenseAmount");
         const details = readCategoryDetails();
+
+        if (!categoryCalculatorEnabled) return;
 
         if (!selectedValue || selectedValue === CUSTOM_CATEGORY_VALUE || !CATEGORY_FIELD_SCHEMAS[selectedValue]) {
             if (selectedValue !== CUSTOM_CATEGORY_VALUE && !CATEGORY_FIELD_SCHEMAS[selectedValue]) {
@@ -3120,7 +3241,11 @@
         const category = getSelectedCategoryName();
         const description = document.getElementById("expenseDescription").value.trim();
         const amount = Number(document.getElementById("expenseAmount").value);
-        const details = readCategoryDetails();
+        const details = categoryCalculatorEnabled
+            ? readCategoryDetails()
+            : (editingBudgetId !== null && category === preservedEditingDetailsCategory
+                ? preservedEditingDetails
+                : {});
         const saveButton = document.getElementById("saveExpenseButton");
 
         clearAllFieldErrors();
@@ -3179,7 +3304,12 @@
 
             await loadBudgetData();
             document.getElementById("expenseForm").reset();
+            document.getElementById("categoryDetailsDisclosure").open = false;
             editingBudgetId = null;
+            categoryCalculatorEnabled = false;
+            manualAmountBeforeCalculator = "";
+            preservedEditingDetails = {};
+            preservedEditingDetailsCategory = "";
             setExpenseFormMode(false);
             renderCategorySpecificFields("", {});
             try {
@@ -3211,6 +3341,11 @@
     // Category selector changes reveal the matching cost fields.
     function handleCategoryChange() {
         const selected = document.getElementById("expenseCategory").value;
+        categoryCalculatorEnabled = false;
+        manualAmountBeforeCalculator = "";
+        preservedEditingDetails = {};
+        preservedEditingDetailsCategory = "";
+        document.getElementById("categoryDetailsDisclosure").open = false;
         clearFieldError("category");
         clearFieldError("customCategory");
         clearCategoryDetailErrors();
@@ -3235,7 +3370,7 @@
     async function deleteBudgetItem(budget) {
         const budgetId = String(budget.budgetId ?? "");
         const confirmed = window.confirm(
-                `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
+            `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
         );
 
         if (!confirmed) {
@@ -3451,6 +3586,36 @@
                 message.className = "form-message";
             }
         });
+    });
+
+    document.getElementById("categoryDetailsDisclosure").addEventListener("toggle", () => {
+        const disclosure = document.getElementById("categoryDetailsDisclosure");
+        const amountInput = document.getElementById("expenseAmount");
+
+        if (disclosure.open) {
+            manualAmountBeforeCalculator = amountInput.value;
+            categoryCalculatorEnabled = true;
+            setAmountInputMode(false);
+            calculateCategoryAmount();
+        } else if (categoryCalculatorEnabled) {
+            const calculatedAmount = amountInput.value;
+            // When editing an existing item, retain any complete revised breakdown
+            // even if the user collapses the optional panel before saving.
+            if (editingBudgetId !== null &&
+                document.getElementById("expenseCategory").value === preservedEditingDetailsCategory) {
+                const detailErrors = validateCategoryDetails(
+                    document.getElementById("expenseCategory").value,
+                    getSelectedCategoryName()
+                );
+                if (Object.keys(detailErrors).length === 0) {
+                    preservedEditingDetails = readCategoryDetails();
+                }
+            }
+            categoryCalculatorEnabled = false;
+            setAmountInputMode(true);
+            amountInput.value = calculatedAmount || manualAmountBeforeCalculator || "";
+            manualAmountBeforeCalculator = "";
+        }
     });
 
     document.getElementById("expenseCategory").addEventListener("change", handleCategoryChange);
