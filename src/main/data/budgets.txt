@@ -1,1 +1,2 @@
 BG001|W001|Catering|175000.0|Updated food package
+BG002|W001|Catering|397500.0|Catering package for 250 guests [[BUDGET_DETAILS:%7B%22details%22%3A%7B%22guestCount%22%3A%22250%22%2C%22extraPlates%22%3A%2215%22%2C%22pricePerPlate%22%3A%221500%22%2C%22menuPackage%22%3A%22Buffet%20Package%22%7D%7D]]
