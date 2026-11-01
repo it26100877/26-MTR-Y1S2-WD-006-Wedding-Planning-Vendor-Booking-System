@@ -141,7 +141,69 @@
             font-size: 13px;
             color: #81746D;
         }
+        /* Budget Overview Cards */
 
+        .overview-section {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 25px;
+            color: #351E25;
+            margin-bottom: 18px;
+            font-weight: 500;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .overview-card {
+            background: #FFFFFF;
+            border: 1px solid #DDCFB9;
+            border-radius: 10px;
+            padding: 22px;
+            transition: 0.2s ease;
+        }
+
+        .overview-card:hover {
+            border-color: #C6A15B;
+            transform: translateY(-2px);
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: #74675F;
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            color: #8F1238;
+            font-weight: 600;
+        }
+
+        .card-description {
+            font-size: 12px;
+            color: #91847B;
+            margin-top: 8px;
+        }
+
+        .card-icon {
+            font-size: 22px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .top-header {
@@ -216,17 +278,104 @@
         </div>
     </section>
 
-    <section class="coming-section">
-        <div>
-            <h2>Budget Dashboard</h2>
-            <p>
-                Your budget management workspace is ready.
-                Overview and expense management will be added next.
-            </p>
+    <!-- Budget Overview -->
+    <section class="overview-section">
+
+        <h2 class="section-title">Budget Overview</h2>
+
+        <div class="overview-grid">
+
+            <!-- Total Budget -->
+            <div class="overview-card">
+                <div class="card-icon">💰</div>
+                <div class="card-label">Total Budget</div>
+                <div class="card-value" id="totalBudget">
+                    LKR 0.00
+                </div>
+                <div class="card-description">
+                    Total amount of all budget items
+                </div>
+            </div>
+
+            <!-- Budget Items -->
+            <div class="overview-card">
+                <div class="card-icon">📋</div>
+                <div class="card-label">Budget Items</div>
+                <div class="card-value" id="budgetCount">0</div>
+                <div class="card-description">
+                    Total recorded budget items
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="overview-card">
+                <div class="card-icon">🏷️</div>
+                <div class="card-label">Categories</div>
+                <div class="card-value" id="categoryCount">0</div>
+                <div class="card-description">
+                    Different expense categories
+                </div>
+            </div>
+
         </div>
+
     </section>
 
 </main>
+<script>
+    async function loadBudgetOverview() {
+        try {
+            const response = await fetch("/api/budgets");
 
+            if (!response.ok) {
+                throw new Error("Failed to load budgets");
+            }
+
+            const budgets = await response.json();
+
+            // Calculate total budget
+            const total = budgets.reduce((sum, budget) => {
+                return sum + (Number(budget.amount) || 0);
+            }, 0);
+
+            // Count budget records
+            const count = budgets.length;
+
+            // Count unique categories
+            const categories = new Set(
+                budgets
+                    .map(budget => budget.category?.trim().toLowerCase())
+                    .filter(Boolean)
+            );
+
+            // Format LKR currency
+            const formattedTotal = "LKR " + total.toLocaleString("en-LK", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // Update overview cards
+            document.getElementById("totalBudget").textContent =
+                formattedTotal;
+
+            document.getElementById("budgetCount").textContent =
+                count;
+
+            document.getElementById("categoryCount").textContent =
+                categories.size;
+
+        } catch (error) {
+            console.error("Budget API Error:", error);
+
+            document.getElementById("totalBudget").textContent =
+                "Unavailable";
+
+            document.getElementById("budgetCount").textContent = "-";
+            document.getElementById("categoryCount").textContent = "-";
+        }
+    }
+
+    loadBudgetOverview();
+</script>
 </body>
 </html>
