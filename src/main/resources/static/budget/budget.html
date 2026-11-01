@@ -1703,6 +1703,58 @@
             display: none !important;
         }
 
+
+
+        /* Éclat wedding background – soft floral frame with readable surfaces */
+        body {
+            background-color: #F6F4EF;
+            background-image:
+                    linear-gradient(
+                            rgba(248, 244, 238, 0.14),
+                            rgba(248, 244, 238, 0.14)
+                    ),
+                    url('/budget/images/budget-bg.png');
+            background-position: center top;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        /* Keep the page canvas transparent so the wedding image remains visible. */
+        .main-container {
+            background: transparent;
+        }
+
+        /* Light, slightly translucent surfaces preserve text and table readability. */
+        .overview-card,
+        .breakdown-card,
+        .table-container,
+        .expense-form-card {
+            background-color: rgba(251, 250, 247, 0.93);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+
+        .category-specific-section {
+            background-color: rgba(246, 244, 239, 0.94);
+        }
+
+        .people-pricing-row {
+            background-color: rgba(255, 255, 255, 0.96);
+        }
+
+        /* Keep the header and navigation calm and solid above the decorative page background. */
+        .top-header,
+        .navigation {
+            background-color: #FBFAF7;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+            }
+        }
+
     </style>
 </head>
 
@@ -3183,7 +3235,7 @@
     async function deleteBudgetItem(budget) {
         const budgetId = String(budget.budgetId ?? "");
         const confirmed = window.confirm(
-            `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
+                `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
         );
 
         if (!confirmed) {
