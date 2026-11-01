@@ -117,8 +117,7 @@
             margin-top: 7px;
         }
 
-        /* Budget Overview Cards */
-
+        /* Budget Overview */
         .overview-section {
             margin-top: 30px;
             margin-bottom: 30px;
@@ -132,18 +131,26 @@
             font-weight: 500;
         }
 
+        .overview-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+            gap: 18px;
+            align-items: stretch;
+        }
+
         .overview-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
         }
 
         .overview-card {
             background: #FFFFFF;
             border: 1px solid #DDCFB9;
             border-radius: 10px;
-            padding: 22px;
+            padding: 20px 17px;
             transition: 0.2s ease;
+            min-width: 0;
         }
 
         .overview-card:hover {
@@ -159,15 +166,17 @@
 
         .card-value {
             font-family: 'Playfair Display', serif;
-            font-size: 30px;
+            font-size: clamp(20px, 2vw, 29px);
             color: #8F1238;
             font-weight: 600;
+            overflow-wrap: anywhere;
         }
 
         .card-description {
             font-size: 12px;
             color: #91847B;
             margin-top: 8px;
+            line-height: 1.5;
         }
 
         .card-icon {
@@ -175,15 +184,114 @@
             margin-bottom: 12px;
         }
 
-        @media (max-width: 768px) {
-            .overview-grid {
-                grid-template-columns: 1fr;
-            }
+        /* Expense Breakdown Donut Chart */
+        .breakdown-card {
+            background: #FFFFFF;
+            border: 1px solid #E9DFD2;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 0;
         }
 
+        .breakdown-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #351E25;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .breakdown-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .donut-chart {
+            width: 150px;
+            height: 150px;
+            flex: 0 0 150px;
+            overflow: visible;
+        }
+
+        .donut-background {
+            fill: none;
+            stroke: #EEE7DD;
+            stroke-width: 18;
+        }
+
+        .donut-segment {
+            fill: none;
+            stroke-width: 18;
+            stroke-linecap: butt;
+            transition: stroke-dasharray 0.35s ease;
+        }
+
+        .donut-center-label {
+            fill: #81746D;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            text-anchor: middle;
+        }
+
+        .donut-center-value {
+            fill: #8F1238;
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 600;
+            text-anchor: middle;
+        }
+
+        .category-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .legend-item {
+            display: grid;
+            grid-template-columns: 10px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            color: #554B45;
+        }
+
+        .legend-swatch {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+        }
+
+        .legend-name {
+            overflow-wrap: anywhere;
+        }
+
+        .legend-percent {
+            font-weight: 600;
+            color: #351E25;
+            white-space: nowrap;
+        }
+
+        .legend-amount {
+            grid-column: 2 / 4;
+            color: #91847B;
+            font-size: 10px;
+            margin-top: -4px;
+        }
+
+        .chart-message {
+            color: #91847B;
+            font-size: 12px;
+            line-height: 1.5;
+            text-align: center;
+            margin-top: 12px;
+        }
 
         /* Recent Budget Items Table */
-
         .expenses-section {
             margin-top: 35px;
             margin-bottom: 30px;
@@ -266,17 +374,17 @@
             color: #91847B !important;
         }
 
-        @media (max-width: 768px) {
-            .table-container {
-                padding: 15px;
+        /* Responsive Layout */
+        @media (max-width: 1050px) {
+            .overview-layout {
+                grid-template-columns: 1fr;
             }
 
-            .table-header {
-                align-items: flex-start;
+            .breakdown-content {
+                justify-content: flex-start;
             }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .top-header {
                 padding: 0 18px;
@@ -300,6 +408,28 @@
 
             .page-heading h1 {
                 font-size: 28px;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-container {
+                padding: 15px;
+            }
+
+            .table-header {
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .breakdown-content {
+                flex-direction: column;
+            }
+
+            .category-legend {
+                width: 100%;
             }
         }
     </style>
@@ -350,50 +480,70 @@
         </div>
     </section>
 
-    <!-- Budget Overview -->
+    <!-- Budget Overview and Expense Breakdown -->
     <section class="overview-section">
 
         <h2 class="section-title">Budget Overview</h2>
 
-        <div class="overview-grid">
+        <div class="overview-layout">
 
-            <!-- Total Budget -->
-            <div class="overview-card">
-                <div class="card-icon">💰</div>
-                <div class="card-label">Total Budget</div>
-                <div class="card-value" id="totalBudget">
-                    LKR 0.00
+            <div class="overview-grid">
+
+                <!-- Total Budget -->
+                <div class="overview-card">
+                    <div class="card-icon">💰</div>
+                    <div class="card-label">Total Budget</div>
+                    <div class="card-value" id="totalBudget">LKR 0.00</div>
+                    <div class="card-description">
+                        Total amount of all budget items
+                    </div>
                 </div>
-                <div class="card-description">
-                    Total amount of all budget items
+
+                <!-- Budget Items -->
+                <div class="overview-card">
+                    <div class="card-icon">📋</div>
+                    <div class="card-label">Budget Items</div>
+                    <div class="card-value" id="budgetCount">0</div>
+                    <div class="card-description">
+                        Total recorded budget items
+                    </div>
                 </div>
+
+                <!-- Categories -->
+                <div class="overview-card">
+                    <div class="card-icon">🏷️</div>
+                    <div class="card-label">Categories</div>
+                    <div class="card-value" id="categoryCount">0</div>
+                    <div class="card-description">
+                        Different expense categories
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Budget Items -->
-            <div class="overview-card">
-                <div class="card-icon">📋</div>
-                <div class="card-label">Budget Items</div>
-                <div class="card-value" id="budgetCount">0</div>
-                <div class="card-description">
-                    Total recorded budget items
-                </div>
-            </div>
+            <!-- Expense Breakdown -->
+            <div class="breakdown-card">
+                <h2 class="breakdown-title">Expense Breakdown</h2>
 
-            <!-- Categories -->
-            <div class="overview-card">
-                <div class="card-icon">🏷️</div>
-                <div class="card-label">Categories</div>
-                <div class="card-value" id="categoryCount">0</div>
-                <div class="card-description">
-                    Different expense categories
+                <div class="breakdown-content">
+                    <svg class="donut-chart" viewBox="0 0 160 160" role="img" aria-label="Budget amounts by category">
+                        <circle class="donut-background" cx="80" cy="80" r="55"></circle>
+                        <g id="donutSegments"></g>
+                        <text class="donut-center-label" x="80" y="76">CATEGORIES</text>
+                        <text class="donut-center-value" id="donutCategoryCount" x="80" y="99">0</text>
+                    </svg>
+
+                    <div class="category-legend" id="categoryLegend">
+                        <p class="chart-message">Loading category breakdown...</p>
+                    </div>
                 </div>
+
+                <p class="chart-message" id="chartMessage" aria-live="polite"></p>
             </div>
 
         </div>
 
     </section>
-
-
 
     <!-- Recent Budget Items -->
     <section class="expenses-section">
@@ -431,8 +581,19 @@
     </section>
 
 </main>
+
 <script>
     const API_URL = "/api/budgets";
+
+    // Colors used for category segments in the donut chart.
+    const CHART_COLORS = [
+        "#C6A15B",
+        "#8F1238",
+        "#A99B91",
+        "#6F6A66",
+        "#E7DCCB",
+        "#BCA6A0"
+    ];
 
     // Format numeric amounts as Sri Lankan Rupees.
     function formatLkr(amount) {
@@ -483,6 +644,101 @@
         });
     }
 
+    // Group budget amounts by category for the donut chart.
+    function calculateCategoryTotals(budgets) {
+        const categoryTotals = new Map();
+
+        budgets.forEach((budget) => {
+            const categoryName = String(budget.category ?? "").trim() || "Uncategorized";
+            const categoryKey = categoryName.toLowerCase();
+            const amount = Number(budget.amount);
+            const safeAmount = Number.isFinite(amount) && amount > 0 ? amount : 0;
+
+            const current = categoryTotals.get(categoryKey) || {
+                name: categoryName,
+                amount: 0
+            };
+
+            current.amount += safeAmount;
+            categoryTotals.set(categoryKey, current);
+        });
+
+        return Array.from(categoryTotals.values())
+            .sort((first, second) => second.amount - first.amount);
+    }
+
+    // Draw the donut chart and its category legend.
+    function renderCategoryBreakdown(budgets) {
+        const segmentsGroup = document.getElementById("donutSegments");
+        const legend = document.getElementById("categoryLegend");
+        const categoryCountLabel = document.getElementById("donutCategoryCount");
+        const chartMessage = document.getElementById("chartMessage");
+
+        segmentsGroup.replaceChildren();
+        legend.replaceChildren();
+        chartMessage.textContent = "";
+
+        const categories = calculateCategoryTotals(budgets);
+        const total = categories.reduce((sum, category) => sum + category.amount, 0);
+
+        categoryCountLabel.textContent = String(categories.length);
+
+        if (categories.length === 0 || total <= 0) {
+            const message = document.createElement("p");
+            message.className = "chart-message";
+            message.textContent = "Add budget amounts to see the category breakdown.";
+            legend.appendChild(message);
+            return;
+        }
+
+        const radius = 55;
+        const circumference = 2 * Math.PI * radius;
+        let offset = 0;
+
+        categories.forEach((category, index) => {
+            const percentage = (category.amount / total) * 100;
+            const segmentLength = (percentage / 100) * circumference;
+            const color = CHART_COLORS[index % CHART_COLORS.length];
+
+            const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+            circle.setAttribute("class", "donut-segment");
+            circle.setAttribute("cx", "80");
+            circle.setAttribute("cy", "80");
+            circle.setAttribute("r", String(radius));
+            circle.setAttribute("stroke", color);
+            circle.setAttribute("stroke-dasharray", `${segmentLength} ${circumference - segmentLength}`);
+            circle.setAttribute("stroke-dashoffset", String(-offset));
+            circle.setAttribute("transform", "rotate(-90 80 80)");
+            segmentsGroup.appendChild(circle);
+
+            offset += segmentLength;
+
+            const legendItem = document.createElement("div");
+            legendItem.className = "legend-item";
+
+            const swatch = document.createElement("span");
+            swatch.className = "legend-swatch";
+            swatch.style.backgroundColor = color;
+
+            const name = document.createElement("span");
+            name.className = "legend-name";
+            name.textContent = category.name;
+
+            const percent = document.createElement("span");
+            percent.className = "legend-percent";
+            percent.textContent = `${percentage.toFixed(1)}%`;
+
+            const amount = document.createElement("span");
+            amount.className = "legend-amount";
+            amount.textContent = formatLkr(category.amount);
+
+            legendItem.append(swatch, name, percent, amount);
+            legend.appendChild(legendItem);
+        });
+
+        chartMessage.textContent = `Based on ${budgets.length} budget item(s).`;
+    }
+
     async function loadBudgetData() {
         try {
             const response = await fetch(API_URL);
@@ -513,8 +769,9 @@
             document.getElementById("budgetCount").textContent = budgets.length;
             document.getElementById("categoryCount").textContent = categories.size;
 
-            // Display the same API records in the Recent Budget Items table.
+            // Display the API records in the table and chart.
             renderBudgetTable(budgets);
+            renderCategoryBreakdown(budgets);
 
         } catch (error) {
             console.error("Budget loading error:", error);
@@ -534,10 +791,15 @@
             cell.colSpan = 5;
             row.appendChild(cell);
             tableBody.appendChild(row);
+
+            document.getElementById("donutSegments").replaceChildren();
+            document.getElementById("categoryLegend").textContent = "Category data unavailable.";
+            document.getElementById("donutCategoryCount").textContent = "-";
+            document.getElementById("chartMessage").textContent = "Could not load the category breakdown.";
         }
     }
 
-    // Load the overview and table together from the existing GET endpoint.
+    // Load the overview, table and chart together from the existing GET endpoint.
     loadBudgetData();
 </script>
 </body>
