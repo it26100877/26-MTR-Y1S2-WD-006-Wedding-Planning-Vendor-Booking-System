@@ -326,7 +326,55 @@
         .expense-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 650px;
+            min-width: 820px;
+        }
+
+        .row-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .row-action-button {
+            border: 1px solid #D9CDBD;
+            border-radius: 6px;
+            background: #FFFFFF;
+            color: #8F1238;
+            padding: 7px 11px;
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .row-action-button:hover {
+            background: #F8F4EE;
+            border-color: #C6A15B;
+        }
+
+        .row-action-button.delete-action {
+            color: #A12B32;
+        }
+
+        .row-action-button.delete-action:hover {
+            background: #FFF5F3;
+            border-color: #D9A7A2;
+        }
+
+        .table-action-message {
+            min-height: 0;
+            margin: -5px 0 12px;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .table-action-message.success {
+            color: #287548;
+        }
+
+        .table-action-message.error {
+            color: #B42318;
         }
 
         .expense-table thead {
@@ -374,6 +422,221 @@
             color: #91847B !important;
         }
 
+        /* Budget Search and Filters */
+        .table-toolbar {
+            display: grid;
+            grid-template-columns: minmax(220px, 1.7fr) minmax(150px, 1fr) minmax(150px, 1fr) auto;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .filter-control {
+            width: 100%;
+            min-width: 0;
+            height: 43px;
+            padding: 0 13px;
+            border: 1px solid #E2D7C9;
+            border-radius: 7px;
+            background: #FFFFFF;
+            color: #554B45;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .filter-control:focus {
+            border-color: #C6A15B;
+            box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.12);
+        }
+
+        .search-control {
+            position: relative;
+        }
+
+        .search-control span {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #91847B;
+            font-size: 17px;
+            pointer-events: none;
+        }
+
+        .search-control input {
+            padding-left: 36px;
+        }
+
+        .reset-filters {
+            height: 43px;
+            padding: 0 16px;
+            border: 1px solid #C6A15B;
+            border-radius: 7px;
+            background: #F8F4EE;
+            color: #8F1238;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .reset-filters:hover {
+            background: #F0E7DA;
+        }
+
+        .filter-result-count {
+            margin: -5px 0 12px;
+            color: #91847B;
+            font-size: 11px;
+        }
+
+
+
+        /* Add Budget Form */
+        .primary-button {
+            min-height: 43px;
+            padding: 0 20px;
+            border: 1px solid #8F1238;
+            border-radius: 7px;
+            background: #8F1238;
+            color: #FFFFFF;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease;
+        }
+
+        .primary-button:hover {
+            background: #74102F;
+        }
+
+        .expense-form-section {
+            margin: 0 0 30px;
+        }
+
+        .expense-form-card {
+            background: #FFFFFF;
+            border: 1px solid #E9DFD2;
+            border-radius: 10px;
+            padding: 25px;
+        }
+
+        .expense-form-heading {
+            font-family: 'Playfair Display', serif;
+            font-size: 23px;
+            color: #351E25;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .expense-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .form-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-field label {
+            color: #554B45;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .form-field input {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid #E2D7C9;
+            border-radius: 7px;
+            background: #FFFFFF;
+            color: #292321;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-field input:focus {
+            border-color: #C6A15B;
+            box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.12);
+        }
+
+        .form-field input::placeholder {
+            color: #A99D93;
+        }
+
+        .form-help {
+            color: #91847B;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .form-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .secondary-button {
+            min-height: 43px;
+            padding: 0 18px;
+            border: 1px solid #D9CDBD;
+            border-radius: 7px;
+            background: #F8F4EE;
+            color: #554B45;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .secondary-button:hover {
+            background: #F0E7DA;
+        }
+
+        .form-message {
+            margin-top: 14px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .form-message.success {
+            color: #287548;
+        }
+
+        .form-message.error {
+            color: #B42318;
+        }
+
+        @media (max-width: 768px) {
+            .page-heading {
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .expense-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-field.full-width {
+                grid-column: auto;
+            }
+        }
+
+
         /* Responsive Layout */
         @media (max-width: 1050px) {
             .overview-layout {
@@ -420,6 +683,18 @@
 
             .table-header {
                 align-items: flex-start;
+            }
+
+            .table-toolbar {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .search-control {
+                grid-column: 1 / -1;
+            }
+
+            .reset-filters {
+                grid-column: 1 / -1;
             }
         }
 
@@ -478,6 +753,9 @@
                 Manage and monitor your wedding budget in one place.
             </p>
         </div>
+        <button type="button" id="addExpenseButton" class="primary-button">
+            + Add Expense
+        </button>
     </section>
 
     <!-- Budget Overview and Expense Breakdown -->
@@ -545,6 +823,91 @@
 
     </section>
 
+    <!-- Add Budget Item Form -->
+    <section class="expense-form-section" id="expenseFormSection" hidden>
+        <div class="expense-form-card">
+            <h2 class="expense-form-heading" id="expenseFormTitle">Add New Budget Item</h2>
+
+            <form id="expenseForm" novalidate>
+                <div class="expense-form-grid">
+
+                    <div class="form-field">
+                        <label for="expenseBudgetId">Budget ID</label>
+                        <input
+                                type="text"
+                                id="expenseBudgetId"
+                                placeholder="Example: BG003"
+                                maxlength="5"
+                                autocomplete="off"
+                                required
+                        >
+                        <span class="form-help">Use the agreed format: BG001, BG002, BG003.</span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="expenseWeddingId">Wedding ID</label>
+                        <input
+                                type="text"
+                                id="expenseWeddingId"
+                                placeholder="Example: W001"
+                                maxlength="4"
+                                autocomplete="off"
+                                required
+                        >
+                        <span class="form-help">Enter an existing Wedding ID from the Wedding Planning module.</span>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="expenseCategory">Category</label>
+                        <input
+                                type="text"
+                                id="expenseCategory"
+                                placeholder="Example: Catering"
+                                maxlength="60"
+                                required
+                        >
+                    </div>
+
+                    <div class="form-field">
+                        <label for="expenseAmount">Amount (LKR)</label>
+                        <input
+                                type="number"
+                                id="expenseAmount"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="Example: 175000"
+                                required
+                        >
+                    </div>
+
+                    <div class="form-field full-width">
+                        <label for="expenseDescription">Description</label>
+                        <input
+                                type="text"
+                                id="expenseDescription"
+                                maxlength="150"
+                                placeholder="Enter budget item details"
+                                required
+                        >
+                        <span class="form-help">Do not enter the pipe character (|); it is used to separate fields in budgets.txt.</span>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-button" id="saveExpenseButton">
+                        Save Budget Item
+                    </button>
+                    <button type="button" class="secondary-button" id="cancelExpenseButton">
+                        Cancel
+                    </button>
+                </div>
+
+                <p id="expenseFormMessage" class="form-message" role="status" aria-live="polite"></p>
+            </form>
+        </div>
+    </section>
+
     <!-- Recent Budget Items -->
     <section class="expenses-section">
 
@@ -553,6 +916,36 @@
             <div class="table-header">
                 <h2 class="table-title">Recent Budget Items</h2>
             </div>
+
+            <div class="table-toolbar">
+                <label class="search-control">
+                    <span aria-hidden="true">⌕</span>
+                    <input
+                            type="search"
+                            id="searchInput"
+                            class="filter-control"
+                            placeholder="Search budget items..."
+                            aria-label="Search budget items"
+                    >
+                </label>
+
+                <select id="categoryFilter" class="filter-control" aria-label="Filter by category">
+                    <option value="">All Categories</option>
+                </select>
+
+                <select id="weddingFilter" class="filter-control" aria-label="Filter by wedding">
+                    <option value="">All Weddings</option>
+                </select>
+
+                <button type="button" id="resetFilters" class="reset-filters">
+                    Reset Filters
+                </button>
+            </div>
+
+            <p id="filterResultCount" class="filter-result-count" aria-live="polite">
+                Loading budget items...
+            </p>
+            <p id="tableActionMessage" class="table-action-message" role="status" aria-live="polite"></p>
 
             <div class="table-wrapper">
                 <table class="expense-table">
@@ -563,12 +956,13 @@
                         <th>Category</th>
                         <th>Description</th>
                         <th>Amount (LKR)</th>
+                        <th>Actions</th>
                     </tr>
                     </thead>
 
                     <tbody id="budgetTable">
                     <tr>
-                        <td colspan="5" class="empty-message">
+                        <td colspan="6" class="empty-message">
                             Loading budget items...
                         </td>
                     </tr>
@@ -584,6 +978,7 @@
 
 <script>
     const API_URL = "/api/budgets";
+    let allBudgets = [];
 
     // Colors used for category segments in the donut chart.
     const CHART_COLORS = [
@@ -620,12 +1015,18 @@
 
     function renderBudgetTable(budgets) {
         const tableBody = document.getElementById("budgetTable");
+        const resultCount = document.getElementById("filterResultCount");
         tableBody.replaceChildren();
+
+        resultCount.textContent = `Showing ${budgets.length} of ${allBudgets.length} budget item(s).`;
 
         if (!Array.isArray(budgets) || budgets.length === 0) {
             const row = document.createElement("tr");
-            const cell = createCell("No budget items found.", "empty-message");
-            cell.colSpan = 5;
+            const message = allBudgets.length === 0
+                ? "No budget items found."
+                : "No budget items match your search or filters.";
+            const cell = createCell(message, "empty-message");
+            cell.colSpan = 6;
             row.appendChild(cell);
             tableBody.appendChild(row);
             return;
@@ -640,8 +1041,305 @@
             row.appendChild(createCell(budget.description));
             row.appendChild(createCell(formatLkr(budget.amount), "budget-amount"));
 
+            const actionsCell = document.createElement("td");
+            const actions = document.createElement("div");
+            actions.className = "row-actions";
+
+            const editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "row-action-button";
+            editButton.textContent = "Edit";
+            editButton.setAttribute("aria-label", `Edit budget ${budget.budgetId}`);
+            editButton.addEventListener("click", () => openEditBudgetForm(budget));
+
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "row-action-button delete-action";
+            deleteButton.textContent = "Delete";
+            deleteButton.setAttribute("aria-label", `Delete budget ${budget.budgetId}`);
+            deleteButton.addEventListener("click", () => deleteBudgetItem(budget));
+
+            actions.append(editButton, deleteButton);
+            actionsCell.appendChild(actions);
+            row.appendChild(actionsCell);
             tableBody.appendChild(row);
         });
+    }
+
+    // Fill the dropdowns using values that already exist in the Budget API.
+    function populateBudgetFilters(budgets) {
+        const categoryFilter = document.getElementById("categoryFilter");
+        const weddingFilter = document.getElementById("weddingFilter");
+
+        categoryFilter.replaceChildren(new Option("All Categories", ""));
+        weddingFilter.replaceChildren(new Option("All Weddings", ""));
+
+        const categories = [...new Set(
+            budgets
+                .map(budget => String(budget.category ?? "").trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b));
+
+        const weddingIds = [...new Set(
+            budgets
+                .map(budget => String(budget.weddingId ?? "").trim())
+                .filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b));
+
+        categories.forEach(category => {
+            categoryFilter.add(new Option(category, category));
+        });
+
+        weddingIds.forEach(weddingId => {
+            weddingFilter.add(new Option(weddingId, weddingId));
+        });
+    }
+
+    // Apply search, category and wedding filters to the table only.
+    function applyBudgetFilters() {
+        const searchTerm = document.getElementById("searchInput").value.trim().toLowerCase();
+        const selectedCategory = document.getElementById("categoryFilter").value.toLowerCase();
+        const selectedWedding = document.getElementById("weddingFilter").value.toLowerCase();
+
+        const filteredBudgets = allBudgets.filter(budget => {
+            const searchableText = [
+                budget.budgetId,
+                budget.weddingId,
+                budget.category,
+                budget.description,
+                budget.amount
+            ].join(" ").toLowerCase();
+
+            const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
+            const matchesCategory = !selectedCategory ||
+                String(budget.category ?? "").trim().toLowerCase() === selectedCategory;
+            const matchesWedding = !selectedWedding ||
+                String(budget.weddingId ?? "").trim().toLowerCase() === selectedWedding;
+
+            return matchesSearch && matchesCategory && matchesWedding;
+        });
+
+        renderBudgetTable(filteredBudgets);
+    }
+
+    function resetBudgetFilters() {
+        document.getElementById("searchInput").value = "";
+        document.getElementById("categoryFilter").value = "";
+        document.getElementById("weddingFilter").value = "";
+        applyBudgetFilters();
+    }
+
+
+    // Track whether the form is creating a new record or editing an existing one.
+    let editingBudgetId = null;
+
+    function setExpenseFormMode(isEditing) {
+        const title = document.getElementById("expenseFormTitle");
+        const budgetIdInput = document.getElementById("expenseBudgetId");
+        const saveButton = document.getElementById("saveExpenseButton");
+
+        title.textContent = isEditing ? "Edit Budget Item" : "Add New Budget Item";
+        budgetIdInput.readOnly = isEditing;
+        saveButton.textContent = isEditing ? "Update Budget Item" : "Save Budget Item";
+    }
+
+    function openExpenseForm() {
+        const formSection = document.getElementById("expenseFormSection");
+        const formMessage = document.getElementById("expenseFormMessage");
+
+        editingBudgetId = null;
+        document.getElementById("expenseForm").reset();
+        setExpenseFormMode(false);
+        formSection.hidden = false;
+        formMessage.textContent = "";
+        formMessage.className = "form-message";
+        document.getElementById("expenseBudgetId").focus();
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function openEditBudgetForm(budget) {
+        const formSection = document.getElementById("expenseFormSection");
+        const formMessage = document.getElementById("expenseFormMessage");
+
+        editingBudgetId = String(budget.budgetId ?? "");
+        document.getElementById("expenseBudgetId").value = budget.budgetId ?? "";
+        document.getElementById("expenseWeddingId").value = budget.weddingId ?? "";
+        document.getElementById("expenseCategory").value = budget.category ?? "";
+        document.getElementById("expenseAmount").value = budget.amount ?? "";
+        document.getElementById("expenseDescription").value = budget.description ?? "";
+
+        setExpenseFormMode(true);
+        formSection.hidden = false;
+        formMessage.textContent = "";
+        formMessage.className = "form-message";
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function closeExpenseForm() {
+        document.getElementById("expenseForm").reset();
+        document.getElementById("expenseFormSection").hidden = true;
+        editingBudgetId = null;
+        setExpenseFormMode(false);
+
+        const formMessage = document.getElementById("expenseFormMessage");
+        formMessage.textContent = "";
+        formMessage.className = "form-message";
+    }
+
+    function showExpenseFormMessage(message, type) {
+        const formMessage = document.getElementById("expenseFormMessage");
+        formMessage.textContent = message;
+        formMessage.className = `form-message ${type}`;
+    }
+
+    function showTableActionMessage(message, type = "success") {
+        const messageElement = document.getElementById("tableActionMessage");
+        messageElement.textContent = message;
+        messageElement.className = `table-action-message ${type}`;
+    }
+
+    // Validate fields shared by both create and update operations.
+    function validateBudgetForm(budgetId, weddingId, category, description, amount) {
+        if (editingBudgetId === null && !/^BG\d{3}$/.test(budgetId)) {
+            return "Budget ID must follow the format BG001 (BG + 3 digits).";
+        }
+
+        if (!/^W\d{3}$/.test(weddingId)) {
+            return "Wedding ID must follow the format W001 (W + 3 digits).";
+        }
+
+        if (!category || !description) {
+            return "Please complete all required fields.";
+        }
+
+        if ([category, description].some(value => /[|\r\n]/.test(value))) {
+            return "Category and description cannot contain | or line breaks because budgets.txt uses these as separators.";
+        }
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+            return "Amount must be a number greater than zero.";
+        }
+
+        const duplicateId = allBudgets.some(budget => {
+            const existingId = String(budget.budgetId ?? "").trim().toUpperCase();
+            return existingId === budgetId && existingId !== String(editingBudgetId ?? "").toUpperCase();
+        });
+
+        if (duplicateId) {
+            return "This Budget ID already exists. Please use a different ID.";
+        }
+
+        return "";
+    }
+
+    // Create a new budget record or update the selected record.
+    async function saveBudgetItem(event) {
+        event.preventDefault();
+
+        const budgetId = document.getElementById("expenseBudgetId").value.trim().toUpperCase();
+        const weddingId = document.getElementById("expenseWeddingId").value.trim().toUpperCase();
+        const category = document.getElementById("expenseCategory").value.trim();
+        const description = document.getElementById("expenseDescription").value.trim();
+        const amount = Number(document.getElementById("expenseAmount").value);
+        const saveButton = document.getElementById("saveExpenseButton");
+
+        const validationError = validateBudgetForm(budgetId, weddingId, category, description, amount);
+        if (validationError) {
+            showExpenseFormMessage(validationError, "error");
+            return;
+        }
+
+        const budgetRecord = { budgetId, weddingId, category, description, amount };
+        const isEditing = editingBudgetId !== null;
+        const requestUrl = isEditing
+            ? `${API_URL}/${encodeURIComponent(editingBudgetId)}`
+            : API_URL;
+
+        saveButton.disabled = true;
+        saveButton.textContent = isEditing ? "Updating..." : "Saving...";
+
+        try {
+            const response = await fetch(requestUrl, {
+                method: isEditing ? "PUT" : "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(budgetRecord)
+            });
+
+            if (!response.ok) {
+                const responseText = await response.text();
+                throw new Error(responseText || `HTTP ${response.status}`);
+            }
+
+            if (isEditing) {
+                const updated = await response.json();
+                if (updated !== true) {
+                    showExpenseFormMessage("Budget item was not found and could not be updated.", "error");
+                    return;
+                }
+            }
+
+            await loadBudgetData();
+            document.getElementById("expenseForm").reset();
+            editingBudgetId = null;
+            setExpenseFormMode(false);
+            showExpenseFormMessage(
+                isEditing ? "Budget item updated successfully." : "Budget item added successfully.",
+                "success"
+            );
+
+        } catch (error) {
+            console.error("Save budget error:", error);
+            showExpenseFormMessage(
+                isEditing ? "Could not update the budget item. Check the API and try again." : "Could not add the budget item. Check the API and try again.",
+                "error"
+            );
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = "Save Budget Item";
+            if (editingBudgetId !== null) {
+                setExpenseFormMode(true);
+            }
+        }
+    }
+
+    // Delete a budget record after explicit confirmation.
+    async function deleteBudgetItem(budget) {
+        const budgetId = String(budget.budgetId ?? "");
+        const confirmed = window.confirm(
+            `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}/${encodeURIComponent(budgetId)}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                const responseText = await response.text();
+                throw new Error(responseText || `HTTP ${response.status}`);
+            }
+
+            const deleted = await response.json();
+            if (deleted !== true) {
+                showTableActionMessage(`Budget ${budgetId} was not found.`, "error");
+                return;
+            }
+
+            if (editingBudgetId === budgetId) {
+                closeExpenseForm();
+            }
+
+            await loadBudgetData();
+            showTableActionMessage(`Budget ${budgetId} deleted successfully.`);
+
+        } catch (error) {
+            console.error("Delete budget error:", error);
+            showTableActionMessage(`Could not delete budget ${budgetId}. Check the API and try again.`, "error");
+        }
     }
 
     // Group budget amounts by category for the donut chart.
@@ -753,6 +1451,9 @@
                 throw new Error("The Budget API did not return a list of records.");
             }
 
+            allBudgets = budgets;
+            populateBudgetFilters(allBudgets);
+
             // Update the overview cards.
             const total = budgets.reduce((sum, budget) => {
                 const amount = Number(budget.amount);
@@ -788,7 +1489,7 @@
                 "Could not load budget items. Check that Spring Boot is running and try refreshing.",
                 "empty-message"
             );
-            cell.colSpan = 5;
+            cell.colSpan = 6;
             row.appendChild(cell);
             tableBody.appendChild(row);
 
@@ -798,6 +1499,15 @@
             document.getElementById("chartMessage").textContent = "Could not load the category breakdown.";
         }
     }
+
+    // Search and dropdown filters update the table without changing totals or chart data.
+    document.getElementById("searchInput").addEventListener("input", applyBudgetFilters);
+    document.getElementById("categoryFilter").addEventListener("change", applyBudgetFilters);
+    document.getElementById("weddingFilter").addEventListener("change", applyBudgetFilters);
+    document.getElementById("resetFilters").addEventListener("click", resetBudgetFilters);
+    document.getElementById("addExpenseButton").addEventListener("click", openExpenseForm);
+    document.getElementById("cancelExpenseButton").addEventListener("click", closeExpenseForm);
+    document.getElementById("expenseForm").addEventListener("submit", saveBudgetItem);
 
     // Load the overview, table and chart together from the existing GET endpoint.
     loadBudgetData();
