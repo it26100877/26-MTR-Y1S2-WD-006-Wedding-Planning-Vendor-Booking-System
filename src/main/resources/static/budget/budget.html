@@ -555,6 +555,30 @@
             font-weight: 600;
         }
 
+        .budget-id-picker {
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .budget-id-picker input {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .budget-id-picker .secondary-button {
+            flex: 0 0 auto;
+            min-height: 43px;
+            white-space: nowrap;
+        }
+
+        .budget-id-picker input[readonly] {
+            background: #F6F4EF;
+            color: #817A70;
+            cursor: not-allowed;
+        }
+
         .form-field input {
             width: 100%;
             min-height: 43px;
@@ -1497,6 +1521,188 @@
             }
         }
 
+
+        /* Smart category selector and category-specific cost calculator */
+        .form-field select {
+            width: 100%;
+            min-height: 48px;
+            padding: 10px 14px;
+            border: 1px solid #D7CFC1;
+            border-radius: 7px;
+            background: #FBFAF7;
+            color: #292622;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .form-field select:focus {
+            border-color: #B9A477;
+            box-shadow: 0 0 0 3px rgba(185, 164, 119, 0.16);
+        }
+
+        .form-field select[aria-invalid="true"] {
+            border-color: #A34438;
+            background: #F8F5EF;
+        }
+
+        .category-specific-section {
+            grid-column: 1 / -1;
+            padding: 20px;
+            border: 1px solid #D7C9AD;
+            border-radius: 9px;
+            background: #F6F4EF;
+        }
+
+        .category-specific-heading {
+            margin-bottom: 16px;
+        }
+
+        .category-specific-heading h3 {
+            margin: 0 0 6px;
+            color: #24211E;
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .category-specific-heading p {
+            color: #716B62;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .category-detail-grid {
+            padding: 0;
+            gap: 16px;
+        }
+
+        .category-detail-grid .form-field input,
+        .category-detail-grid .form-field select {
+            background: #FFFFFF;
+        }
+
+        .category-detail-note {
+            grid-column: 1 / -1;
+            padding: 12px 14px;
+            border-left: 3px solid #B9A477;
+            border-radius: 4px;
+            background: #FBFAF7;
+            color: #625D55;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .calculation-status {
+            color: #56745C;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 3px;
+        }
+
+        .custom-category-intro {
+            grid-column: 1 / -1;
+            color: #625D55;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .category-specific-section {
+                padding: 16px;
+            }
+
+            .category-detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        /* Individual makeup pricing rows */
+        .people-pricing-editor {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .people-pricing-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .people-pricing-row {
+            display: grid;
+            grid-template-columns: minmax(180px, 1.3fr) minmax(160px, 1fr) auto;
+            gap: 12px;
+            align-items: end;
+            padding: 12px;
+            border: 1px solid #E5D9C6;
+            border-radius: 8px;
+            background: #FFFFFF;
+        }
+
+        .people-pricing-row .form-field {
+            gap: 6px;
+        }
+
+        .people-pricing-row label {
+            font-size: 14px !important;
+        }
+
+        .people-pricing-row input {
+            min-height: 44px !important;
+        }
+
+        .people-pricing-actions {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-person-pricing-button,
+        .remove-person-pricing-button {
+            min-height: 42px;
+            padding: 9px 14px;
+            border: 1px solid #D7C9AD;
+            border-radius: 7px;
+            background: #FBFAF7;
+            color: #292622;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .add-person-pricing-button {
+            color: #8F1238;
+        }
+
+        .remove-person-pricing-button {
+            color: #8F1238;
+            min-width: 42px;
+        }
+
+        .people-pricing-summary {
+            color: #56745C;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .people-pricing-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Respect the HTML hidden attribute even on elements styled with display:flex. */
+        [hidden] {
+            display: none !important;
+        }
+
     </style>
 </head>
 
@@ -1654,14 +1860,15 @@
                         <input
                                 type="text"
                                 id="expenseBudgetId"
-                                placeholder="Example: BG003"
+                                placeholder="Automatically generated"
                                 maxlength="5"
                                 autocapitalize="characters"
                                 spellcheck="false"
                                 autocomplete="off"
+                                readonly
                                 required
                         >
-                        <span class="form-help">Use the agreed format: BG001, BG002, BG003.</span>
+                        <span class="form-help" id="budgetIdHelp">A unique Budget ID is generated automatically after checking the existing records. Use Edit in the table to update an existing item.</span>
                         <span class="form-error" id="budgetIdError"></span>
                     </div>
 
@@ -1682,29 +1889,63 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="expenseCategory">Category</label>
-                        <input
-                                type="text"
-                                id="expenseCategory"
-                                placeholder="Example: Catering"
-                                maxlength="60"
-                                required
-                        >
+                        <label for="expenseCategory">Expense Category</label>
+                        <select id="expenseCategory" required>
+                            <option value="">Select a category</option>
+                            <option value="Catering">Catering</option>
+                            <option value="Venue">Venue</option>
+                            <option value="Decoration">Decoration</option>
+                            <option value="Photography">Photography</option>
+                            <option value="Videography">Videography</option>
+                            <option value="Bridal Attire">Bridal Attire</option>
+                            <option value="Groom Attire">Groom Attire</option>
+                            <option value="Makeup & Hair">Makeup & Hair</option>
+                            <option value="Wedding Cake">Wedding Cake</option>
+                            <option value="Flowers">Flowers</option>
+                            <option value="Music & Entertainment">Music &amp; Entertainment</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Invitations & Printing">Invitations &amp; Printing</option>
+                            <option value="__custom__">Other / Custom Category</option>
+                        </select>
+                        <span class="form-help">Choose a built-in category or create your own category.</span>
                         <span class="form-error" id="categoryError"></span>
                     </div>
 
-                    <div class="form-field">
-                        <label for="expenseAmount">Amount (LKR)</label>
+                    <div class="form-field" id="amountField">
+                        <label for="expenseAmount" id="expenseAmountLabel">Calculated Amount (LKR)</label>
                         <input
                                 type="number"
                                 inputmode="decimal"
                                 id="expenseAmount"
                                 min="0.01"
                                 step="0.01"
-                                placeholder="Example: 175000"
+                                placeholder="Select a category and enter its details"
+                                readonly
                                 required
                         >
+                        <span class="form-help" id="expenseAmountHelp">The total will be calculated from the category details.</span>
                         <span class="form-error" id="amountError"></span>
+                    </div>
+
+                    <div class="category-specific-section full-width" id="categorySpecificSection" hidden>
+                        <div class="category-specific-heading">
+                            <h3 id="categorySpecificTitle">Category Details</h3>
+                            <p id="categorySpecificHelp">Enter the details for this expense category.</p>
+                        </div>
+                        <div class="expense-form-grid category-detail-grid" id="categoryDetailGrid"></div>
+                    </div>
+
+                    <div class="form-field full-width" id="customCategoryField" hidden>
+                        <label for="expenseCustomCategory">Custom Category Name</label>
+                        <input
+                                type="text"
+                                id="expenseCustomCategory"
+                                maxlength="60"
+                                placeholder="Example: Fireworks or Wedding Gifts"
+                                autocomplete="off"
+                        >
+                        <span class="form-help">Your custom category will be available in the category list after saving a budget item.</span>
+                        <span class="form-error" id="customCategoryError"></span>
                     </div>
 
                     <div class="form-field full-width">
@@ -1843,7 +2084,7 @@
             row.appendChild(createCell(budget.budgetId, "budget-id"));
             row.appendChild(createCell(budget.weddingId));
             row.appendChild(createCell(budget.category));
-            row.appendChild(createCell(budget.description));
+            row.appendChild(createCell(parseStoredDescription(String(budget.description ?? "")).description));
             row.appendChild(createCell(formatLkr(budget.amount), "budget-amount"));
 
             const actionsCell = document.createElement("td");
@@ -1938,14 +2179,30 @@
     // Track whether the form is creating a new record or editing an existing one.
     let editingBudgetId = null;
 
+    function getNextBudgetId() {
+        const usedNumbers = allBudgets
+            .map(budget => String(budget.budgetId ?? "").trim().toUpperCase())
+            .map(id => /^BG(\d{3})$/.test(id) ? Number(id.slice(2)) : 0);
+
+        const nextNumber = Math.max(0, ...usedNumbers) + 1;
+        if (nextNumber > 999) {
+            throw new Error("All Budget IDs from BG001 to BG999 are already in use.");
+        }
+
+        return `BG${String(nextNumber).padStart(3, "0")}`;
+    }
+
     function setExpenseFormMode(isEditing) {
         const title = document.getElementById("expenseFormTitle");
         const budgetIdInput = document.getElementById("expenseBudgetId");
         const saveButton = document.getElementById("saveExpenseButton");
 
         title.textContent = isEditing ? "Edit Budget Item" : "Add New Budget Item";
-        budgetIdInput.readOnly = isEditing;
+        budgetIdInput.readOnly = true;
         saveButton.textContent = isEditing ? "Update Budget Item" : "Save Budget Item";
+        document.getElementById("budgetIdHelp").textContent = isEditing
+            ? "This existing Budget ID is fixed. Only the item's details can be updated."
+            : "A unique Budget ID is generated automatically after checking all existing records.";
     }
 
     function openExpenseForm() {
@@ -1954,11 +2211,20 @@
 
         editingBudgetId = null;
         document.getElementById("expenseForm").reset();
+        populateExpenseCategoryOptions(allBudgets, "");
         setExpenseFormMode(false);
+        renderCategorySpecificFields("", {});
+        try {
+            document.getElementById("expenseBudgetId").value = getNextBudgetId();
+        } catch (error) {
+            document.getElementById("expenseBudgetId").value = "";
+            showExpenseFormMessage(error.message, "error");
+        }
         formSection.hidden = false;
         formMessage.textContent = "";
         formMessage.className = "form-message";
         clearAllFieldErrors();
+        clearCategoryDetailErrors();
         document.getElementById("expenseBudgetId").focus();
         formSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -1966,19 +2232,28 @@
     function openEditBudgetForm(budget) {
         const formSection = document.getElementById("expenseFormSection");
         const formMessage = document.getElementById("expenseFormMessage");
+        const parsedDescription = parseStoredDescription(String(budget.description ?? ""));
 
         editingBudgetId = String(budget.budgetId ?? "");
         document.getElementById("expenseBudgetId").value = budget.budgetId ?? "";
         document.getElementById("expenseWeddingId").value = budget.weddingId ?? "";
+        populateExpenseCategoryOptions(allBudgets, String(budget.category ?? ""));
         document.getElementById("expenseCategory").value = budget.category ?? "";
+        document.getElementById("expenseDescription").value = parsedDescription.description;
         document.getElementById("expenseAmount").value = budget.amount ?? "";
-        document.getElementById("expenseDescription").value = budget.description ?? "";
 
         setExpenseFormMode(true);
+        renderCategorySpecificFields(String(budget.category ?? ""), parsedDescription.details);
+        // For legacy entries without saved category details, keep the stored total visible.
+        if (Object.keys(parsedDescription.details).length === 0) {
+            document.getElementById("expenseAmount").value = budget.amount ?? "";
+        }
+
         formSection.hidden = false;
         formMessage.textContent = "";
         formMessage.className = "form-message";
         clearAllFieldErrors();
+        clearCategoryDetailErrors();
         formSection.scrollIntoView({ behavior: "smooth", block: "start" });
     }
 
@@ -1987,11 +2262,13 @@
         document.getElementById("expenseFormSection").hidden = true;
         editingBudgetId = null;
         setExpenseFormMode(false);
+        renderCategorySpecificFields("", {});
 
         const formMessage = document.getElementById("expenseFormMessage");
         formMessage.textContent = "";
         formMessage.className = "form-message";
         clearAllFieldErrors();
+        clearCategoryDetailErrors();
     }
 
     function showExpenseFormMessage(message, type) {
@@ -2011,6 +2288,7 @@
         budgetId: { input: "expenseBudgetId", error: "budgetIdError" },
         weddingId: { input: "expenseWeddingId", error: "weddingIdError" },
         category: { input: "expenseCategory", error: "categoryError" },
+        customCategory: { input: "expenseCustomCategory", error: "customCategoryError" },
         amount: { input: "expenseAmount", error: "amountError" },
         description: { input: "expenseDescription", error: "descriptionError" }
     };
@@ -2037,7 +2315,703 @@
         });
     }
 
-    // Validate the agreed Budget fields before sending data to the REST API.
+    const CUSTOM_CATEGORY_VALUE = "__custom__";
+
+    const BUILT_IN_CATEGORIES = [
+        "Catering",
+        "Venue",
+        "Decoration",
+        "Photography",
+        "Videography",
+        "Bridal Attire",
+        "Groom Attire",
+        "Makeup & Hair",
+        "Wedding Cake",
+        "Flowers",
+        "Music & Entertainment",
+        "Transportation",
+        "Invitations & Printing"
+    ];
+
+    const CATEGORY_FIELD_SCHEMAS = {
+        "Catering": {
+            help: "Estimate catering cost using the number of guests, extra plates and price per plate.",
+            fields: [
+                { key: "guestCount", label: "Number of Guests", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 250" },
+                { key: "extraPlates", label: "Extra Plates", type: "number", min: 0, step: 1, required: false, defaultValue: "0", placeholder: "Example: 15" },
+                { key: "pricePerPlate", label: "Price Per Plate (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 1500" },
+                { key: "menuPackage", label: "Menu / Package", type: "text", required: false, placeholder: "Example: Buffet package" }
+            ],
+            formula: "(Guests + extra plates) × price per plate"
+        },
+        "Venue": {
+            help: "Record the venue name and capacity. Enter the full rental cost for the selected rental period.",
+            fields: [
+                { key: "venueName", label: "Venue Name", type: "text", required: true, placeholder: "Example: Pearl Palace Hotel" },
+                { key: "guestCapacity", label: "Guest Capacity", type: "number", min: 1, step: 1, required: false, placeholder: "Example: 300" },
+                { key: "rentalDays", label: "Rental Days", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 1" },
+                { key: "rentalPrice", label: "Total Rental Price (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 250000" }
+            ],
+            formula: "Total venue rental price"
+        },
+        "Decoration": {
+            help: "Calculate table decoration and stage decoration costs.",
+            fields: [
+                { key: "decorationTheme", label: "Decoration Theme", type: "text", required: true, placeholder: "Example: Ivory and champagne" },
+                { key: "tableCount", label: "Number of Tables", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 25" },
+                { key: "pricePerTable", label: "Price Per Table (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 2500" },
+                { key: "stageDecorationCost", label: "Stage Decoration Cost (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 50000" }
+            ],
+            formula: "(Number of tables × price per table) + stage decoration cost"
+        },
+        "Photography": {
+            help: "Enter the photography package, coverage hours and agreed package price.",
+            fields: [
+                { key: "photographyPackage", label: "Photography Package", type: "text", required: true, placeholder: "Example: Premium wedding package" },
+                { key: "coverageHours", label: "Coverage Hours", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 8" },
+                { key: "packagePrice", label: "Package Price (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 85000" },
+                { key: "photographyNotes", label: "Additional Services", type: "text", required: false, placeholder: "Example: Pre-shoot included" }
+            ],
+            formula: "Agreed photography package price"
+        },
+        "Videography": {
+            help: "Include coverage hours and optional drone service in the videography cost.",
+            fields: [
+                { key: "videoPackage", label: "Videography Package", type: "text", required: true, placeholder: "Example: Cinematic package" },
+                { key: "videoCoverageHours", label: "Coverage Hours", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 8" },
+                { key: "videoPackagePrice", label: "Package Price (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 95000" },
+                { key: "droneService", label: "Drone Service", type: "select", required: true, options: ["No", "Yes"], defaultValue: "No" },
+                { key: "droneFee", label: "Drone Service Fee (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 15000" }
+            ],
+            formula: "Package price + drone fee (when selected)"
+        },
+        "Bridal Attire": {
+            help: "Calculate bridal outfit costs, including optional alteration charges.",
+            fields: [
+                { key: "bridalOutfit", label: "Outfit / Package", type: "text", required: true, placeholder: "Example: Bridal saree and accessories" },
+                { key: "bridalOutfitCount", label: "Number of Outfits", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 1" },
+                { key: "bridalPricePerOutfit", label: "Price Per Outfit (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 120000" },
+                { key: "bridalAlterations", label: "Alteration Cost (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 5000" }
+            ],
+            formula: "(Number of outfits × price per outfit) + alteration cost"
+        },
+        "Groom Attire": {
+            help: "Calculate groom outfit costs, including optional tailoring or alteration charges.",
+            fields: [
+                { key: "groomOutfit", label: "Outfit / Package", type: "text", required: true, placeholder: "Example: Suit and shoes" },
+                { key: "groomOutfitCount", label: "Number of Outfits", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 1" },
+                { key: "groomPricePerOutfit", label: "Price Per Outfit (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 65000" },
+                { key: "groomAlterations", label: "Tailoring / Alteration Cost (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 3000" }
+            ],
+            formula: "(Number of outfits × price per outfit) + tailoring cost"
+        },
+        "Makeup & Hair": {
+            help: "Add each person separately because the bride, bridesmaids and family members may have different service prices.",
+            fields: [
+                { key: "makeupPeopleEntries", label: "People & Individual Prices", type: "personPricingList", required: true },
+                { key: "makeupTravelFee", label: "Travel Fee (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 5000" }
+            ],
+            formula: "Sum of each person's price + one travel fee"
+        },
+        "Wedding Cake": {
+            help: "Calculate cake cost from the required number of servings and price per serving.",
+            fields: [
+                { key: "cakeServings", label: "Number of Servings", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 150" },
+                { key: "cakePricePerServing", label: "Price Per Serving (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 1200" },
+                { key: "cakeDesignFee", label: "Design Fee (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 10000" }
+            ],
+            formula: "(Servings × price per serving) + design fee"
+        },
+        "Flowers": {
+            help: "Calculate bouquets and table flower arrangements separately.",
+            fields: [
+                { key: "bouquetCount", label: "Number of Bouquets", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 3" },
+                { key: "pricePerBouquet", label: "Price Per Bouquet (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 5000" },
+                { key: "flowerTableCount", label: "Table Arrangements", type: "number", min: 0, step: 1, required: false, defaultValue: "0", placeholder: "Example: 20" },
+                { key: "pricePerFlowerArrangement", label: "Price Per Table Arrangement (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 1500" }
+            ],
+            formula: "(Bouquets × price per bouquet) + (table arrangements × price per arrangement)"
+        },
+        "Music & Entertainment": {
+            help: "Calculate live music or DJ costs using the event duration and hourly rate.",
+            fields: [
+                { key: "entertainmentType", label: "Entertainment Type", type: "text", required: true, placeholder: "Example: DJ or live band" },
+                { key: "entertainmentHours", label: "Duration (Hours)", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 5" },
+                { key: "entertainmentRate", label: "Price Per Hour (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 10000" },
+                { key: "equipmentFee", label: "Equipment Fee (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 15000" }
+            ],
+            formula: "(Duration × price per hour) + equipment fee"
+        },
+        "Transportation": {
+            help: "Calculate transportation cost using vehicle count, trips per vehicle and cost per trip.",
+            fields: [
+                { key: "vehicleCount", label: "Number of Vehicles", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 3" },
+                { key: "tripsPerVehicle", label: "Trips Per Vehicle", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 2" },
+                { key: "transportPricePerTrip", label: "Price Per Trip (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 15000" },
+                { key: "transportNotes", label: "Vehicle / Route Details", type: "text", required: false, placeholder: "Example: Bridal car and guest vans" }
+            ],
+            formula: "Vehicles × trips per vehicle × price per trip"
+        },
+        "Invitations & Printing": {
+            help: "Calculate invitation printing costs using card quantity and price per card.",
+            fields: [
+                { key: "cardQuantity", label: "Number of Cards", type: "number", min: 1, step: 1, required: true, placeholder: "Example: 250" },
+                { key: "pricePerCard", label: "Price Per Card (LKR)", type: "number", min: 0.01, step: 0.01, required: true, placeholder: "Example: 150" },
+                { key: "printingDesignFee", label: "Design / Setup Fee (LKR)", type: "number", min: 0, step: 0.01, required: false, defaultValue: "0", placeholder: "Example: 5000" }
+            ],
+            formula: "(Number of cards × price per card) + design fee"
+        }
+    };
+
+    function categoryKey(value) {
+        return String(value ?? "").trim().toLowerCase();
+    }
+
+    function isBuiltInCategory(value) {
+        return BUILT_IN_CATEGORIES.some(name => categoryKey(name) === categoryKey(value));
+    }
+
+    function populateExpenseCategoryOptions(budgets, preserveValue = "") {
+        const select = document.getElementById("expenseCategory");
+        const existingCustomCategories = [...new Set(
+            budgets
+                .map(budget => String(budget.category ?? "").trim())
+                .filter(category => category && !isBuiltInCategory(category))
+        )].sort((a, b) => a.localeCompare(b));
+
+        select.replaceChildren(new Option("Select a category", ""));
+        BUILT_IN_CATEGORIES.forEach(category => select.add(new Option(category, category)));
+        existingCustomCategories.forEach(category => select.add(new Option(category, category)));
+        select.add(new Option("Other / Custom Category", CUSTOM_CATEGORY_VALUE));
+
+        if (preserveValue && [...select.options].some(option => option.value === preserveValue)) {
+            select.value = preserveValue;
+        } else {
+            select.value = "";
+        }
+    }
+
+    function getSelectedCategoryName() {
+        const selected = document.getElementById("expenseCategory").value;
+        if (selected === CUSTOM_CATEGORY_VALUE) {
+            return document.getElementById("expenseCustomCategory").value.trim();
+        }
+        return selected.trim();
+    }
+
+    function setAmountInputMode(isManual) {
+        const amountInput = document.getElementById("expenseAmount");
+        const amountLabel = document.getElementById("expenseAmountLabel");
+        const amountHelp = document.getElementById("expenseAmountHelp");
+
+        amountInput.readOnly = !isManual;
+        amountInput.placeholder = isManual ? "Enter the total amount" : "Calculated from category details";
+        amountLabel.textContent = isManual ? "Amount (LKR)" : "Calculated Amount (LKR)";
+        amountHelp.textContent = isManual
+            ? "Enter the total amount for this custom expense."
+            : "This amount is calculated automatically using the category details.";
+    }
+
+    function addCategoryNote(parent, text) {
+        const note = document.createElement("p");
+        note.className = "category-detail-note";
+        note.textContent = text;
+        parent.appendChild(note);
+    }
+
+    function createPersonPricingRow(rowsContainer, entry = {}) {
+        const row = document.createElement("div");
+        row.className = "people-pricing-row";
+
+        const personField = document.createElement("div");
+        personField.className = "form-field";
+        const personLabel = document.createElement("label");
+        personLabel.textContent = "Person / Role";
+        const personInput = document.createElement("input");
+        personInput.type = "text";
+        personInput.placeholder = "Example: Bride, Mother, Bridesmaid";
+        personInput.maxLength = 80;
+        personInput.autocomplete = "off";
+        personInput.dataset.makeupPerson = "true";
+        personInput.value = String(entry.person ?? entry.name ?? "");
+        personField.append(personLabel, personInput);
+
+        const priceField = document.createElement("div");
+        priceField.className = "form-field";
+        const priceLabel = document.createElement("label");
+        priceLabel.textContent = "Individual Price (LKR)";
+        const priceInput = document.createElement("input");
+        // Use text + decimal input mode so scientific notation (e/E), signs,
+        // letters and other non-money characters cannot be entered.
+        priceInput.type = "text";
+        priceInput.inputMode = "decimal";
+        priceInput.autocomplete = "off";
+        priceInput.maxLength = 14;
+        priceInput.pattern = "[0-9]+(\\.[0-9]{1,2})?";
+        priceInput.title = "Enter a positive amount using digits and up to 2 decimal places.";
+        priceInput.placeholder = "Example: 25000 or 25000.50";
+        priceInput.dataset.makeupPrice = "true";
+        priceInput.value = entry.price == null ? "" : String(entry.price);
+
+        // Allow normal decimal money values only. Invalid keyboard input or
+        // pasted text (including e/E notation) reverts to the last valid value.
+        const decimalPattern = /^\d*(?:\.\d{0,2})?$/;
+        let lastValidPrice = decimalPattern.test(priceInput.value)
+            ? priceInput.value
+            : "";
+        priceInput.value = lastValidPrice;
+        priceInput.addEventListener("input", () => {
+            const candidate = priceInput.value.trim();
+            if (decimalPattern.test(candidate)) {
+                lastValidPrice = candidate;
+            } else {
+                priceInput.value = lastValidPrice;
+            }
+        });
+        priceField.append(priceLabel, priceInput);
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "remove-person-pricing-button";
+        removeButton.textContent = "Remove";
+        removeButton.setAttribute("aria-label", "Remove this person");
+
+        row.append(personField, priceField, removeButton);
+        rowsContainer.appendChild(row);
+        return row;
+    }
+
+    function syncPersonPricingValue(editor) {
+        const hiddenInput = editor.querySelector("[data-detail-key='makeupPeopleEntries']");
+        const rows = [...editor.querySelectorAll(".people-pricing-row")].map(row => {
+            const priceText = row.querySelector("[data-makeup-price]").value.trim();
+            return {
+                person: row.querySelector("[data-makeup-person]").value.trim(),
+                // Store a JSON number for valid prices, not a quoted string.
+                price: priceText === "" ? "" : Number(priceText)
+            };
+        });
+
+        hiddenInput.value = JSON.stringify(rows);
+        hiddenInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+        const summary = editor.querySelector(".people-pricing-summary");
+        const count = rows.filter(row => row.person || row.price).length;
+        const subtotal = rows.reduce((sum, row) => {
+            const value = Number(row.price);
+            return row.price !== "" && Number.isFinite(value) && value > 0 ? sum + value : sum;
+        }, 0);
+        summary.textContent = `${count} person row(s) · Individual subtotal: LKR ${subtotal.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function createPersonPricingField(field, initialValue = "") {
+        const wrapper = document.createElement("div");
+        wrapper.className = "form-field full-width";
+
+        const label = document.createElement("label");
+        label.textContent = field.label;
+        wrapper.appendChild(label);
+
+        const editor = document.createElement("div");
+        editor.className = "people-pricing-editor";
+        const rowsContainer = document.createElement("div");
+        rowsContainer.className = "people-pricing-rows";
+        editor.appendChild(rowsContainer);
+
+        const actions = document.createElement("div");
+        actions.className = "people-pricing-actions";
+        const addButton = document.createElement("button");
+        addButton.type = "button";
+        addButton.className = "add-person-pricing-button";
+        addButton.textContent = "+ Add Person";
+        actions.appendChild(addButton);
+
+        const summary = document.createElement("span");
+        summary.className = "people-pricing-summary";
+        summary.textContent = "Add each person and their agreed price.";
+        actions.appendChild(summary);
+        editor.appendChild(actions);
+
+        const hiddenInput = document.createElement("input");
+        hiddenInput.type = "hidden";
+        hiddenInput.id = `categoryDetail_${field.key}`;
+        hiddenInput.dataset.detailKey = field.key;
+        hiddenInput.value = initialValue || "";
+
+        const error = document.createElement("span");
+        error.className = "form-error";
+        error.id = `categoryDetailError_${field.key}`;
+
+        let entries = [];
+        if (initialValue) {
+            try {
+                const parsed = JSON.parse(initialValue);
+                if (Array.isArray(parsed)) entries = parsed;
+            } catch (error) {
+                console.warn("Could not read saved individual makeup prices:", error);
+            }
+        }
+        if (entries.length === 0) entries = [{ person: "", price: "" }];
+        entries.forEach(entry => createPersonPricingRow(rowsContainer, entry));
+
+        addButton.addEventListener("click", () => {
+            createPersonPricingRow(rowsContainer);
+            syncPersonPricingValue(editor);
+        });
+
+        rowsContainer.addEventListener("click", event => {
+            const removeButton = event.target.closest(".remove-person-pricing-button");
+            if (!removeButton) return;
+            removeButton.closest(".people-pricing-row").remove();
+            syncPersonPricingValue(editor);
+        });
+
+        rowsContainer.addEventListener("input", () => syncPersonPricingValue(editor));
+        rowsContainer.addEventListener("change", () => syncPersonPricingValue(editor));
+
+        editor.appendChild(hiddenInput);
+        wrapper.append(editor, error);
+        syncPersonPricingValue(editor);
+        return wrapper;
+    }
+
+    function createDynamicField(field, initialValue = "") {
+        if (field.type === "personPricingList") {
+            return createPersonPricingField(field, initialValue);
+        }
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "form-field";
+
+        const label = document.createElement("label");
+        const inputId = `categoryDetail_${field.key}`;
+        label.htmlFor = inputId;
+        label.textContent = field.label;
+
+        let control;
+        if (field.type === "select") {
+            control = document.createElement("select");
+            control.add(new Option("Select an option", ""));
+            (field.options || []).forEach(option => control.add(new Option(option, option)));
+            control.value = initialValue || field.defaultValue || "";
+        } else {
+            control = document.createElement("input");
+            control.type = field.type || "text";
+            control.placeholder = field.placeholder || "";
+            if (field.type === "number") {
+                control.min = String(field.min ?? 0);
+                control.step = String(field.step ?? "any");
+                control.inputMode = "decimal";
+            }
+            control.value = initialValue !== "" && initialValue != null
+                ? String(initialValue)
+                : (field.defaultValue ?? "");
+        }
+
+        control.id = inputId;
+        control.dataset.detailKey = field.key;
+        if (field.required) control.required = true;
+        if (field.maxLength) control.maxLength = field.maxLength;
+        if (field.type !== "number") control.maxLength = field.maxLength || 80;
+        control.autocomplete = "off";
+
+        const error = document.createElement("span");
+        error.className = "form-error";
+        error.id = `categoryDetailError_${field.key}`;
+
+        wrapper.append(label, control, error);
+        return wrapper;
+    }
+
+    function renderCategorySpecificFields(selectedValue, initialValues = {}) {
+        const section = document.getElementById("categorySpecificSection");
+        const grid = document.getElementById("categoryDetailGrid");
+        const customField = document.getElementById("customCategoryField");
+        const customInput = document.getElementById("expenseCustomCategory");
+        const categoryHelp = document.getElementById("categorySpecificHelp");
+
+        grid.replaceChildren();
+        customField.hidden = selectedValue !== CUSTOM_CATEGORY_VALUE;
+        section.hidden = !selectedValue;
+
+        if (selectedValue === CUSTOM_CATEGORY_VALUE) {
+            addCategoryNote(grid, "Enter a name for your new category. The amount for a custom category is entered manually.");
+            customInput.value = initialValues.customCategory || "";
+            setAmountInputMode(true);
+            document.getElementById("expenseAmount").value = initialValues.amount || "";
+            categoryHelp.textContent = "Create a category that is not included in the built-in wedding expense list.";
+            return;
+        }
+
+        const schema = CATEGORY_FIELD_SCHEMAS[selectedValue];
+        if (!schema) {
+            if (selectedValue) {
+                addCategoryNote(grid, "This is a saved custom category. Enter its amount manually and describe the expense below.");
+                categoryHelp.textContent = "Custom category details";
+                setAmountInputMode(true);
+                document.getElementById("expenseAmount").value = initialValues.amount || "";
+            } else {
+                setAmountInputMode(false);
+                document.getElementById("expenseAmount").value = "";
+                document.getElementById("expenseAmount").placeholder = "Select a category first";
+            }
+            return;
+        }
+
+        customInput.value = "";
+        categoryHelp.textContent = schema.help;
+        setAmountInputMode(false);
+
+        // Convert older Makeup & Hair records that used one shared rate into individual rows.
+        const valuesToRender = { ...initialValues };
+        if (selectedValue === "Makeup & Hair" && !valuesToRender.makeupPeopleEntries &&
+            valuesToRender.makeupPeople && valuesToRender.makeupPricePerPerson) {
+            const peopleCount = Math.max(1, Number(valuesToRender.makeupPeople) || 1);
+            const legacyRows = Array.from({ length: peopleCount }, (_, index) => ({
+                person: `Person ${index + 1}`,
+                price: String(valuesToRender.makeupPricePerPerson)
+            }));
+            valuesToRender.makeupPeopleEntries = JSON.stringify(legacyRows);
+        }
+
+        schema.fields.forEach(field => {
+            grid.appendChild(createDynamicField(field, valuesToRender[field.key] ?? ""));
+        });
+
+        const formulaNote = document.createElement("p");
+        formulaNote.className = "calculation-status";
+        formulaNote.id = "categoryCalculationNote";
+        formulaNote.textContent = `Calculation: ${schema.formula}`;
+        grid.appendChild(formulaNote);
+
+        calculateCategoryAmount();
+    }
+
+    function readCategoryDetails() {
+        const details = {};
+        document.querySelectorAll("#categoryDetailGrid [data-detail-key]").forEach(control => {
+            details[control.dataset.detailKey] = control.value.trim();
+        });
+        return details;
+    }
+
+    function validateCategoryDetails(selectedValue, categoryName) {
+        const errors = {};
+        const customInput = document.getElementById("expenseCustomCategory");
+
+        if (selectedValue === CUSTOM_CATEGORY_VALUE) {
+            if (!categoryName) {
+                errors.customCategory = "Enter a custom category name.";
+            } else if (categoryName.length > 60 || /[|\r\n]/.test(categoryName)) {
+                errors.customCategory = "Category name must be 60 characters or fewer and must not contain | or line breaks.";
+            }
+            return errors;
+        }
+
+        const schema = CATEGORY_FIELD_SCHEMAS[selectedValue];
+        if (!schema) return errors;
+
+        schema.fields.forEach(field => {
+            const control = document.getElementById(`categoryDetail_${field.key}`);
+            const value = control ? control.value.trim() : "";
+            const errorKey = `detail_${field.key}`;
+
+            if (field.type === "personPricingList") {
+                let entries = [];
+                try {
+                    entries = value ? JSON.parse(value) : [];
+                } catch (error) {
+                    entries = [];
+                }
+                const validEntries = Array.isArray(entries) && entries.length > 0 &&
+                    entries.every(entry => String(entry.person ?? "").trim() !== "" &&
+                        String(entry.price ?? "").trim() !== "" &&
+                        Number.isFinite(Number(entry.price)) && Number(entry.price) > 0);
+                if (!validEntries) {
+                    errors[errorKey] = "Add at least one person and enter a valid individual price greater than zero for every row.";
+                }
+                return;
+            }
+
+            if (field.required && !value) {
+                errors[errorKey] = `${field.label} is required.`;
+                return;
+            }
+
+            if (field.type === "number" && value !== "") {
+                const numeric = Number(value);
+                if (!Number.isFinite(numeric) || numeric < Number(field.min ?? 0)) {
+                    errors[errorKey] = `${field.label} must be ${Number(field.min ?? 0) > 0 ? "at least " + field.min : "zero or greater"}.`;
+                }
+            } else if (field.type !== "number" && /[|\r\n]/.test(value)) {
+                errors[errorKey] = `${field.label} must not contain | or line breaks.`;
+            }
+        });
+
+        return errors;
+    }
+
+    function displayCategoryDetailErrors(errors) {
+        Object.entries(errors).forEach(([key, message]) => {
+            if (key === "customCategory") {
+                const control = document.getElementById("expenseCustomCategory");
+                control.setAttribute("aria-invalid", "true");
+                document.getElementById("customCategoryError").textContent = message;
+                return;
+            }
+
+            if (key.startsWith("detail_")) {
+                const detailKey = key.slice("detail_".length);
+                const control = document.getElementById(`categoryDetail_${detailKey}`);
+                const error = document.getElementById(`categoryDetailError_${detailKey}`);
+                if (control && error) {
+                    control.setAttribute("aria-invalid", "true");
+                    error.textContent = message;
+                }
+            }
+        });
+    }
+
+    function clearCategoryDetailErrors() {
+        document.querySelectorAll("#categoryDetailGrid [data-detail-key]").forEach(control => {
+            control.removeAttribute("aria-invalid");
+        });
+        document.querySelectorAll("#categoryDetailGrid .form-error").forEach(error => {
+            error.textContent = "";
+        });
+        document.getElementById("expenseCustomCategory").removeAttribute("aria-invalid");
+        document.getElementById("customCategoryError").textContent = "";
+    }
+
+    function calculateCategoryAmount() {
+        const selectedValue = document.getElementById("expenseCategory").value;
+        const amountInput = document.getElementById("expenseAmount");
+        const details = readCategoryDetails();
+
+        if (!selectedValue || selectedValue === CUSTOM_CATEGORY_VALUE || !CATEGORY_FIELD_SCHEMAS[selectedValue]) {
+            if (selectedValue !== CUSTOM_CATEGORY_VALUE && !CATEGORY_FIELD_SCHEMAS[selectedValue]) {
+                amountInput.readOnly = false;
+            }
+            return;
+        }
+
+        const n = key => {
+            const value = details[key];
+            return value === "" || value == null ? NaN : Number(value);
+        };
+        const optional = key => {
+            const value = details[key];
+            return value === "" || value == null ? 0 : Number(value);
+        };
+
+        let total = null;
+        switch (selectedValue) {
+            case "Catering":
+                if (Number.isFinite(n("guestCount")) && Number.isFinite(n("pricePerPlate"))) {
+                    total = (n("guestCount") + optional("extraPlates")) * n("pricePerPlate");
+                }
+                break;
+            case "Venue":
+                if (Number.isFinite(n("rentalPrice"))) total = n("rentalPrice");
+                break;
+            case "Decoration":
+                if (Number.isFinite(n("tableCount")) && Number.isFinite(n("pricePerTable"))) {
+                    total = n("tableCount") * n("pricePerTable") + optional("stageDecorationCost");
+                }
+                break;
+            case "Photography":
+                if (Number.isFinite(n("packagePrice"))) total = n("packagePrice");
+                break;
+            case "Videography":
+                if (Number.isFinite(n("videoPackagePrice"))) {
+                    total = n("videoPackagePrice") +
+                        (details.droneService === "Yes" ? optional("droneFee") : 0);
+                }
+                break;
+            case "Bridal Attire":
+                if (Number.isFinite(n("bridalOutfitCount")) && Number.isFinite(n("bridalPricePerOutfit"))) {
+                    total = n("bridalOutfitCount") * n("bridalPricePerOutfit") + optional("bridalAlterations");
+                }
+                break;
+            case "Groom Attire":
+                if (Number.isFinite(n("groomOutfitCount")) && Number.isFinite(n("groomPricePerOutfit"))) {
+                    total = n("groomOutfitCount") * n("groomPricePerOutfit") + optional("groomAlterations");
+                }
+                break;
+            case "Makeup & Hair":
+                try {
+                    const people = JSON.parse(details.makeupPeopleEntries || "[]");
+                    if (Array.isArray(people) && people.length > 0 && people.every(person =>
+                        String(person.person ?? "").trim() !== "" &&
+                        String(person.price ?? "").trim() !== "" &&
+                        Number.isFinite(Number(person.price)) && Number(person.price) > 0
+                    )) {
+                        total = people.reduce((sum, person) => sum + Number(person.price), 0) + optional("makeupTravelFee");
+                    }
+                } catch (error) {
+                    total = null;
+                }
+                break;
+            case "Wedding Cake":
+                if (Number.isFinite(n("cakeServings")) && Number.isFinite(n("cakePricePerServing"))) {
+                    total = n("cakeServings") * n("cakePricePerServing") + optional("cakeDesignFee");
+                }
+                break;
+            case "Flowers":
+                if (Number.isFinite(n("bouquetCount")) && Number.isFinite(n("pricePerBouquet"))) {
+                    total = n("bouquetCount") * n("pricePerBouquet") +
+                        optional("flowerTableCount") * optional("pricePerFlowerArrangement");
+                }
+                break;
+            case "Music & Entertainment":
+                if (Number.isFinite(n("entertainmentHours")) && Number.isFinite(n("entertainmentRate"))) {
+                    total = n("entertainmentHours") * n("entertainmentRate") + optional("equipmentFee");
+                }
+                break;
+            case "Transportation":
+                if (Number.isFinite(n("vehicleCount")) && Number.isFinite(n("tripsPerVehicle")) && Number.isFinite(n("transportPricePerTrip"))) {
+                    total = n("vehicleCount") * n("tripsPerVehicle") * n("transportPricePerTrip");
+                }
+                break;
+            case "Invitations & Printing":
+                if (Number.isFinite(n("cardQuantity")) && Number.isFinite(n("pricePerCard"))) {
+                    total = n("cardQuantity") * n("pricePerCard") + optional("printingDesignFee");
+                }
+                break;
+            default:
+                total = null;
+        }
+
+        amountInput.value = total !== null && Number.isFinite(total) ? total.toFixed(2) : "";
+    }
+
+    function parseStoredDescription(storedDescription) {
+        const marker = " [[BUDGET_DETAILS:";
+        const markerIndex = storedDescription.lastIndexOf(marker);
+        if (markerIndex < 0 || !storedDescription.endsWith("]]")) {
+            return { description: storedDescription, details: {} };
+        }
+
+        const encoded = storedDescription.slice(markerIndex + marker.length, -2);
+        try {
+            const payload = JSON.parse(decodeURIComponent(encoded));
+            return {
+                description: storedDescription.slice(0, markerIndex),
+                details: payload && typeof payload.details === "object" ? payload.details : {}
+            };
+        } catch (error) {
+            console.warn("Could not parse saved category details:", error);
+            return { description: storedDescription, details: {} };
+        }
+    }
+
+    function buildStoredDescription(description, details) {
+        if (!details || Object.keys(details).length === 0) return description;
+        const encoded = encodeURIComponent(JSON.stringify({ details }));
+        return `${description} [[BUDGET_DETAILS:${encoded}]]`;
+    }
+
+    // Validate the common Budget fields before sending data to the REST API.
     function validateBudgetForm(budgetId, weddingId, category, description, amount) {
         const errors = {};
 
@@ -2052,13 +3026,13 @@
         if (!category) {
             errors.category = "Category is required.";
         } else if (/[|\r\n]/.test(category)) {
-            errors.category = "Category cannot contain | or line breaks.";
+            errors.category = "Category must not contain | or line breaks.";
         }
 
         if (!description) {
             errors.description = "Description is required.";
         } else if (/[|\r\n]/.test(description)) {
-            errors.description = "Description cannot contain | or line breaks.";
+            errors.description = "Description must not contain | or line breaks.";
         }
 
         if (!Number.isFinite(amount) || amount <= 0) {
@@ -2077,28 +3051,52 @@
         return errors;
     }
 
+    function setDynamicError(fieldId, message) {
+        const control = document.getElementById(fieldId);
+        if (control) control.setAttribute("aria-invalid", "true");
+        const error = document.getElementById(`${fieldId}Error`);
+        if (error) error.textContent = message;
+    }
+
     // Create a new budget record or update the selected record.
     async function saveBudgetItem(event) {
         event.preventDefault();
 
         const budgetId = document.getElementById("expenseBudgetId").value.trim().toUpperCase();
         const weddingId = document.getElementById("expenseWeddingId").value.trim().toUpperCase();
-        const category = document.getElementById("expenseCategory").value.trim();
+        const categorySelection = document.getElementById("expenseCategory").value;
+        const category = getSelectedCategoryName();
         const description = document.getElementById("expenseDescription").value.trim();
         const amount = Number(document.getElementById("expenseAmount").value);
+        const details = readCategoryDetails();
         const saveButton = document.getElementById("saveExpenseButton");
 
         clearAllFieldErrors();
+        clearCategoryDetailErrors();
+
         const validationErrors = validateBudgetForm(budgetId, weddingId, category, description, amount);
-        const invalidFields = Object.keys(validationErrors);
+        const detailErrors = validateCategoryDetails(categorySelection, category);
+        const allErrors = { ...validationErrors, ...detailErrors };
+        const invalidFields = Object.keys(allErrors);
+
         if (invalidFields.length > 0) {
             displayFieldErrors(validationErrors);
+            displayCategoryDetailErrors(detailErrors);
             showExpenseFormMessage("Please correct the highlighted fields and try again.", "error");
-            document.getElementById(FORM_FIELD_IDS[invalidFields[0]].input).focus();
+
+            const firstError = invalidFields[0];
+            if (firstError.startsWith("detail_")) {
+                document.getElementById(`categoryDetail_${firstError.slice(7)}`)?.focus();
+            } else if (firstError === "customCategory") {
+                document.getElementById("expenseCustomCategory").focus();
+            } else {
+                document.getElementById(FORM_FIELD_IDS[firstError].input).focus();
+            }
             return;
         }
 
-        const budgetRecord = { budgetId, weddingId, category, description, amount };
+        const storedDescription = buildStoredDescription(description, details);
+        const budgetRecord = { budgetId, weddingId, category, description: storedDescription, amount };
         const isEditing = editingBudgetId !== null;
         const requestUrl = isEditing
             ? `${API_URL}/${encodeURIComponent(editingBudgetId)}`
@@ -2131,6 +3129,12 @@
             document.getElementById("expenseForm").reset();
             editingBudgetId = null;
             setExpenseFormMode(false);
+            renderCategorySpecificFields("", {});
+            try {
+                document.getElementById("expenseBudgetId").value = getNextBudgetId();
+            } catch (error) {
+                document.getElementById("expenseBudgetId").value = "";
+            }
             showExpenseFormMessage(
                 isEditing ? "Budget item updated successfully." : "Budget item added successfully.",
                 "success"
@@ -2144,18 +3148,42 @@
             );
         } finally {
             saveButton.disabled = false;
-            saveButton.textContent = "Save Budget Item";
             if (editingBudgetId !== null) {
                 setExpenseFormMode(true);
+            } else {
+                saveButton.textContent = "Save Budget Item";
             }
         }
     }
+
+    // Category selector changes reveal the matching cost fields.
+    function handleCategoryChange() {
+        const selected = document.getElementById("expenseCategory").value;
+        clearFieldError("category");
+        clearFieldError("customCategory");
+        clearCategoryDetailErrors();
+        document.getElementById("expenseFormMessage").textContent = "";
+        document.getElementById("expenseFormMessage").className = "form-message";
+        renderCategorySpecificFields(selected, {});
+        document.getElementById("expenseAmount").value = "";
+    }
+
+    function handleDynamicFieldInteraction(event) {
+        if (!event.target.matches("[data-detail-key]")) return;
+        const detailKey = event.target.dataset.detailKey;
+        event.target.removeAttribute("aria-invalid");
+        const error = document.getElementById(`categoryDetailError_${detailKey}`);
+        if (error) error.textContent = "";
+        calculateCategoryAmount();
+    }
+
+    // Delete a budget record after explicit confirmation.
 
     // Delete a budget record after explicit confirmation.
     async function deleteBudgetItem(budget) {
         const budgetId = String(budget.budgetId ?? "");
         const confirmed = window.confirm(
-                `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
+            `Delete budget ${budgetId}? This will permanently remove this record from budgets.txt.`
         );
 
         if (!confirmed) {
@@ -2302,6 +3330,8 @@
 
             allBudgets = budgets;
             populateBudgetFilters(allBudgets);
+            const currentCategory = document.getElementById("expenseCategory").value;
+            populateExpenseCategoryOptions(allBudgets, currentCategory);
 
             // Update the overview cards.
             const total = budgets.reduce((sum, budget) => {
@@ -2359,7 +3389,9 @@
     document.getElementById("expenseForm").addEventListener("submit", saveBudgetItem);
 
     Object.entries(FORM_FIELD_IDS).forEach(([fieldName, field]) => {
-        document.getElementById(field.input).addEventListener("input", () => {
+        const control = document.getElementById(field.input);
+        const eventName = fieldName === "category" ? "change" : "input";
+        control.addEventListener(eventName, () => {
             clearFieldError(fieldName);
             const message = document.getElementById("expenseFormMessage");
             if (message.classList.contains("error")) {
@@ -2367,6 +3399,14 @@
                 message.className = "form-message";
             }
         });
+    });
+
+    document.getElementById("expenseCategory").addEventListener("change", handleCategoryChange);
+    document.getElementById("categoryDetailGrid").addEventListener("input", handleDynamicFieldInteraction);
+    document.getElementById("categoryDetailGrid").addEventListener("change", handleDynamicFieldInteraction);
+    document.getElementById("expenseCustomCategory").addEventListener("input", () => {
+        clearFieldError("customCategory");
+        document.getElementById("expenseAmount").readOnly = false;
     });
 
     // Load the overview, table and chart together from the existing GET endpoint.
