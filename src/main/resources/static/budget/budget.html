@@ -1547,6 +1547,20 @@
             background: #F8F5EF;
         }
 
+        #expenseTemplateField {
+            margin-bottom: 20px;
+        }
+
+        #expenseTemplateField[hidden] {
+            display: none !important;
+        }
+
+        .template-message {
+            color: #7A6849;
+            font-weight: 600;
+            min-height: 0;
+        }
+
         .category-specific-section {
             grid-column: 1 / -1;
             padding: 20px;
@@ -1985,6 +1999,28 @@
             <h2 class="expense-form-heading" id="expenseFormTitle">Add New Budget Item</h2>
 
             <form id="expenseForm" novalidate>
+                <div class="form-field full-width" id="expenseTemplateField">
+                    <label for="expenseTemplateSelect">Quick Template (Optional)</label>
+                    <select id="expenseTemplateSelect">
+                        <option value="">Choose a common wedding expense</option>
+                        <option value="catering">Catering package</option>
+                        <option value="venue">Wedding venue booking</option>
+                        <option value="decoration">Venue and stage decoration</option>
+                        <option value="photography">Wedding photography package</option>
+                        <option value="videography">Wedding videography package</option>
+                        <option value="bridal-attire">Bridal outfit and accessories</option>
+                        <option value="groom-attire">Groom outfit and accessories</option>
+                        <option value="makeup">Makeup and hair services</option>
+                        <option value="cake">Wedding cake package</option>
+                        <option value="flowers">Wedding floral arrangements</option>
+                        <option value="entertainment">Music and entertainment</option>
+                        <option value="transportation">Wedding transportation</option>
+                        <option value="invitations">Invitations and printing</option>
+                    </select>
+                    <span class="form-help">A template fills the category and a suggested description. Enter the actual agreed amount yourself.</span>
+                    <span class="form-help template-message" id="expenseTemplateMessage" role="status" aria-live="polite"></span>
+                </div>
+
                 <div class="expense-form-grid">
 
                     <div class="form-field">
@@ -2341,10 +2377,107 @@
 
         title.textContent = isEditing ? "Edit Budget Item" : "Add New Budget Item";
         budgetIdInput.readOnly = true;
+        document.getElementById("expenseTemplateField").hidden = isEditing;
+        document.getElementById("expenseTemplateSelect").value = "";
+        document.getElementById("expenseTemplateMessage").textContent = "";
         saveButton.textContent = isEditing ? "Update Budget Item" : "Save Budget Item";
         document.getElementById("budgetIdHelp").textContent = isEditing
             ? "This existing Budget ID is fixed. Only the item's details can be updated."
             : "A unique Budget ID is generated automatically after checking all existing records.";
+    }
+
+    // Quick templates only fill the category and a suggested description.
+    // The user always enters the real amount; no prices are assumed.
+    const EXPENSE_TEMPLATES = Object.freeze({
+        catering: {
+            label: "Catering package",
+            category: "Catering",
+            description: "Wedding catering package"
+        },
+        venue: {
+            label: "Wedding venue booking",
+            category: "Venue",
+            description: "Wedding venue booking"
+        },
+        decoration: {
+            label: "Venue and stage decoration",
+            category: "Decoration",
+            description: "Wedding venue and stage decoration"
+        },
+        photography: {
+            label: "Wedding photography package",
+            category: "Photography",
+            description: "Wedding photography package"
+        },
+        videography: {
+            label: "Wedding videography package",
+            category: "Videography",
+            description: "Wedding videography package"
+        },
+        "bridal-attire": {
+            label: "Bridal outfit and accessories",
+            category: "Bridal Attire",
+            description: "Bridal outfit and accessories"
+        },
+        "groom-attire": {
+            label: "Groom outfit and accessories",
+            category: "Groom Attire",
+            description: "Groom outfit and accessories"
+        },
+        makeup: {
+            label: "Makeup and hair services",
+            category: "Makeup & Hair",
+            description: "Wedding makeup and hair services"
+        },
+        cake: {
+            label: "Wedding cake package",
+            category: "Wedding Cake",
+            description: "Wedding cake package"
+        },
+        flowers: {
+            label: "Wedding floral arrangements",
+            category: "Flowers",
+            description: "Wedding floral arrangements"
+        },
+        entertainment: {
+            label: "Music and entertainment",
+            category: "Music & Entertainment",
+            description: "Wedding music and entertainment"
+        },
+        transportation: {
+            label: "Wedding transportation",
+            category: "Transportation",
+            description: "Wedding transportation"
+        },
+        invitations: {
+            label: "Invitations and printing",
+            category: "Invitations & Printing",
+            description: "Wedding invitations and printing"
+        }
+    });
+
+    function applyExpenseTemplate(templateKey) {
+        const template = EXPENSE_TEMPLATES[templateKey];
+        if (!template || editingBudgetId !== null) return;
+
+        const categorySelect = document.getElementById("expenseCategory");
+        const categoryExists = [...categorySelect.options]
+            .some(option => option.value === template.category);
+
+        if (!categoryExists) {
+            showExpenseFormMessage("This template category is not available. Please choose a category manually.", "error");
+            return;
+        }
+
+        categorySelect.value = template.category;
+        categorySelect.dispatchEvent(new Event("change", { bubbles: true }));
+        document.getElementById("expenseDescription").value = template.description;
+        clearFieldError("category");
+        clearFieldError("description");
+
+        const message = document.getElementById("expenseTemplateMessage");
+        message.textContent = `${template.label} applied. You can edit the category and description before saving.`;
+        showExpenseFormMessage("Template applied. Enter the actual amount and Wedding ID before saving.", "success");
     }
 
     function openExpenseForm() {
@@ -3351,6 +3484,8 @@
         clearCategoryDetailErrors();
         document.getElementById("expenseFormMessage").textContent = "";
         document.getElementById("expenseFormMessage").className = "form-message";
+        document.getElementById("expenseTemplateMessage").textContent = "";
+        document.getElementById("expenseTemplateSelect").value = "";
         renderCategorySpecificFields(selected, {});
         document.getElementById("expenseAmount").value = "";
     }
@@ -3573,6 +3708,9 @@
     document.getElementById("resetFilters").addEventListener("click", resetBudgetFilters);
     document.getElementById("addExpenseButton").addEventListener("click", openExpenseForm);
     document.getElementById("cancelExpenseButton").addEventListener("click", closeExpenseForm);
+    document.getElementById("expenseTemplateSelect").addEventListener("change", event => {
+        if (event.target.value) applyExpenseTemplate(event.target.value);
+    });
     document.getElementById("expenseForm").addEventListener("submit", saveBudgetItem);
 
     Object.entries(FORM_FIELD_IDS).forEach(([fieldName, field]) => {
