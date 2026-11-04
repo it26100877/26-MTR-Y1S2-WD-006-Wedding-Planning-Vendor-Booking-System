@@ -93,7 +93,7 @@ public class VendorService implements VendorOperations {
             throw new IllegalArgumentException(
                     "Contact number must be a valid 10-digit number. Example: 0712345678"
             );
-        } 
+        }
         if (!Double.isFinite(vendor.getPrice()) || vendor.getPrice() < 0) {
             throw new IllegalArgumentException("Price cannot be negative.");
         }
@@ -116,9 +116,10 @@ public class VendorService implements VendorOperations {
 
                 String[] fields = line.split("\\|", -1);
 
-                if (fields.length != 7) {
+                if (fields.length != 7 && fields.length != 8) {
                     continue;
                 }
+
 
                 Vendor vendor = new Vendor();
                 vendor.setVendorId(fields[0]);
@@ -128,6 +129,9 @@ public class VendorService implements VendorOperations {
                 vendor.setEmail(fields[4]);
                 vendor.setPrice(Double.parseDouble(fields[5]));
                 vendor.setAvailability(fields[6]);
+                if (fields.length == 8) {
+                    vendor.setLocation(fields[7]);
+                }
 
                 vendors.put(vendor.getVendorId(), vendor);
             }
@@ -150,7 +154,8 @@ public class VendorService implements VendorOperations {
                     safe(vendor.getPhone()),
                     safe(vendor.getEmail()),
                     Double.toString(vendor.getPrice()),
-                    safe(vendor.getAvailability()));
+                    safe(vendor.getAvailability()),
+                    safe(vendor.getLocation()));
 
             lines.add(line);
         }
