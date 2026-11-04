@@ -6,7 +6,8 @@ public class Vendor {
         private String vendorId;
         private String vendorName;
         private String category;
-        private String contactNumber;
+        private String phone;
+        private String location;
         private String email;
         private double price;
         private String availability;
@@ -35,14 +36,12 @@ public class Vendor {
             this.category = category;
         }
 
-        public String getContactNumber() {
-            return contactNumber;
-        }
-
-        public void setContactNumber(String contactNumber) {
-            this.contactNumber = contactNumber;
-        }
-
+        public String getPhone() {
+           return phone;
+         }
+         public void setPhone(String phone) {
+        this.phone = phone;
+          }
         public String getEmail() {
             return email;
         }
@@ -66,4 +65,13 @@ public class Vendor {
         public void setAvailability(String availability) {
             this.availability = availability;
         }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }
+

@@ -627,7 +627,10 @@
                 </select>
 
                 <label for="contactNumber">Contact Number</label>
-                <input id="contactNumber" name="contactNumber" type="tel" autocomplete="tel" required maxlength="30" placeholder="0771234567">
+                <input id="contactNumber" name="contactNumber" type="tel" autocomplete="tel" required minlength="10"
+                       pattern="0[0-9]{9}"
+                       inputmode="numeric"
+                       title="Enter a valid 10-digit phone number" minlength="10" maxlength="10" placeholder="0771234567">
 
                 <label for="email">Email</label>
                 <input id="email" name="email" type="email" autocomplete="email" required maxlength="120" placeholder="vendor@email.com">
@@ -767,7 +770,7 @@
         const list = vendors.filter(v =>
             (!category || v.category === category) &&
             (!availability || v.availability === availability) &&
-            [v.vendorId, v.vendorName, v.category, v.contactNumber, v.email, v.price, v.availability]
+            [v.vendorId, v.vendorName, v.category, v.phone, v.email, v.price, v.availability]
                 .some(value => String(value ?? "").toLowerCase().includes(term))
         );
 
@@ -813,11 +816,21 @@
             vendorId: document.getElementById("vendorId").value.trim(),
             vendorName: document.getElementById("vendorName").value.trim(),
             category: document.getElementById("category").value,
-            contactNumber: document.getElementById("contactNumber").value.trim(),
+            phone: document.getElementById("contactNumber").value.trim(),
             email: document.getElementById("email").value.trim(),
             price: Number(document.getElementById("price").value),
             availability: document.getElementById("availability").value
         };
+        const phonePattern = /^0[0-9]{9}$/;
+
+        if (!phonePattern.test(vendor.phone)) {
+            showMessage(
+                "Please enter a valid 10-digit phone number. Example: 0712345678",
+                "error"
+            );
+            document.getElementById("contactNumber").focus();
+            return;
+        }
 
         if (!Number.isFinite(vendor.price) || vendor.price < 0) {
             showMessage("Please enter a valid price.", "error");

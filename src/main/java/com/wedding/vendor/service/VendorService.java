@@ -87,6 +87,14 @@ public class VendorService implements VendorOperations {
                 || vendor.getVendorName().isBlank()) {
             throw new IllegalArgumentException("Vendor name is required.");
         }
+        if (vendor.getPhone() == null ||
+                !vendor.getPhone().trim().matches("0[0-9]{9}")) {
+
+            throw new IllegalArgumentException(
+                    "Contact number must be a valid 10-digit number. Example: 0712345678"
+            );
+        }
+
     }
 
     private void loadFromFile() {
@@ -113,7 +121,7 @@ public class VendorService implements VendorOperations {
                 vendor.setVendorId(fields[0]);
                 vendor.setVendorName(fields[1]);
                 vendor.setCategory(fields[2]);
-                vendor.setContactNumber(fields[3]);
+                vendor.setPhone(fields[3]);
                 vendor.setEmail(fields[4]);
                 vendor.setPrice(Double.parseDouble(fields[5]));
                 vendor.setAvailability(fields[6]);
@@ -136,7 +144,7 @@ public class VendorService implements VendorOperations {
                     safe(vendor.getVendorId()),
                     safe(vendor.getVendorName()),
                     safe(vendor.getCategory()),
-                    safe(vendor.getContactNumber()),
+                    safe(vendor.getPhone()),
                     safe(vendor.getEmail()),
                     Double.toString(vendor.getPrice()),
                     safe(vendor.getAvailability()));
