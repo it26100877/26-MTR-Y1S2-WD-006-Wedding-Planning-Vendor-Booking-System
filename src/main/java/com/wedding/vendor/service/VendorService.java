@@ -72,9 +72,9 @@ public class VendorService implements VendorOperations {
 
         return false;
     }
-
     private void validateVendor(Vendor vendor) {
-        if (vendor == null) {
+
+      if (vendor == null) {
             throw new IllegalArgumentException("Vendor details are required.");
         }
 
@@ -93,6 +93,9 @@ public class VendorService implements VendorOperations {
             throw new IllegalArgumentException(
                     "Contact number must be a valid 10-digit number. Example: 0712345678"
             );
+        } 
+        if (!Double.isFinite(vendor.getPrice()) || vendor.getPrice() < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
         }
 
     }
