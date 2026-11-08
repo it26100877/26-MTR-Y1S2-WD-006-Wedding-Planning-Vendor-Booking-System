@@ -60,3 +60,5 @@ This copy builds on the original team ZIP and keeps all other team modules, exis
 - Mark confirmed booking Completed, then verify the Customer review link works.
 
 **No third-party software or dependency was added to `pom.xml`.**
+## Module Ownership
+Booking Management — Member 04 (IT26100881)
