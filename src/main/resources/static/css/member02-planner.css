@@ -1,0 +1,375 @@
+/* Éclat | Member 02 only: Wedding Planning workspace. Other modules remain untouched. */
+.m02{--wine:#8b6d3b;--rose:#bea477;--blush:#fbf7f1;--ink:#292722;--muted:#898174;--line:#e3d5c2;color:var(--ink);font-family:inherit;padding-bottom:2rem}
+.m02 .m02-hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(105deg,rgba(56,23,40,.97),rgba(110,48,67,.94) 64%,rgba(140,81,99,.65)),url('/images/member02/wedding-arch.jpg') center 40%/cover;min-height:225px;padding:35px 38px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:0 16px 35px rgba(83,31,56,.14)}
+.m02 .m02-hero::after{content:'✦';position:absolute;right:29%;top:23%;font-size:115px;color:rgba(255,255,255,.045);pointer-events:none}
+.m02 .m02-eyebrow{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;font-weight:800;color:#ecd3d6;margin-bottom:10px}
+.m02 .m02-hero h1{font-family:Georgia,serif;font-size:clamp(1.8rem,3.3vw,2.75rem);font-weight:600;line-height:1.12;margin:0 0 12px}
+.m02 .m02-hero p{color:#f5e7eb;margin:0;max-width:575px;font-size:.94rem}
+.m02 .m02-hero .m02-hero-right{flex:none;z-index:1}
+.m02 .m02-btn{background:var(--wine);color:#fff!important;border:1px solid var(--wine);padding:10px 19px;border-radius:10px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;justify-content:center;transition:.18s}
+.m02 .m02-btn:hover{background:#823d59;border-color:#823d59;transform:translateY(-1px)}
+.m02 .m02-btn-light{background:#fff!important;color:var(--wine)!important;border-color:#fff}
+.m02 .m02-btn-light:hover{background:#ffe9ec!important}
+.m02 .m02-btn-ghost{background:white!important;color:var(--wine)!important;border:1px solid #dfcbd2}
+.m02 .m02-btn-danger{background:#fff5f5!important;color:#b14757!important;border:1px solid #f1cdd4}
+.m02 .m02-btn-sm{padding:7px 10px;font-size:.83rem;border-radius:9px}
+.m02 .m02-panel,.m02 .m02-stat,.m02 .m02-plan-card{border:1px solid var(--line);box-shadow:0 9px 26px rgba(72,31,49,.055);background:#fff;border-radius:18px}
+.m02 .m02-stat{padding:20px 21px;height:100%;position:relative;overflow:hidden}
+.m02 .m02-stat .m02-stat-icon{height:42px;width:42px;background:#fff0f3;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--wine);font-size:1.1rem;margin-bottom:12px}
+.m02 .m02-stat .label{font-size:.78rem;color:var(--muted);font-weight:700}
+.m02 .m02-stat .value{font-weight:800;font-size:clamp(1.25rem,2vw,1.7rem);color:var(--ink);margin:4px 0}
+.m02 .m02-stat .sub{font-size:.77rem;color:var(--muted)}
+.m02 .m02-heading{font-family:Georgia,serif;font-size:1.55rem;font-weight:700;color:var(--ink);margin:0}
+.m02 .m02-lead{color:var(--muted);font-size:.91rem;margin-top:5px}
+.m02 .m02-plan-card{overflow:hidden;height:100%;transition:box-shadow .18s,transform .18s}
+.m02 .m02-plan-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(72,31,49,.12)}
+.m02 .m02-plan-photo{height:170px;background:#f6e7e7;position:relative;overflow:hidden}
+.m02 .m02-plan-photo img{width:100%;height:100%;object-fit:cover;object-position:center 46%}
+.m02 .m02-photo-cover{position:absolute;inset:0;background:linear-gradient(0deg,rgba(46,22,32,.42),transparent 65%)}
+.m02 .m02-plan-content{padding:19px}
+.m02 .m02-plan-title{font-family:Georgia,serif;font-size:1.28rem;font-weight:700;margin-bottom:11px}
+.m02 .m02-meta{font-size:.84rem;color:#736670;margin-bottom:8px;display:flex;gap:9px;align-items:center}
+.m02 .m02-meta i{color:#a05d76;flex:none}
+.m02 .m02-status{font-size:.68rem;letter-spacing:.035em;font-weight:800;border-radius:99px;padding:6px 10px;white-space:nowrap}
+.m02 .m02-status.active{color:#16734b;background:#e3f5eb}.m02 .m02-status.cancelled{color:#9d495a;background:#fff0ef}.m02 .m02-status.completed{color:#2e64a5;background:#e7f0ff}
+.m02 .m02-track{height:9px;background:#f3e6e8;border-radius:99px;overflow:hidden}
+.m02 .m02-track > span{height:100%;display:block;background:linear-gradient(90deg,#be7288,#723650);border-radius:99px}
+.m02 .m02-empty{text-align:center;background:linear-gradient(160deg,#fff,#fff7f7);border:1px dashed #e3c7d0;border-radius:20px;padding:46px 22px}
+.m02 .m02-empty i{font-size:2.7rem;color:#af758b}.m02 .m02-empty h3{font-family:Georgia,serif;margin:16px 0 7px}.m02 .m02-empty p{color:var(--muted)}
+.m02 .m02-panel{padding:24px}
+.m02 .m02-label{font-size:.85rem;font-weight:750;color:#513846;margin-bottom:7px;display:block}
+.m02 .form-control,.m02 .form-select{border:1px solid #e6d8dd;border-radius:10px;min-height:45px;background-color:#fffcfd;color:var(--ink)}
+.m02 .form-control:focus,.m02 .form-select:focus{border-color:var(--rose);box-shadow:0 0 0 .2rem rgba(185,120,139,.15)}
+.m02 textarea.form-control{min-height:100px}
+.m02 .m02-form-visual{min-height:100%;border-radius:18px;overflow:hidden;position:relative;background:#f0e3e1}
+.m02 .m02-form-visual img{width:100%;height:100%;min-height:490px;object-fit:cover;object-position:center}
+.m02 .m02-visual-copy{position:absolute;inset:auto 0 0;padding:45px 24px 25px;color:#fff;background:linear-gradient(0deg,rgba(53,25,35,.89),transparent)}
+.m02 .m02-visual-copy h3{font:italic 2.3rem Georgia,serif}
+.m02 .m02-check-hero{min-height:190px;background:linear-gradient(100deg,rgba(63,25,43,.96),rgba(112,54,74,.90) 70%,rgba(110,43,65,.45)),url('/images/member02/wedding-flowers.jpg') center/cover}
+.m02 .m02-task{border:1px solid #efe3e6;border-radius:13px;padding:16px;margin-bottom:12px;background:#fff;transition:.15s}
+.m02 .m02-task:hover{background:#fffcfc;border-color:#e1c9d0}
+.m02 .m02-task.done{background:#fcfafb;opacity:.85}.m02 .m02-task.done .task-title{text-decoration:line-through;color:#7c6b73}
+.m02 .task-title{font-weight:750;color:var(--ink)}
+.m02 .m02-chip{display:inline-block;padding:4px 9px;border-radius:6px;font-size:.7rem;font-weight:800;letter-spacing:.02em}
+.m02 .m02-chip.high{background:#ffe7eb;color:#a52b4c}.m02 .m02-chip.medium{background:#fff3db;color:#946019}.m02 .m02-chip.low{background:#edf5ee;color:#457c4f}
+.m02 .m02-chip.overdue{background:#fff0e3;color:#a74c0e}.m02 .m02-chip.pending{background:#f3edf3;color:#806277}.m02 .m02-chip.in_progress{background:#e8f2ff;color:#3269a1}.m02 .m02-chip.completed{background:#e5f5eb;color:#327a51}
+.m02 .m02-divider{border:0;border-top:1px solid #efe3e7;margin:16px 0}
+.m02 .m02-kicker{font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#9a6077}
+.m02 .m02-help{font-size:.77rem;color:#89777f}
+.m02 .m02-modal-bg{position:fixed;z-index:1100;inset:0;background:rgba(35,19,29,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.m02 .m02-modal-bg[hidden]{display:none!important}
+.m02 .m02-modal{background:#fff;width:min(100%,550px);max-height:90vh;overflow-y:auto;border-radius:20px;padding:25px;box-shadow:0 25px 90px rgba(0,0,0,.22)}
+@media(max-width:767px){.m02 .m02-hero{padding:29px 22px;display:block}.m02 .m02-hero-right{margin-top:20px}.m02 .m02-panel{padding:18px}.m02 .m02-form-visual img{min-height:235px;max-height:270px}}
+
+/* ===== Member 02 v2: workspace tabs, pills, filters, charts, tables, timeline, print ===== */
+.m02 .m02-tabs{display:flex;gap:6px;overflow-x:auto;padding:6px;background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:22px;box-shadow:0 6px 18px rgba(72,31,49,.04)}
+.m02 .m02-tabs a{flex:none;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:10px;color:#6f5a65;font-weight:700;font-size:.88rem;text-decoration:none;white-space:nowrap}
+.m02 .m02-tabs a:hover{background:#fff1f3;color:var(--wine)}
+.m02 .m02-tabs a.active{background:var(--wine);color:#fff}
+.m02 .m02-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:.74rem;font-weight:800;background:#f6eef1;color:#7a4b60;white-space:nowrap}
+.m02 .m02-pill.soon{background:#ffe7e3;color:#b3402f}.m02 .m02-pill.near{background:#fff3db;color:#946019}.m02 .m02-pill.far{background:#e5f5eb;color:#327a51}.m02 .m02-pill.past{background:#fff0e3;color:#a74c0e}.m02 .m02-pill.closed{background:#efecee;color:#7b6f76}
+.m02 .m02-pill.type{background:#f1e9f6;color:#6a4686}
+.m02 .m02-hero .m02-pill{background:rgba(255,255,255,.17);color:#fff}
+.m02 .m02-hero .m02-pill.soon{background:#ffd9d3;color:#8d2a1b}
+.m02 .m02-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(100deg,#fff,#fff3f4);border:1px solid #f0d9de;border-radius:16px;padding:14px 18px;margin-bottom:22px}
+.m02 .m02-banner .big{font-family:Georgia,serif;font-size:1.9rem;font-weight:700;color:var(--wine);line-height:1}
+.m02 .m02-filterbar{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:22px;box-shadow:0 6px 18px rgba(72,31,49,.04)}
+.m02 .m02-filterbar .form-control,.m02 .m02-filterbar .form-select{min-height:40px;font-size:.88rem}
+.m02 .m02-filter-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.m02 .m02-filter-tabs button{border:1px solid #e6d8dd;background:#fff;color:#6f5a65;border-radius:99px;padding:6px 14px;font-size:.8rem;font-weight:700}
+.m02 .m02-filter-tabs button.active{background:var(--wine);border-color:var(--wine);color:#fff}
+.m02 .m02-estimate{background:#fff7f7;border:1px dashed #e3c7d0;border-radius:14px;padding:16px}
+.m02 .m02-estimate .amount{font-family:Georgia,serif;font-size:1.6rem;font-weight:700;color:var(--wine)}
+.m02 .m02-type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.m02 .m02-type-grid input{position:absolute;opacity:0;pointer-events:none}
+.m02 .m02-type-grid label{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;border:1px solid #e6d8dd;border-radius:12px;padding:14px 8px;cursor:pointer;font-size:.84rem;font-weight:700;color:#5d4753;background:#fffcfd;transition:.15s}
+.m02 .m02-type-grid label i{font-size:1.4rem;color:#a05d76}
+.m02 .m02-type-grid input:checked + label{border-color:var(--wine);background:#fff0f3;box-shadow:0 0 0 2px rgba(99,43,69,.14);color:var(--wine)}
+.m02 .m02-type-grid input:focus-visible + label{outline:2px solid var(--rose);outline-offset:2px}
+.m02 .m02-chart{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
+.m02 .m02-chart svg{width:170px;height:170px;flex:none}
+.m02 .m02-chart .legend{list-style:none;padding:0;margin:0;font-size:.84rem;flex:1;min-width:150px}
+.m02 .m02-chart .legend li{display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#5d4753}
+.m02 .m02-chart .legend .dot{width:11px;height:11px;border-radius:3px;flex:none}
+.m02 .m02-chart .legend .val{margin-left:auto;font-weight:800;color:var(--ink)}
+.m02 .m02-chart .center-num{font-family:Georgia,serif;font-weight:700;fill:#3c2734}
+.m02 .m02-chart .center-sub{fill:#857781;font-size:3.1px}
+.m02 .m02-table-wrap{overflow-x:auto}
+.m02 .m02-table{width:100%;border-collapse:collapse;font-size:.88rem}
+.m02 .m02-table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:#8a7480;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.m02 .m02-table td{padding:11px 10px;border-bottom:1px solid #f4eaed;vertical-align:middle}
+.m02 .m02-table tr:last-child td{border-bottom:0}
+.m02 .m02-table .num{text-align:right;white-space:nowrap}
+.m02 .m02-table tfoot td{font-weight:800;border-top:2px solid var(--line)}
+.m02 .m02-over{color:#b14757;font-weight:800}
+.m02 .m02-ok{color:#327a51;font-weight:800}
+.m02 .m02-catbar{margin-bottom:14px}
+.m02 .m02-catbar .head{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:5px}
+.m02 .m02-catbar .m02-track>span.over{background:linear-gradient(90deg,#e08a8a,#b14757)}
+.m02 .m02-rsvp{border:1px solid #e6d8dd;border-radius:8px;padding:4px 8px;font-size:.78rem;font-weight:700;background:#fff}
+.m02 .m02-chip.invited{background:#f3edf3;color:#806277}.m02 .m02-chip.confirmed{background:#e5f5eb;color:#327a51}.m02 .m02-chip.declined{background:#ffe7eb;color:#a52b4c}
+.m02 .m02-timeline{position:relative;margin-left:8px;padding-left:26px;border-left:2px solid #ecd9df}
+.m02 .m02-tl-month{font-family:Georgia,serif;font-size:1.15rem;font-weight:700;color:var(--wine);margin:26px 0 12px -26px;padding-left:26px}
+.m02 .m02-tl-month:first-child{margin-top:0}
+.m02 .m02-tl-item{position:relative;background:#fff;border:1px solid #efe3e6;border-radius:12px;padding:12px 15px;margin-bottom:10px}
+.m02 .m02-tl-item::before{content:'';position:absolute;left:-35px;top:17px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #be7288}
+.m02 .m02-tl-item.done::before{background:#4c9a6b;border-color:#4c9a6b}
+.m02 .m02-tl-item.overdue::before{border-color:#c4561a}
+.m02 .m02-tl-item.wedding{background:linear-gradient(100deg,#fff4f6,#fff);border-color:#e7c3cd}
+.m02 .m02-tl-item.wedding::before{background:var(--wine);border-color:var(--wine);width:18px;height:18px;left:-37px;top:15px}
+.m02 .m02-tl-item.done .tl-title{text-decoration:line-through;color:#7c6b73}
+.m02 .tl-date{font-size:.76rem;font-weight:800;color:#9a6077;text-transform:uppercase;letter-spacing:.06em}
+.m02 .tl-title{font-weight:750}
+.m02 .m02-warn{background:#fff6e6;border:1px solid #f1dcae;color:#7d5712;border-radius:12px;padding:10px 14px;font-size:.85rem}
+.m02 .m02-warn.bad{background:#fff0f0;border-color:#f1cdd4;color:#9d3445}
+.m02 .m02-card-actions{display:flex;flex-wrap:wrap;gap:6px}
+.m02 .m02-card-actions form{margin:0}
+.m02 .m02-plan-types{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+@media(max-width:767px){.m02 .m02-chart{justify-content:center}.m02 .m02-tabs a{padding:8px 12px}.m02 .m02-banner{flex-wrap:wrap}}
+@media print{
+ nav,.navbar,footer,.alert,.m02-noprint{display:none!important}
+ body{background:#fff!important}
+ .m02 .m02-hero{background:#fff!important;color:#000!important;box-shadow:none;border:1px solid #999;min-height:0;padding:16px}
+ .m02 .m02-hero h1,.m02 .m02-hero p,.m02 .m02-eyebrow{color:#000!important}
+ .m02 .m02-panel,.m02 .m02-stat{box-shadow:none;break-inside:avoid;border-color:#bbb}
+ .m02 .m02-track{border:1px solid #bbb}
+ .m02 .m02-table th,.m02 .m02-table td{padding:5px 6px}
+}
+
+/* ===== Member 02 v3: coordinated with Éclat public-site ivory & champagne-gold theme =====
+   All selectors are rooted in .m02 to avoid touching other members' UI. */
+.m02 { color:#292722; }
+.m02 .m02-panel,.m02 .m02-stat,.m02 .m02-plan-card,.m02 .m02-filterbar,
+.m02 .m02-tabs,.m02 .m02-modal { background:#fffdf9;border-color:#e3d5c2;
+  box-shadow:0 10px 28px rgba(65,48,27,.065); }
+.m02 .m02-hero { background:linear-gradient(105deg,rgba(46,39,29,.94),rgba(77,61,38,.87) 65%,rgba(133,104,63,.36)),
+  url('/images/member02/wedding-arch.jpg') center 44%/cover;
+  box-shadow:0 15px 34px rgba(76,55,30,.13); }
+.m02 .m02-hero .m02-eyebrow { color:#ebd5ab; }
+.m02 .m02-hero p { color:#f3eada; }
+.m02 .m02-eyebrow { color:#cfb982; }
+.m02 .m02-heading,.m02 .m02-plan-title { color:#302b24; }
+.m02 .m02-lead,.m02 .m02-help,.m02 .m02-stat .label { color:#80786b; }
+.m02 .m02-label { color:#494238; }
+.m02 .m02-btn { background:linear-gradient(115deg,#aa8a53,#866838);color:#fff!important;
+  border-color:#886d42;box-shadow:0 5px 12px rgba(124,97,56,.11); }
+.m02 .m02-btn:hover { background:linear-gradient(115deg,#927547,#71572f);border-color:#725932;color:#fff!important; }
+.m02 .m02-btn-light { background:#fffdf8!important;color:#725b36!important;border-color:#f7eddc; }
+.m02 .m02-btn-light:hover { background:#f4e9d6!important;color:#5d4829!important; }
+.m02 .m02-btn-ghost { background:#fff!important;color:#80653e!important;border-color:#d9c7a6;box-shadow:none; }
+.m02 .m02-btn-ghost:hover { background:#f9f2e6!important;color:#634f30!important; }
+.m02 .m02-stat .m02-stat-icon { color:#9b8051;background:#f5eee2; }
+.m02 .m02-plan-photo { background:#f4eee4; }
+.m02 .m02-meta { color:#6e665b; }
+.m02 .m02-meta i { color:#a48954; }
+.m02 .m02-track { background:#eee7da; }
+.m02 .m02-track > span { background:linear-gradient(90deg,#dbc49a,#987643); }
+.m02 .m02-check-hero { background:linear-gradient(100deg,rgba(47,38,27,.96),rgba(103,78,44,.82) 70%,rgba(127,97,55,.4)),
+  url('/images/member02/wedding-flowers.jpg') center/cover; }
+.m02 .m02-empty { background:linear-gradient(140deg,#fffdf9,#fbf7f1);border-color:#dbccaF; }
+.m02 .m02-empty i,.m02 .m02-kicker { color:#9b8051; }
+.m02 .m02-banner { background:linear-gradient(105deg,#fffdfa,#f8f0e3);border-color:#e4d5bd; }
+.m02 .m02-stat .value,.m02 .m02-banner .big,.m02 .m02-estimate .amount { color:#74572e; }
+.m02 .m02-pill { background:#f4ecdf;color:#715f42; }
+.m02 .m02-pill.type { background:#f4ebdb;color:#876937; }
+.m02 .m02-tabs a { color:#655c4f; }
+.m02 .m02-tabs a:hover { background:#f4ecdf;color:#795f35; }
+.m02 .m02-tabs a.active,.m02 .m02-filter-tabs button.active { color:#fff;background:#886b3d;border-color:#886b3d; }
+.m02 .m02-filter-tabs button { border-color:#dacbb7;color:#655a4b; }
+.m02 .m02-task { border-color:#e9ddcb;background:#fffdf9; }
+.m02 .m02-task:hover { background:#fdf9f2;border-color:#d9c29c; }
+.m02 .m02-task.done { background:#f9f6ef; }
+.m02 .m02-divider,.m02 .m02-table td { border-color:#eee6dc; }
+.m02 .m02-table th { border-color:#e7dbc8;color:#80776b; }
+.m02 .m02-timeline { border-color:#dfc99f; }
+.m02 .m02-tl-month,.m02 .m02-tl-item.wedding .tl-title { color:#886b3d; }
+.m02 .m02-tl-item:before { border-color:#bba073; }
+.m02 .m02-tl-item.wedding { background:#fcf6eb;border-color:#e2cfaa; }
+.m02 .m02-tl-item.wedding:before { background:#997644;border-color:#997644; }
+.m02 .m02-estimate { background:#faf5ec;border-color:#dcc49c; }
+.m02 .m02-form-visual { background:#eee4d5;border:1px solid #e3d5c2;box-shadow:0 10px 25px rgba(65,48,27,.06); }
+.m02 .m02-form-visual img { min-height:490px;object-position:center;transition:opacity .28s ease; }
+.m02 .m02-visual-copy { background:linear-gradient(0deg,rgba(36,30,23,.96),rgba(44,35,24,.66) 62%,transparent); }
+.m02 .m02-visual-copy .m02-eyebrow { color:#e3c691; }
+.m02 .m02-visual-copy h3 { color:#fff5e5; }
+.m02 .m02-visual-copy p { color:#f3eadd; }
+.m02 .m02-preview-chip { position:absolute;top:16px;left:16px;z-index:1;display:inline-flex;gap:7px;
+  align-items:center;border:1px solid rgba(255,250,236,.65);border-radius:999px;padding:7px 12px;
+  background:rgba(39,33,25,.46);backdrop-filter:blur(4px);color:#fff6e4;font-size:.73rem;
+  letter-spacing:.03em;font-weight:650; }
+.m02 .m02-type-grid label { background:#fffdfa;color:#514a3f;border-color:#e3d5c2;min-height:110px; }
+.m02 .m02-type-grid label:hover { background:#faf4e9;border-color:#baa274;transform:translateY(-1px); }
+.m02 .m02-type-grid label i { color:#ae8950; }
+.m02 .m02-type-grid input:checked + label { background:#f6eddd;border-color:#a5834a;
+  box-shadow:0 0 0 2px rgba(190,164,119,.18);color:#785c30; }
+.m02 .m02-type-grid input:checked + label i { color:#8b682f; }
+.m02 .m02-type-grid input:focus-visible + label { outline:2px solid #b99a63;outline-offset:2px; }
+.m02 .form-control,.m02 .form-select { background:#fffdf9!important;color:#292722!important;
+  border-color:#ded3c4!important; }
+.m02 .form-control:focus,.m02 .form-select:focus { border-color:#bea477!important;
+  box-shadow:0 0 0 .2rem rgba(190,164,119,.18)!important; }
+.m02 .m02-preview-image-error::after { content:'Image not available';position:absolute;top:52px;left:20px;
+  padding:4px 8px;border-radius:7px;background:rgba(42,36,29,.75);color:white;font-size:.75rem; }
+@media(max-width:767px) {
+ .m02 .m02-type-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .m02 .m02-type-grid label { min-height:95px; }
+ .m02 .m02-form-visual img { min-height:290px;max-height:390px; }
+ .m02 .m02-visual-copy { padding:45px 20px 20px; }
+ .m02 .m02-visual-copy h3 { font-size:1.9rem; }
+}
+@media(prefers-reduced-motion:reduce){.m02 .m02-form-visual img,.m02 .m02-type-grid label{transition:none!important}}
+
+
+/* ===== Member 02 v6: Customer Wedding Planning editorial hero =====
+   Visual reference: rounded floral photo / white typography / ivory-gold surfaces.
+   Scoped to .m02 so unrelated teams' modules keep their original UI.
+   A high-specificity white heading + cache-busted stylesheet solves the reported
+   black-heading problem on /plans and preserves accessible high contrast. */
+body .m02 .m02-hero {
+  isolation:isolate;
+  min-height:270px;
+  padding:40px clamp(24px,4.8vw,66px);
+  border:1px solid rgba(184,154,103,.32);
+  border-radius:29px;
+  background-image:linear-gradient(92deg,rgba(26,25,30,.76) 0%,rgba(36,30,31,.62) 46%,rgba(43,34,29,.26) 100%),
+    url('/images/member02/wedding-editorial-banner.jpg') !important;
+  background-position:center center !important;
+  background-size:cover !important;
+  background-repeat:no-repeat !important;
+  box-shadow:0 20px 36px rgba(55,42,29,.11);
+}
+body .m02 .m02-hero--plans { min-height:320px; }
+body .m02 .m02-hero--form { min-height:235px !important; }
+body .m02 .m02-hero.m02-check-hero { min-height:240px; }
+body .m02 .m02-hero > * { position:relative;z-index:1; }
+body .m02 .m02-hero::after { right:24%;top:15%;opacity:.5; }
+body .m02 .m02-hero h1,
+body .m02 .m02-hero .m02-hero-title,
+body .m02 .m02-hero h2,
+body .m02 .m02-hero h3 {
+  color:#ffffff !important;
+  font-family:'Playfair Display',Georgia,serif !important;
+  font-size:clamp(2.1rem,4.7vw,4.15rem);
+  font-weight:600;
+  line-height:1.07;
+  letter-spacing:-.027em;
+  text-shadow:0 3px 18px rgba(0,0,0,.40);
+  max-width:850px;
+  margin:12px 0 18px;
+}
+body .m02 .m02-hero--form h1 {font-size:clamp(2rem,4vw,3.5rem)}
+body .m02 .m02-hero.m02-check-hero h1 {font-size:clamp(2rem,3.8vw,3.35rem)}
+body .m02 .m02-hero .m02-eyebrow {
+  color:#fff2da !important;
+  font-weight:800;
+  letter-spacing:.19em;
+  font-size:.79rem;
+  text-shadow:0 1px 6px rgba(0,0,0,.35);
+}
+body .m02 .m02-hero p,
+body .m02 .m02-hero .m02-hero-subtitle {
+  color:#fffaf1 !important;
+  font-size:clamp(.94rem,1.16vw,1.04rem);
+  line-height:1.64;
+  text-shadow:0 2px 10px rgba(0,0,0,.46);
+  max-width:650px;
+}
+body .m02 .m02-hero .m02-hero-right {align-self:center}
+body .m02 .m02-hero .m02-btn-light {
+  background:#fffaf2 !important;
+  border-color:rgba(255,248,235,.85) !important;
+  color:#5f4c31 !important;
+  box-shadow:0 6px 18px rgba(0,0,0,.13);
+  font-weight:750;
+  padding:12px 18px;
+}
+body .m02 .m02-hero .m02-btn-light:hover,
+body .m02 .m02-hero .m02-btn-light:focus-visible {
+  background:#f8eace !important;
+  color:#594128 !important;
+}
+/* When opening a plan's Checklist/Budget/Guests/Timeline/Summary page,
+   badges remain legible on top of the photograph. */
+body .m02 .m02-hero .m02-pill {
+  color:#fff !important;
+  background:rgba(50,41,30,.70) !important;
+  border:1px solid rgba(255,238,203,.38);
+  backdrop-filter:blur(2px);
+}
+body .m02 .m02-hero .m02-status {background:#fffaf2;color:#5f4c31}
+body .m02 .m02-hero .m02-status.completed {background:#e5f5eb;color:#276247}
+body .m02 .m02-hero .m02-status.cancelled {background:#ffebed;color:#994656}
+/* Subtle matching ivory/gold accents used throughout the customer's workspace. */
+body .m02 .m02-stat,body .m02 .m02-panel,body .m02 .m02-plan-card,
+body .m02 .m02-filterbar {border-color:#eadfce;box-shadow:0 10px 24px rgba(70,51,32,.065)}
+body .m02 .m02-stat .m02-stat-icon {background:#f7f0e5;color:#977240}
+body .m02 .m02-track > span {background:linear-gradient(90deg,#d6ba8a,#96743e)}
+body .m02 .m02-heading {color:#392c27}
+body .m02 .m02-label {color:#514534}
+body .m02 .m02-form-visual {border-color:#e5d7c2}
+body .m02 .m02-type-grid input:checked + label {background:#f6ecd9;border-color:#a5834a}
+@media (max-width:991px) {
+  body .m02 .m02-hero--plans {min-height:280px}
+  body .m02 .m02-hero {background-position:57% center!important}
+  body .m02 .m02-hero h1 {max-width:740px}
+}
+@media (max-width:767px) {
+  body .m02 .m02-hero,body .m02 .m02-hero--plans,
+  body .m02 .m02-hero--form,body .m02 .m02-hero.m02-check-hero {
+    min-height:225px !important;padding:26px 21px;border-radius:20px;
+  }
+  body .m02 .m02-hero {background-position:64% center!important}
+  body .m02 .m02-hero h1 {font-size:clamp(1.9rem,7.5vw,2.7rem);margin:12px 0}
+  body .m02 .m02-hero .m02-hero-right {margin-top:18px}
+  body .m02 .m02-hero .m02-eyebrow {font-size:.67rem;letter-spacing:.13em}
+}
+/* Print summary must use dark text on a white page, not white hero text. */
+@media print {
+  body .m02 .m02-hero {background:#fff!important;border:1px solid #888!important;min-height:0!important;box-shadow:none!important}
+  body .m02 .m02-hero h1,body .m02 .m02-hero h2,
+  body .m02 .m02-hero h3,body .m02 .m02-hero .m02-eyebrow,
+  body .m02 .m02-hero p {color:#000!important;text-shadow:none!important}
+}
+
+
+/* ===== Member 02 v7 • In-app task reminders + accessible checklist actions ===== */
+body .m02 .m02-reminder-board {
+  background:linear-gradient(115deg,#fffdf8 0%,#faf0df 100%);
+  border:1px solid #e7cfaa;border-radius:19px;padding:23px 24px;
+  box-shadow:0 12px 25px rgba(101,76,39,.08)
+}
+body .m02 .m02-reminder-head {display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:17px}
+body .m02 .m02-reminder-head .m02-heading {font-size:clamp(1.35rem,2vw,1.8rem);margin:5px 0 6px}
+body .m02 .m02-reminder-total {white-space:nowrap;border:1px solid #d6b98d;padding:9px 13px;border-radius:12px;background:#fff7e8;color:#75572b;font-weight:800}
+body .m02 .m02-reminder-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+body .m02 .m02-reminder-count {display:flex;gap:5px;align-items:center;flex-direction:column;text-align:center;border:1px solid #eadac1;padding:15px 7px;border-radius:13px;background:rgba(255,255,255,.85);color:#80653e}
+body .m02 .m02-reminder-count i {font-size:1.25rem}
+body .m02 .m02-reminder-count strong {font-size:1.75rem;line-height:1.2;color:#6c4e26}
+body .m02 .m02-reminder-count span {font-size:.77rem;font-weight:750}
+body .m02 .m02-reminder-count--late {border-color:#f1aab1;background:#fff1f2;color:#aa283c}
+body .m02 .m02-reminder-count--late strong {color:#ac2038}
+body .m02 .m02-reminder-count--today {border-color:#edc48a;background:#fff4e4}
+body .m02 .m02-reminder-clear {margin-top:16px;color:#327a51;font-size:.86rem;font-weight:650}
+body .m02 .m02-reminder-tag {display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-size:.73rem;font-weight:750;background:#fff1da;color:#855519}
+body .m02 .m02-reminder-tag.overdue {background:#ffe3e7;color:#a9223d}
+body .m02 .m02-reminder-tag.today {background:#fff0d2;color:#915514}
+body .m02 .m02-reminder-tag.three_days {background:#fff4dc;color:#926317}
+body .m02 .m02-reminder-tag.seven_days {background:#f7f0de;color:#766032}
+body .m02 .m02-overview-reminder {display:flex;align-items:center;gap:14px;background:#fff8eb;border:1px solid #e6c99e;border-radius:16px;padding:15px 19px;color:#59462a}
+body .m02 .m02-overview-reminder p {font-size:.82rem;margin-top:3px;color:#8a704c}
+body .m02 .m02-overview-bell {display:grid;place-items:center;background:#f4e6cd;border-radius:13px;color:#947040;min-width:43px;height:43px}
+/* Strong red Delete only; other plan controls remain champagne-gold. */
+body .m02 .m02-task .m02-btn.m02-btn-danger {background:#ffe2e6!important;color:#a50e2c!important;border:1.5px solid #e99aaa!important;box-shadow:none;min-width:37px;min-height:36px}
+body .m02 .m02-task .m02-btn.m02-btn-danger i {color:#a50e2c!important;opacity:1!important;font-size:.99rem}
+body .m02 .m02-task .m02-btn.m02-btn-danger:hover,
+body .m02 .m02-task .m02-btn.m02-btn-danger:focus-visible {background:#bb243e!important;color:white!important;border-color:#a21b34!important;box-shadow:0 5px 12px rgba(177,35,63,.20)!important}
+body .m02 .m02-task .m02-btn.m02-btn-danger:hover i,
+body .m02 .m02-task .m02-btn.m02-btn-danger:focus-visible i {color:white!important}
+body .m02 .m02-task .m02-btn:focus-visible {outline:3px solid #ba965c;outline-offset:2px}
+body .m02 .m02-task[hidden] {display:none!important}
+@media(max-width:760px) {
+  body .m02 .m02-reminder-head {align-items:flex-start;flex-direction:column}
+  body .m02 .m02-reminder-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  body .m02 .m02-overview-reminder {flex-wrap:wrap}
+}
+@media print {body .m02 .m02-reminder-board,body .m02 .m02-overview-reminder{box-shadow:none}}
