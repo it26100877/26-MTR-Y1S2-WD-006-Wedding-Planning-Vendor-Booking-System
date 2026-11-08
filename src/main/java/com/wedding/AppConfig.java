@@ -3,14 +3,25 @@ package com.wedding;
 import com.wedding.member01_customer_admin.repository.AdminRepository;
 import com.wedding.member01_customer_admin.repository.CustomerRepository;
 import com.wedding.member01_customer_admin.service.AdminService;
+import com.wedding.member01_customer_admin.service.ConsoleSmsService;
 import com.wedding.member01_customer_admin.service.CustomerService;
+import com.wedding.member01_customer_admin.service.OtpService;
+import com.wedding.member01_customer_admin.service.SmsService;
+import com.wedding.member02_wedding_plan.repository.BudgetItemRepository;
 import com.wedding.member02_wedding_plan.repository.ChecklistTaskRepository;
+import com.wedding.member02_wedding_plan.repository.GuestRepository;
+import com.wedding.member02_wedding_plan.repository.PlanItemRepository;
 import com.wedding.member02_wedding_plan.repository.WeddingPlanRepository;
+import com.wedding.member02_wedding_plan.service.BudgetService;
 import com.wedding.member02_wedding_plan.service.ChecklistService;
+import com.wedding.member02_wedding_plan.service.GuestService;
+import com.wedding.member02_wedding_plan.service.PlanReportService;
 import com.wedding.member02_wedding_plan.service.WeddingPlanService;
 import com.wedding.member03_vendor.repository.VendorRepository;
 import com.wedding.member03_vendor.service.VendorService;
+import com.wedding.member04_booking.repository.BookingNotificationRepository;
 import com.wedding.member04_booking.repository.BookingRepository;
+import com.wedding.member04_booking.service.BookingNotificationService;
 import com.wedding.member04_booking.service.BookingService;
 import com.wedding.member05_contract_payment.repository.ContractRepository;
 import com.wedding.member05_contract_payment.repository.PaymentRepository;
@@ -22,110 +33,67 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Spring Boot Configuration class wiring all repositories and services
- * across all six member modules. Demonstrates Dependency Injection (IoC).
- *
- * @author Wedding Planning System Development Team (SE1020)
+ * Central dependency-injection configuration for all six integrated modules.
  */
 @Configuration
 public class AppConfig {
 
- // ── Member 01: Customer & Admin ───────────────────────────────────────────
- @Bean
- public CustomerRepository customerRepository() {
- return new CustomerRepository();
- }
+    // Member 01 — Customer, Admin and OTP
+    @Bean public CustomerRepository customerRepository() { return new CustomerRepository(); }
+    @Bean public AdminRepository adminRepository() { return new AdminRepository(); }
+    @Bean public CustomerService customerService(CustomerRepository repository) { return new CustomerService(repository); }
+    @Bean public AdminService adminService(AdminRepository repository) { return new AdminService(repository); }
+    @Bean public SmsService smsService() { return new ConsoleSmsService(); }
+    @Bean public OtpService otpService(SmsService smsService) { return new OtpService(smsService); }
 
- @Bean
- public AdminRepository adminRepository() {
- return new AdminRepository();
- }
+    // Member 02 — Wedding Plan, Checklist, Budget and Guests
+    @Bean public WeddingPlanRepository weddingPlanRepository() { return new WeddingPlanRepository(); }
+    @Bean public ChecklistTaskRepository checklistTaskRepository() { return new ChecklistTaskRepository(); }
+    @Bean public BudgetItemRepository budgetItemRepository() { return new BudgetItemRepository(); }
+    @Bean public GuestRepository guestRepository() { return new GuestRepository(); }
+    @Bean public PlanItemRepository planItemRepository() { return new PlanItemRepository(); }
+    @Bean public WeddingPlanService weddingPlanService(WeddingPlanRepository repository) {
+        return new WeddingPlanService(repository);
+    }
+    @Bean public ChecklistService checklistService(ChecklistTaskRepository repository) {
+        return new ChecklistService(repository);
+    }
+    @Bean public BudgetService budgetService(BudgetItemRepository repository) { return new BudgetService(repository); }
+    @Bean public GuestService guestService(GuestRepository repository) { return new GuestService(repository); }
+    @Bean public PlanReportService planReportService(WeddingPlanService plans, ChecklistService checklist,
+                                                     BudgetService budget, GuestService guests) {
+        return new PlanReportService(plans, checklist, budget, guests);
+    }
 
- @Bean
- public CustomerService customerService(CustomerRepository customerRepository) {
- return new CustomerService(customerRepository);
- }
+    // Member 03 — Vendor Management
+    @Bean public VendorRepository vendorRepository() { return new VendorRepository(); }
+    @Bean public VendorService vendorService(VendorRepository repository) { return new VendorService(repository); }
 
- @Bean
- public AdminService adminService(AdminRepository adminRepository) {
- return new AdminService(adminRepository);
- }
+    // Member 04 — Booking and notifications
+    @Bean public BookingRepository bookingRepository() { return new BookingRepository(); }
+    @Bean public BookingNotificationRepository bookingNotificationRepository() {
+        return new BookingNotificationRepository();
+    }
+    @Bean public BookingNotificationService bookingNotificationService(BookingNotificationRepository repository) {
+        return new BookingNotificationService(repository);
+    }
+    @Bean public BookingService bookingService(BookingRepository repository, VendorService vendors,
+                                               BookingNotificationService notifications) {
+        return new BookingService(repository, vendors, notifications);
+    }
 
- // ── Member 02: Wedding Plan & Checklist ───────────────────────────────────
- @Bean
- public WeddingPlanRepository weddingPlanRepository() {
- return new WeddingPlanRepository();
- }
+    // Member 05 — Contracts and Payments
+    @Bean public ContractRepository contractRepository() { return new ContractRepository(); }
+    @Bean public PaymentRepository paymentRepository() { return new PaymentRepository(); }
+    @Bean public PaymentService paymentService(PaymentRepository repository) { return new PaymentService(repository); }
+    @Bean public ContractService contractService(ContractRepository contracts, BookingRepository bookings,
+                                                 PaymentService payments) {
+        return new ContractService(contracts, bookings, payments);
+    }
 
- @Bean
- public ChecklistTaskRepository checklistTaskRepository() {
- return new ChecklistTaskRepository();
- }
-
- @Bean
- public WeddingPlanService weddingPlanService(WeddingPlanRepository weddingPlanRepository) {
- return new WeddingPlanService(weddingPlanRepository);
- }
-
- @Bean
- public ChecklistService checklistService(ChecklistTaskRepository checklistTaskRepository) {
- return new ChecklistService(checklistTaskRepository);
- }
-
- // ── Member 03: Vendor Management ─────────────────────────────────────────
- @Bean
- public VendorRepository vendorRepository() {
- return new VendorRepository();
- }
-
- @Bean
- public VendorService vendorService(VendorRepository vendorRepository) {
- return new VendorService(vendorRepository);
- }
-
- // ── Member 04: Booking Management ────────────────────────────────────────
- @Bean
- public BookingRepository bookingRepository() {
- return new BookingRepository();
- }
-
- @Bean
- public BookingService bookingService(BookingRepository bookingRepository, VendorService vendorService) {
- return new BookingService(bookingRepository, vendorService);
- }
-
- // ── Member 05: Contract & Payment Management ──────────────────────────────
- @Bean
- public ContractRepository contractRepository() {
- return new ContractRepository();
- }
-
- @Bean
- public PaymentRepository paymentRepository() {
- return new PaymentRepository();
- }
-
- @Bean
- public PaymentService paymentService(PaymentRepository paymentRepository) {
- return new PaymentService(paymentRepository);
- }
-
- @Bean
- public ContractService contractService(ContractRepository contractRepository,
- BookingRepository bookingRepository,
- PaymentService paymentService) {
- return new ContractService(contractRepository, bookingRepository, paymentService);
- }
-
- // ── Member 06: Review & Feedback Management ──────────────────────────────
- @Bean
- public ReviewRepository reviewRepository() {
- return new ReviewRepository();
- }
-
- @Bean
- public ReviewService reviewService(ReviewRepository reviewRepository, BookingRepository bookingRepository) {
- return new ReviewService(reviewRepository, bookingRepository);
- }
+    // Member 06 — Reviews and Feedback
+    @Bean public ReviewRepository reviewRepository() { return new ReviewRepository(); }
+    @Bean public ReviewService reviewService(ReviewRepository reviews, BookingRepository bookings) {
+        return new ReviewService(reviews, bookings);
+    }
 }
-
