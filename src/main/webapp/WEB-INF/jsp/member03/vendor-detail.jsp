@@ -16,6 +16,7 @@
 
 <main class="vendor-detail-wrap">
   <div class="mb-3"><a class="text-decoration-none" href="${pageContext.request.contextPath}/vendors">&larr; Back to vendors</a></div>
+  <c:url var="vendorEmailUrl" value="mailto:${vendor.email}"/>
   <article class="vendor-detail-card">
     <header class="vendor-detail-head">
       <div class="small text-uppercase fw-semibold opacity-75 mb-2">ÉCLAT · VERIFIED VENDOR DIRECTORY</div>
@@ -30,7 +31,7 @@
           <div class="row g-3 mt-2">
             <div class="col-sm-6"><div class="vendor-detail-label">Contact person</div><div class="vendor-detail-value"><c:out value="${vendor.contactPerson}"/></div></div>
             <div class="col-sm-6"><div class="vendor-detail-label">Availability</div><div class="vendor-detail-value"><c:out value="${vendor.availability}"/></div></div>
-            <div class="col-sm-6"><div class="vendor-detail-label">Email</div><div class="vendor-detail-value"><a href="mailto:<c:out value='${vendor.email}'/>"><c:out value="${vendor.email}"/></a></div></div>
+            <div class="col-sm-6"><div class="vendor-detail-label">Email</div><div class="vendor-detail-value"><a href="${vendorEmailUrl}"><c:out value="${vendor.email}"/></a></div></div>
             <div class="col-sm-6"><div class="vendor-detail-label">Phone</div><div class="vendor-detail-value"><c:out value="${vendor.phone}"/></div></div>
             <div class="col-sm-6"><div class="vendor-detail-label">Vendor reference</div><div class="vendor-detail-value"><c:out value="${vendor.vendorId}"/></div></div>
             <div class="col-sm-6"><div class="vendor-detail-label">Registered</div><div class="vendor-detail-value"><c:out value="${vendor.registeredAt}"/></div></div>
