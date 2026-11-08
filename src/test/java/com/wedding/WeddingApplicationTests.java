@@ -48,24 +48,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class WeddingApplicationTests {
 
-    // Keep integration tests isolated from the real CSV records used by the running demo.
+    // Use the isolated test-data directory configured by Maven Surefire.
+    // Never copy or modify the real project data directory.
     static {
         try {
-            Path testData = Files.createTempDirectory("eclat-se1020-tests-");
-            System.setProperty("eclat.data.dir", testData.toAbsolutePath().toString());
-            Path seedData = Paths.get("data");
-            if (Files.isDirectory(seedData)) {
-                try (var files = Files.list(seedData)) {
-                    files.filter(path -> path.getFileName().toString().endsWith(".csv"))
-                            .forEach(path -> {
-                                try {
-                                    Files.copy(path, testData.resolve(path.getFileName()));
-                                } catch (IOException ex) {
-                                    throw new RuntimeException(ex);
-                                }
-                            });
-                }
-            }
+            Path testData = Paths.get(System.getProperty("eclat.data.dir", "data"));
+            Files.createDirectories(testData);
+
+            String vendors = String.join(System.lineSeparator(),
+                    "VND-101|Studio One Photography|PHOTOGRAPHY|Alex|studio101@test.com|0771111101|Colombo|Wedding photography|75000.00|AVAILABLE|APPROVED|2026-01-01|true",
+                    "VND-102|Catering House|CATERING|Ben|catering102@test.com|0771111102|Colombo|Wedding catering|90000.00|AVAILABLE|APPROVED|2026-01-01|true",
+                    "VND-103|Floral Dreams|FLORISTS|Cara|floral103@test.com|0771111103|Colombo|Wedding flowers|45000.00|AVAILABLE|APPROVED|2026-01-01|true",
+                    "VND-104|DJ Sound System|MUSIC_DJ|Dan|dj104@test.com|0771111104|Colombo|DJ setup|80000.00|AVAILABLE|APPROVED|2026-01-01|true",
+                    "VND-105|Cake Studio|WEDDING_CAKES|Eve|cake105@test.com|0771111105|Colombo|Wedding cakes|60000.00|AVAILABLE|APPROVED|2026-01-01|true");
+            Files.writeString(testData.resolve("vendors.csv"), vendors + System.lineSeparator());
         } catch (IOException ex) {
             throw new ExceptionInInitializerError(ex);
         }
@@ -192,13 +188,29 @@ public class WeddingApplicationTests {
     @Test
     @DisplayName("Module 06: Verified Review Submission and Dynamic Rating")
     void testVerifiedReviewAndDynamicRating() {
-        // VND-101 has completed booking BKG-401 from CST-1001
         double initialRating = reviewService.getAverageRating("VND-101");
         assertTrue(initialRating >= 0.0);
 
-        // Attempting to review an uncompleted booking must be rejected
+        // Create a real PENDING booking; only COMPLETED bookings can be reviewed.
+        Booking pendingBooking = bookingService.createBooking(
+                "CST-1002",
+                "VND-102",
+                "PLN-201",
+                java.time.LocalDate.now().plusDays(30).toString(),
+                "Catering service for wedding",
+                new BigDecimal("90000.00"),
+                "Review validation test"
+        );
+
         assertThrows(BusinessRuleException.class, () ->
-                reviewService.submitReview("CST-1002", "VND-102", "BKG-403", 5, "Great", "Catering was wonderful and tasty"));
+                reviewService.submitReview(
+                        "CST-1002",
+                        "VND-102",
+                        pendingBooking.getBookingId(),
+                        5,
+                        "Great",
+                        "Catering was wonderful and tasty"
+                ));
     }
 
     @Test
@@ -340,12 +352,33 @@ public class WeddingApplicationTests {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("currentUser", admin);
 
+        // Create real bookings and contracts instead of relying on hardcoded CSV IDs.
+        String bookingDate1 = java.time.LocalDate.now().plusDays(500).toString();
+        Booking booking1 = bookingService.createBooking(
+                "CST-1001", "VND-101", "PLN-201", bookingDate1,
+                "Photography service", new BigDecimal("75000.00"), "Admin UI test");
+        bookingService.confirmBooking(booking1.getBookingId());
+
+        VendorContract contract1 = contractService.createContract(
+                booking1.getBookingId(), "CST-1001", "VND-101",
+                bookingDate1, bookingDate1, new BigDecimal("75000.00"), "Admin UI test contract");
+
+        String bookingDate2 = java.time.LocalDate.now().plusDays(501).toString();
+        Booking booking2 = bookingService.createBooking(
+                "CST-1002", "VND-102", "PLN-202", bookingDate2,
+                "Catering service", new BigDecimal("90000.00"), "Admin UI test");
+        bookingService.confirmBooking(booking2.getBookingId());
+
+        VendorContract contract2 = contractService.createContract(
+                booking2.getBookingId(), "CST-1002", "VND-102",
+                bookingDate2, bookingDate2, new BigDecimal("90000.00"), "Admin UI edit test contract");
+
         mockMvc.perform(get("/admin/dashboard").session(session)).andExpect(status().isOk()).andExpect(view().name("member01/admin-dashboard"));
         mockMvc.perform(get("/vendors?filter=PENDING").session(session)).andExpect(status().isOk()).andExpect(view().name("member03/vendors"));
         mockMvc.perform(get("/vendors/edit/VND-101").session(session)).andExpect(status().isOk()).andExpect(view().name("member03/vendor-form"));
         mockMvc.perform(get("/admin/reviews/moderation").session(session)).andExpect(status().isOk()).andExpect(view().name("member06/review-moderation"));
-        mockMvc.perform(get("/bookings/view/BKG-401").session(session)).andExpect(status().isOk()).andExpect(view().name("member04/booking-detail"));
-        mockMvc.perform(get("/contracts/view/CON-501").session(session)).andExpect(status().isOk()).andExpect(view().name("member05/payment-detail"));
-        mockMvc.perform(get("/contracts/edit/CON-502").session(session)).andExpect(status().isOk()).andExpect(view().name("member05/contract-edit-form"));
+        mockMvc.perform(get("/bookings/view/" + booking1.getBookingId()).session(session)).andExpect(status().isOk()).andExpect(view().name("member04/booking-detail"));
+        mockMvc.perform(get("/contracts/view/" + contract1.getContractId()).session(session)).andExpect(status().isOk()).andExpect(view().name("member05/payment-detail"));
+        mockMvc.perform(get("/contracts/edit/" + contract2.getContractId()).session(session)).andExpect(status().isOk()).andExpect(view().name("member05/contract-edit-form"));
     }
 }

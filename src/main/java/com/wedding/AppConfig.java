@@ -10,7 +10,6 @@ import com.wedding.member01_customer_admin.service.SmsService;
 import com.wedding.member02_wedding_plan.repository.BudgetItemRepository;
 import com.wedding.member02_wedding_plan.repository.ChecklistTaskRepository;
 import com.wedding.member02_wedding_plan.repository.GuestRepository;
-import com.wedding.member02_wedding_plan.repository.PlanItemRepository;
 import com.wedding.member02_wedding_plan.repository.WeddingPlanRepository;
 import com.wedding.member02_wedding_plan.service.BudgetService;
 import com.wedding.member02_wedding_plan.service.ChecklistService;
@@ -51,7 +50,6 @@ public class AppConfig {
     @Bean public ChecklistTaskRepository checklistTaskRepository() { return new ChecklistTaskRepository(); }
     @Bean public BudgetItemRepository budgetItemRepository() { return new BudgetItemRepository(); }
     @Bean public GuestRepository guestRepository() { return new GuestRepository(); }
-    @Bean public PlanItemRepository planItemRepository() { return new PlanItemRepository(); }
     @Bean public WeddingPlanService weddingPlanService(WeddingPlanRepository repository) {
         return new WeddingPlanService(repository);
     }

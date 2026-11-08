@@ -16,20 +16,20 @@ import java.util.*;
  */
 public class FileUtil {
 
- private static final String DATA_DIR = System.getProperty("eclat.data.dir", "data");
-
- static {
- File dir = new File(DATA_DIR);
- if (!dir.exists()) {
- dir.mkdirs();
- }
+ private static String getDataDir() {
+  String configured = System.getProperty("eclat.data.dir", "data");
+  File dir = new File(configured);
+  if (!dir.exists() && !dir.mkdirs()) {
+   throw new IllegalStateException("Unable to create data directory: " + configured);
+  }
+  return configured;
  }
 
  /**
  * Returns the full path for a data file.
  */
  public static String getFilePath(String filename) {
- return DATA_DIR + File.separator + filename;
+ return getDataDir() + File.separator + filename;
  }
 
  /**
