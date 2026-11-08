@@ -32,11 +32,12 @@
     </div>
   </c:if>
 
+  <c:set var="currentFilter" value="${filter}"/>
   <section class="vendor-filter">
     <form method="get" action="${pageContext.request.contextPath}/vendors" class="row g-3 align-items-end">
       <div class="col-md-4">
         <label class="form-label" for="query">Vendor name</label>
-        <input class="form-control" id="query" name="query" value="<c:out value='${query}'/>" placeholder="Search vendors">
+        <input class="form-control" id="query" name="query" value="${query}" placeholder="Search vendors">
       </div>
       <div class="col-md-3">
         <label class="form-label" for="category">Category</label>
@@ -49,10 +50,10 @@
       </div>
       <div class="col-md-3">
         <label class="form-label" for="location">Location</label>
-        <input class="form-control" id="location" name="location" value="<c:out value='${location}'/>" placeholder="District / town">
+        <input class="form-control" id="location" name="location" value="${location}" placeholder="District / town">
       </div>
       <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
-        <input type="hidden" name="filter" value="<c:out value='${filter}'/>">
+        <input type="hidden" name="filter" value="${currentFilter}">
       </c:if>
       <div class="col-md-2 d-flex gap-2">
         <button class="vendor-btn vendor-btn-primary flex-grow-1" type="submit">Search</button>
