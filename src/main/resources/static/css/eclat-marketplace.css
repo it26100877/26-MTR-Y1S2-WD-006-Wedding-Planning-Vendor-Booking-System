@@ -1,0 +1,306 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+.marketplace-body{margin:0;background:#fbf8f3;color:#28251f;font-family:'DM Sans',sans-serif}
+.market-nav{height:78px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(22px,4vw,68px);border-bottom:1px solid #eee7dc;position:sticky;top:0;z-index:1000}
+.market-brand{font:600 2rem 'Playfair Display',serif;color:#28251f;letter-spacing:-1.5px;text-decoration:none}
+.market-brand span{color:#b99a63}
+.market-links{display:flex;align-items:center;gap:clamp(15px,2.3vw,36px)}
+.market-links>a,.market-links .dropdown-toggle{font-size:.88rem;color:#3e3931;text-decoration:none}
+.market-links a:hover{color:#a98b57}
+.market-dropdown{border:1px solid #eee4d5;box-shadow:0 15px 40px #392d1b18;columns:2;min-width:350px;padding:12px}
+.market-dropdown .dropdown-item{font-size:.84rem;padding:8px 10px}
+.market-account{display:flex;align-items:center;gap:20px}
+.market-signup{font-size:.85rem;color:#4b4337;text-decoration:none}
+.market-login{background:#282722;color:#fff;text-decoration:none;padding:13px 24px;font:500 .9rem 'Playfair Display',serif}
+.market-menu-toggle{display:none;background:none;border:0;font-size:1.7rem}
+.market-hero{min-height:650px;position:relative;display:grid;place-items:center;text-align:center;color:white;background:#5c4b3d url('https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=2200&q=90') center 44%/cover no-repeat}
+.market-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,#231e1b66,#211b1855),linear-gradient(0deg,#1f1b1744,transparent 65%)}
+.market-hero-content{position:relative;z-index:1;width:min(100% - 32px,940px);padding:85px 0 95px}
+.eyebrow{font-size:.68rem;letter-spacing:.22em;font-weight:700;color:#a58a5b;margin-bottom:17px}
+.eyebrow.light{color:#f1dfbd}
+.market-hero h1{font:500 clamp(3.1rem,7vw,6.3rem)/.99 'Playfair Display',serif;color:#fff;letter-spacing:-.045em;margin:0 0 22px}
+.market-hero h1 em,.section-heading h2 em,.editorial-copy h2 em,.market-cta h2 em{font-weight:400}
+.hero-subtitle{font-size:1rem;color:#fff;opacity:.92;margin:0 auto 35px}
+.market-search{display:grid;grid-template-columns:1fr 1fr auto;max-width:850px;margin:auto;background:#fff;text-align:left;box-shadow:0 16px 45px #17120e33}
+.market-search label{padding:15px 22px;border-right:1px solid #eee7de;display:flex;flex-direction:column;gap:5px}
+.market-search label span{font-size:.62rem;letter-spacing:.16em;color:#9c896d;font-weight:700}
+.market-search input,.market-search select{border:0!important;outline:0;background:white!important;color:#39352f!important;min-height:26px!important;padding:0!important;border-radius:0!important;font:400 .95rem 'DM Sans',sans-serif}
+.market-search button{border:0;background:#292824;color:#fff;padding:0 30px;font:500 1rem 'Playfair Display',serif}
+.market-search button:hover{background:#a58a5b}
+.hero-note{font-size:.75rem;letter-spacing:.04em;margin-top:18px;color:#fff}
+.hero-caption{position:absolute;bottom:22px;right:4vw;font-size:.6rem;letter-spacing:.2em;color:#fff9}
+.market-section{max-width:1320px;margin:auto;padding:100px 30px}
+.section-heading{text-align:center;margin-bottom:44px}
+.section-heading h2,.editorial-copy h2,.market-cta h2{font:500 clamp(2.4rem,4vw,4rem)/1.08 'Playfair Display',serif;color:#2b2822;letter-spacing:-.035em;margin-bottom:15px}
+.section-heading>p:last-child,.editorial-copy>p:not(.eyebrow){color:#777064;font-size:.94rem}
+.category-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.category-tile{height:275px;position:relative;overflow:hidden;text-decoration:none;background:#e5ddd1}
+.category-tile:after{content:'';position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#17130f9c)}
+.category-tile img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.category-tile:hover img{transform:scale(1.06)}
+.category-tile span{position:absolute;z-index:1;bottom:21px;left:17px;color:#fff;font:500 1.15rem 'Playfair Display',serif}
+.featured-section{max-width:none;background:#f3eee6;padding-left:max(30px,calc((100% - 1260px)/2));padding-right:max(30px,calc((100% - 1260px)/2))}
+.split-heading{display:flex;align-items:end;justify-content:space-between;text-align:left}
+.text-link,.vendor-view-link{color:#8b7045;text-decoration:none;font-size:.85rem}
+.vendor-feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.feature-vendor-card{background:#fff;border:1px solid #e8dfd2;padding:10px}
+.feature-vendor-image{height:250px;position:relative;overflow:hidden}
+.feature-vendor-image img{width:100%;height:100%;object-fit:cover}
+.feature-vendor-image span{position:absolute;left:13px;top:13px;background:#fff;padding:7px 11px;font-size:.7rem;color:#746143}
+.feature-vendor-info{display:flex;justify-content:space-between;align-items:start;padding:17px 8px 8px;gap:10px}
+.feature-vendor-info h3{font:500 1.25rem 'Playfair Display',serif;margin:0 0 5px}
+.feature-vendor-info p{font-size:.78rem;color:#81796d;margin:0}
+.feature-vendor-info strong{font-size:.8rem;color:#8c7146;white-space:nowrap}
+.vendor-view-link{display:flex;justify-content:space-between;border-top:1px solid #eee8df;padding:13px 8px 5px}
+.empty-feature{grid-column:1/-1;text-align:center;padding:30px;background:#fff}
+.editorial-band{display:grid;grid-template-columns:1.15fr 1fr;min-height:480px;background:#e9e1d6}
+.editorial-photo img{width:100%;height:100%;min-height:480px;object-fit:cover}
+.editorial-copy{align-self:center;padding:70px clamp(35px,7vw,110px)}
+.editorial-copy h2{font-size:clamp(2.5rem,4vw,4.1rem)}
+.dark-link{display:inline-block;margin-top:20px;background:#292824;color:#fff;padding:15px 22px;text-decoration:none;font:500 .9rem 'Playfair Display',serif}
+.inspiration-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.inspiration-grid article{background:#fff;box-shadow:0 10px 30px #3528180b}
+.inspiration-grid img{width:100%;height:280px;object-fit:cover}
+.inspiration-grid article div{padding:20px 22px}
+.inspiration-grid small{font-size:.62rem;letter-spacing:.17em;color:#a58a5b;font-weight:700}
+.inspiration-grid h3{font:500 1.35rem 'Playfair Display',serif;margin:8px 0 0}
+.market-cta{text-align:center;padding:90px 20px;background:linear-gradient(#29241fbb,#29241fbb),url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=85') center/cover;color:white}
+.market-cta h2{color:#fff}
+.market-cta>a{display:inline-block;margin-top:16px;padding:15px 25px;background:#d6bd91;color:#29251f;text-decoration:none;font:500 .95rem 'Playfair Display',serif}
+.market-footer{display:flex;align-items:center;justify-content:space-between;padding:30px clamp(22px,5vw,80px);background:#fff;border-top:1px solid #eee5d8}
+.market-footer p{margin:0;color:#8b8377;font-size:.78rem}
+.market-footer div{display:flex;gap:22px}
+.market-footer div a{font-size:.8rem;color:#6e6251;text-decoration:none}
+@media(max-width:1050px){.market-links{gap:14px}.market-links>a,.market-links .dropdown-toggle{font-size:.8rem}.category-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){.market-nav{height:68px;flex-wrap:wrap}.market-menu-toggle{display:block;margin-left:auto}.market-links{display:none;position:absolute;top:68px;left:0;right:0;background:#fff;padding:18px 25px;align-items:flex-start;flex-direction:column;border-bottom:1px solid #eee}.market-links.show{display:flex}.market-account{gap:10px;margin-left:12px}.market-login{padding:10px 14px}.market-hero{min-height:610px}.market-hero-content{padding:65px 0}.market-search{grid-template-columns:1fr}.market-search label{border-right:0;border-bottom:1px solid #eee}.market-search button{padding:17px}.category-grid{grid-template-columns:repeat(2,1fr);gap:10px}.category-tile{height:220px}.market-section{padding:70px 18px}.split-heading{display:block}.split-heading .text-link{display:inline-block;margin-top:15px}.vendor-feature-grid,.inspiration-grid{grid-template-columns:1fr}.editorial-band{grid-template-columns:1fr}.editorial-photo img{min-height:300px;height:300px}.editorial-copy{padding:55px 28px}.market-footer{flex-direction:column;gap:15px;text-align:center}.market-footer div{gap:14px}}
+
+/* Sri Lankan district location selector */
+.market-search .location-field select{font-size:.93rem;cursor:pointer;color:#554a3c!important}
+.market-search .location-field select:focus{outline:0}
+.market-search .location-field option{color:#342f28;background:#fff}
+@media(max-width:760px){.market-search .location-field select{width:100%}}
+
+
+/* Wezoree-inspired icon category picker below the main search */
+.market-search .vendor-search-field input{border:0!important;outline:0;background:#fff!important;min-height:26px!important;padding:0!important;color:#39352f!important;font:400 .95rem 'DM Sans',sans-serif}
+.hero-category-panel{max-width:850px;margin:0 auto;background:#fff;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:20px 26px 22px;gap:0 18px;text-align:left;box-shadow:0 18px 38px #17120e18}
+.hero-category-panel a{display:flex;align-items:center;gap:11px;padding:10px 8px;color:#5e5a54;text-decoration:none;font-size:.86rem;transition:color .2s,background .2s}
+.hero-category-panel a i{font-size:1rem;color:#6f6a62;width:18px;text-align:center}
+.hero-category-panel a:hover{color:#a2834e;background:#faf7f1}
+.hero-category-panel a:hover i{color:#a2834e}
+@media(max-width:760px){.hero-category-panel{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px 12px;gap:0 8px}.hero-category-panel a{font-size:.78rem;padding:9px 5px}.market-search .vendor-search-field input{width:100%}}
+
+
+/* Wezoree-style category picker: categories open on demand, not permanently displayed. */
+.market-search{position:relative;z-index:5}
+.vendor-picker{position:relative;min-width:0;background:#fff;padding:13px 22px 12px;display:flex;flex-direction:column;gap:5px;border-right:1px solid #eee7de}
+.vendor-picker>span{font-size:.62rem;letter-spacing:.16em;color:#9c896d;font-weight:700}
+.vendor-picker-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:27px;border:0;padding:0;background:transparent;color:#77736d;text-align:left;font:400 .95rem 'DM Sans',sans-serif}
+.vendor-picker-trigger i{font-size:.82rem;color:#514a40;transition:transform .2s}
+.vendor-picker-trigger[aria-expanded="true"] i{transform:rotate(180deg)}
+.vendor-picker-menu{position:absolute;top:100%;left:0;right:0;z-index:100;background:#fff;border:1px solid #eee5d9;box-shadow:0 18px 40px #211a1426;padding:15px 18px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-height:330px;overflow-y:auto}
+.vendor-picker-menu[hidden]{display:none!important}
+.vendor-option{display:flex;align-items:center;gap:10px;min-height:42px;border:0;background:#fff;padding:8px 9px;text-align:left;color:#514b43;font:400 .85rem 'DM Sans',sans-serif;transition:background .18s,color .18s}
+.vendor-option i{width:17px;text-align:center;color:#9b8056;font-size:1rem;flex:none}
+.vendor-option:hover,.vendor-option.selected{background:#f6f1e9;color:#80653e}
+.vendor-option.selected{box-shadow:inset 2px 0 #b99a63}
+.market-search:has(.vendor-picker-trigger[aria-expanded="true"]){z-index:20}
+@media(max-width:760px){
+ .vendor-picker{border-right:0;border-bottom:1px solid #eee7de;padding:13px 18px}
+ .vendor-picker-menu{grid-template-columns:repeat(2,minmax(0,1fr));max-height:300px;padding:10px}
+ .vendor-option{font-size:.8rem;min-height:40px}
+}
+
+/* Fix: keep the vendor selector aligned like the location field.
+   The general .market-search button rule must not style this trigger as the dark submit button. */
+.market-search .vendor-picker .vendor-picker-trigger{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  min-height:27px;
+  height:auto;
+  margin:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#77736d;
+  box-shadow:none;
+  text-align:left;
+  font:400 .95rem 'DM Sans',sans-serif;
+  line-height:1.4;
+}
+.market-search .vendor-picker .vendor-picker-trigger:hover,
+.market-search .vendor-picker .vendor-picker-trigger:focus{
+  background:transparent;
+  color:#39352f;
+  box-shadow:none;
+  outline:0;
+}
+.market-search .vendor-picker{
+  min-height:80px;
+  justify-content:center;
+  padding:13px 22px 12px;
+  background:#fff;
+}
+.market-search .vendor-picker>span{
+  display:block;
+  margin:0;
+  line-height:1.2;
+}
+.market-search .vendor-picker-menu{
+  top:calc(100% - 1px);
+}
+
+
+/* FINAL dropdown repair: only the Find Vendors submit button is dark. */
+.market-search > .vendor-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: stretch;
+  min-width: 0;
+  min-height: 80px;
+  padding: 12px 24px;
+  background: #fff;
+  border-right: 1px solid #eee7de;
+  gap: 7px;
+  z-index: 6;
+}
+.market-search > .vendor-picker > span {
+  display: block;
+  margin: 0;
+  color: #9c896d;
+  font: 700 .62rem 'DM Sans', sans-serif;
+  letter-spacing: .16em;
+  line-height: 1.2;
+}
+.market-search > .vendor-picker > .vendor-picker-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #77736d !important;
+  box-shadow: none !important;
+  text-align: left;
+  font: 400 .95rem 'DM Sans', sans-serif !important;
+  line-height: 1.4;
+  white-space: normal;
+}
+.market-search > .vendor-picker > .vendor-picker-trigger:hover,
+.market-search > .vendor-picker > .vendor-picker-trigger:focus,
+.market-search > .vendor-picker > .vendor-picker-trigger:active {
+  background: transparent !important;
+  color: #39352f !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.market-search > .vendor-picker .vendor-picker-trigger > span {
+  display: inline;
+  color: inherit;
+  font: inherit;
+  letter-spacing: normal;
+}
+.market-search > .vendor-picker .vendor-picker-trigger > i {
+  color: #514a40;
+  font-size: .82rem;
+  flex: 0 0 auto;
+  transition: transform .2s;
+}
+.market-search > .vendor-picker .vendor-picker-trigger[aria-expanded="true"] > i {
+  transform: rotate(180deg);
+}
+.market-search > .vendor-picker > .vendor-picker-menu {
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3px;
+  max-height: 330px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 1px solid #eee5d9;
+  background: #fff;
+  box-shadow: 0 18px 40px #211a1426;
+}
+.market-search > .vendor-picker > .vendor-picker-menu[hidden] {
+  display: none !important;
+}
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 10px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #fff !important;
+  color: #514b43 !important;
+  box-shadow: none !important;
+  text-align: left;
+  font: 400 .84rem 'DM Sans', sans-serif !important;
+  line-height: 1.25;
+  white-space: normal;
+}
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option:hover,
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option:focus,
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option.selected {
+  background: #f6f1e9 !important;
+  color: #80653e !important;
+  box-shadow: inset 2px 0 #b99a63 !important;
+  outline: none;
+}
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  flex: 0 0 18px;
+  margin: 0;
+  color: #9b8056 !important;
+  font-size: .95rem;
+}
+.market-search > .vendor-picker > .vendor-picker-menu > .vendor-option > span {
+  display: inline;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: normal;
+}
+.market-search > button[type="submit"] {
+  background: #292824 !important;
+  color: #fff !important;
+  padding: 0 30px !important;
+  font: 500 1rem 'Playfair Display', serif !important;
+}
+@media (max-width: 760px) {
+  .market-search > .vendor-picker {
+    min-height: 76px;
+    padding: 12px 18px;
+    border-right: 0;
+    border-bottom: 1px solid #eee7de;
+  }
+  .market-search > .vendor-picker > .vendor-picker-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: 280px;
+  }
+}

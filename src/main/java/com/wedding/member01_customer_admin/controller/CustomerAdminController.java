@@ -5,8 +5,10 @@ import com.wedding.common.model.User;
 import com.wedding.common.model.Session;
 import com.wedding.member01_customer_admin.model.Admin;
 import com.wedding.member01_customer_admin.model.Customer;
+import com.wedding.member01_customer_admin.model.OtpChallenge;
 import com.wedding.member01_customer_admin.service.AdminService;
 import com.wedding.member01_customer_admin.service.CustomerService;
+import com.wedding.member01_customer_admin.service.OtpService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -29,10 +31,13 @@ public class CustomerAdminController {
 
  private final CustomerService customerService;
  private final AdminService adminService;
+    private final OtpService otpService;
 
- public CustomerAdminController(CustomerService customerService, AdminService adminService) {
+ public CustomerAdminController(CustomerService customerService, AdminService adminService,
+                                   OtpService otpService) {
  this.customerService = customerService;
  this.adminService = adminService;
+        this.otpService = otpService;
  }
 
  // ─── Login Page ──────────────────────────────────────────────────────────────
@@ -43,37 +48,134 @@ public class CustomerAdminController {
  }
 
  @PostMapping("/login")
- public String processLogin(@RequestParam("role") String role,
- @RequestParam("email") String email,
- @RequestParam("password") String password,
- HttpSession httpSession, HttpServletRequest request,
- RedirectAttributes redirectAttributes) {
- try {
- User user;
- if ("ADMIN".equalsIgnoreCase(role)) {
- user = adminService.login(email, password);
- } else if ("CUSTOMER".equalsIgnoreCase(role)) {
- user = customerService.login(email, password);
- } else {
-  throw new com.wedding.common.exceptions.ValidationException("Select a valid account type.");
- }
+    public String processLogin(@RequestParam("role") String role,
+                               @RequestParam("email") String email,
+                               @RequestParam("password") String password,
+                               HttpSession httpSession, HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
+        try {
+            if ("ADMIN".equalsIgnoreCase(role)) {
+                User admin = adminService.login(email, password);
+                request.changeSessionId();
+                httpSession.setAttribute("currentUser", admin);
+                redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + admin.getName() + "!");
+                return "redirect:/admin/dashboard";
+            }
+            if ("CUSTOMER".equalsIgnoreCase(role)) {
+                // Step 1: password is correct -> text a code to the phone on file.
+                // The customer is NOT logged in until the code is verified.
+                Customer customer = customerService.login(email, password);
+                otpService.start(httpSession, customer);
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "We sent a 6-digit code to " + OtpService.maskPhone(customer.getPhone()) + ".");
+                return "redirect:/login/otp";
+            }
+            throw new com.wedding.common.exceptions.ValidationException("Select a valid account type.");
+        } catch (AppException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/login";
+        }
+    }
 
- request.changeSessionId();
- httpSession.setAttribute("currentUser", user);
+    // ─── Phone verification (OTP) ────────────────────────────────────────────────
+    @GetMapping("/login/otp")
+    public String showOtpPage(HttpSession httpSession, Model model, RedirectAttributes redirectAttributes) {
+        OtpChallenge challenge = otpService.current(httpSession);
+        if (challenge == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Please log in first.");
+            return "redirect:/login";
+        }
+        try {
+            Customer customer = customerService.getById(challenge.getUserId());
+            model.addAttribute("maskedPhone", OtpService.maskPhone(customer.getPhone()));
+        } catch (AppException e) {
+            otpService.clear(httpSession);
+            return "redirect:/login";
+        }
+        model.addAttribute("resendIn", otpService.secondsUntilResend(challenge));
+        model.addAttribute("pageTitle", "Verify your phone - Éclat");
+        return "member01/otp";
+    }
 
- redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + user.getName() + "!");
- if ("ADMIN".equalsIgnoreCase(role)) {
- return "redirect:/admin/dashboard";
- } else {
- return "redirect:/dashboard";
- }
- } catch (AppException e) {
- redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
- return "redirect:/login";
- }
- }
+    @PostMapping("/login/otp")
+    public String verifyOtp(@RequestParam("code") String code,
+                            HttpSession httpSession, HttpServletRequest request,
+                            RedirectAttributes redirectAttributes) {
+        OtpChallenge challenge = otpService.current(httpSession);
+        if (challenge == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Your login session has expired. Please log in again.");
+            return "redirect:/login";
+        }
 
- // ─── Registration Page ───────────────────────────────────────────────────────
+        OtpService.Result result = otpService.verify(httpSession, code);
+        switch (result) {
+            case OK -> {
+                try {
+                    Customer customer = customerService.getById(challenge.getUserId());
+                    if (!customer.isActive()) {
+                        otpService.clear(httpSession);
+                        redirectAttributes.addFlashAttribute("errorMessage",
+                                "Your account has been deactivated. Please contact support.");
+                        return "redirect:/login";
+                    }
+                    otpService.clear(httpSession);
+                    request.changeSessionId();
+                    httpSession.setAttribute("currentUser", customer);
+                    redirectAttributes.addFlashAttribute("successMessage",
+                            "Phone verified. Welcome back, " + customer.getName() + "!");
+                    return "redirect:/dashboard";
+                } catch (AppException e) {
+                    otpService.clear(httpSession);
+                    redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+                    return "redirect:/login";
+                }
+            }
+            case WRONG -> {
+                OtpChallenge current = otpService.current(httpSession);
+                int left = current == null ? 0 : otpService.attemptsLeft(current);
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "That code is not correct. " + left + (left == 1 ? " attempt" : " attempts") + " left.");
+                return "redirect:/login/otp";
+            }
+            case EXPIRED -> {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "That code has expired. Request a new one below.");
+                return "redirect:/login/otp";
+            }
+            default -> {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "Too many wrong attempts. Please log in again.");
+                return "redirect:/login";
+            }
+        }
+    }
+
+    @PostMapping("/login/otp/resend")
+    public String resendOtp(HttpSession httpSession, RedirectAttributes redirectAttributes) {
+        OtpChallenge challenge = otpService.current(httpSession);
+        if (challenge == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Your login session has expired. Please log in again.");
+            return "redirect:/login";
+        }
+        try {
+            Customer customer = customerService.getById(challenge.getUserId());
+            otpService.resend(httpSession, customer);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "A new code was sent to " + OtpService.maskPhone(customer.getPhone()) + ".");
+        } catch (AppException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            if (otpService.current(httpSession) == null) return "redirect:/login";
+        }
+        return "redirect:/login/otp";
+    }
+
+    @GetMapping("/login/otp/cancel")
+    public String cancelOtp(HttpSession httpSession) {
+        otpService.clear(httpSession);
+        return "redirect:/login";
+    }
+
+     // ─── Registration Page ───────────────────────────────────────────────────────
  @GetMapping("/register")
  public String showRegisterPage(Model model) {
  model.addAttribute("pageTitle", "Register Customer - Éclat");
