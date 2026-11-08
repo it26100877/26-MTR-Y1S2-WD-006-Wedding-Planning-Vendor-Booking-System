@@ -16,7 +16,15 @@
     <h1 class="mb-2"><c:choose><c:when test="${isEdit}">Edit vendor details</c:when><c:otherwise>Register as a vendor</c:otherwise></c:choose></h1>
     <p class="text-secondary mb-4"><c:choose><c:when test="${isEdit}">Update the vendor's service information.</c:when><c:otherwise>Submit your business details for administrator review.</c:otherwise></c:choose></p>
 
-    <form method="post" action="<c:choose><c:when test='${isEdit}'><c:out value='${pageContext.request.contextPath}'/>/vendors/edit/<c:out value='${vendor.vendorId}'/></c:when><c:otherwise><c:out value='${pageContext.request.contextPath}'/>/vendors/new</c:otherwise></c:choose>">
+    <c:choose>
+      <c:when test="${isEdit}">
+        <c:url var="vendorFormAction" value="/vendors/edit/${vendor.vendorId}"/>
+      </c:when>
+      <c:otherwise>
+        <c:url var="vendorFormAction" value="/vendors/new"/>
+      </c:otherwise>
+    </c:choose>
+    <form method="post" action="${vendorFormAction}">
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label" for="vendorName">Business / vendor name *</label>
