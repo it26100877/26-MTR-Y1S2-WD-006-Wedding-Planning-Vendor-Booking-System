@@ -23,4 +23,12 @@ class ValidationUtilPhoneTest {
         assertFalse(ValidationUtil.isValidPhone(null));
         assertFalse(ValidationUtil.isValidPhone(""));
     }
+    @Test
+    void enforcesMinimumEightCharacterPasswords() {
+        assertFalse(ValidationUtil.isValidPassword("1234567"));
+        assertTrue(ValidationUtil.isValidPassword("12345678"));
+        assertTrue(ValidationUtil.isValidPassword("secret123"));
+        assertFalse(ValidationUtil.isValidPassword(null));
+    }
+
 }
