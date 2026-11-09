@@ -292,14 +292,17 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/partial")
  public String recordPartialPayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "installmentNumber", defaultValue = "1") int installmentNumber,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
    if (!canAccessContract(actor, accessCheck)) {
@@ -325,14 +328,17 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/final")
  public String recordFinalPayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "receiptNumber", required = false) String receiptNumber,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
    if (!canAccessContract(actor, accessCheck)) {
