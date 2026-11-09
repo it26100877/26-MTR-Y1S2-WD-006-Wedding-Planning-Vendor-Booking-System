@@ -91,6 +91,11 @@
         <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/contracts/${contract.contractId}/export.csv"><i class="bi bi-filetype-csv me-1"></i>Export CSV</a>
         <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/contracts/${contract.contractId}/print" target="_blank" rel="noopener"><i class="bi bi-printer me-1"></i>Print / Save PDF</a>
     </div>
+    <div class="table-responsive mb-3">
+      <table class="table table-sm table-bordered m05-audit-table"><thead><tr><th>System Audit Event</th></tr></thead><tbody>
+      <c:forEach var="event" items="${auditEntries}"><tr><td><c:out value="${event}"/></td></tr></c:forEach>
+      </tbody></table>
+    </div>
     <div class="table-responsive">
         <table class="table table-hover align-middle m05-payment-table" id="paymentHistoryTable">
             <thead class="table-custom">
@@ -109,7 +114,7 @@
             <tbody>
                 <c:forEach var="p" items="${payments}">
                     <tr class="${p.voided ? 'table-danger text-muted text-decoration-line-through' : ''}">
-                        <td class="fw-semibold">${p.paymentId}</td>
+                        <td class="fw-semibold"><c:out value="${p.paymentId}"/><br><a class="small" href="${pageContext.request.contextPath}/payments/${p.paymentId}/receipt" target="_blank" rel="noopener">Receipt</a></td>
                         <td>
                             <c:choose>
                                 <c:when test="${p.paymentType == 'ADVANCE'}"><span class="badge bg-primary">Advance</span></c:when>
