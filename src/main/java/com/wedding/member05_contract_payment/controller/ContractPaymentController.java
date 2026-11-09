@@ -396,12 +396,21 @@ public class ContractPaymentController {
    java.nio.file.Path folder = java.nio.file.Paths.get("data", "payment-proofs");
    java.nio.file.Files.createDirectories(folder);
    String proofId = com.wedding.common.utils.FileUtil.generateId("PRF");
+   java.nio.file.Path queue = folder.resolve("payment-proofs.csv");
+   java.util.List<String> proofLines = java.nio.file.Files.exists(queue)
+       ? java.nio.file.Files.readAllLines(queue) : new java.util.ArrayList<>();
+   boolean duplicateRef = proofLines.stream().map(existing -> existing.split("\\|", -1))
+       .anyMatch(parts -> parts.length >= 8 && normalizedRef.equalsIgnoreCase(parts[5]));
+   if (duplicateRef) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference has already been submitted.");
    String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
        + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
        + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-       + "|PENDING|" + (notes == null ? "" : notes.replace("|", "/").replace("\n", " "));
-   java.nio.file.Files.writeString(folder.resolve("payment-proofs.csv"), line + System.lineSeparator(),
-       java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+       + "|PENDING|" + (notes == null ? "" : notes.replace("|", "/").replace("\\n", " "));
+   proofLines.add(line);
+   java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
+   java.nio.file.Files.write(tempQueue, proofLines);
+   try { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
+   catch (java.nio.file.AtomicMoveNotSupportedException moveEx) { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
    redirectAttributes.addFlashAttribute("successMessage", "Payment proof submitted for Admin verification. Your paid balance will update after verification.");
   } catch (AppException ex) {
    redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
