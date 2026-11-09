@@ -284,7 +284,7 @@ public class ContractPaymentController {
  }
 
  @PostMapping("/contracts/{id}/payments/proof")
- public String submitPaymentProof(@PathVariable("id") String id,
+ public synchronized String submitPaymentProof(@PathVariable("id") String id,
                                   @RequestParam("amount") BigDecimal amount,
                                   @RequestParam("method") String method,
                                   @RequestParam("transactionRef") String transactionRef,
@@ -371,7 +371,7 @@ public class ContractPaymentController {
  }
 
  @PostMapping("/admin/payment-proofs/decision")
- public String decidePaymentProof(@RequestParam("proofId") String proofId,
+ public synchronized String decidePaymentProof(@RequestParam("proofId") String proofId,
                                   @RequestParam("decision") String decision,
                                   @RequestParam(value = "reason", required = false) String reason,
                                   HttpSession session, RedirectAttributes redirectAttributes) {
@@ -692,7 +692,7 @@ public class ContractPaymentController {
   return entries;
  }
 
- private void appendAuditEvent(String contractId, User actor, String action, String detail) {
+ private synchronized void appendAuditEvent(String contractId, User actor, String action, String detail) {
   if (contractId == null || actor == null) return;
   String cleanDetail = detail == null ? "" : detail.replace('|', '/').replace('\r', ' ').replace('\n', ' ');
   String line = contractId + "|" + com.wedding.common.utils.ValidationUtil.nowDateTime() + "|" + actor.getUserId()
