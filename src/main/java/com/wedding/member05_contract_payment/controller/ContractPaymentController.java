@@ -191,6 +191,7 @@ public class ContractPaymentController {
  model.addAttribute("paymentStatus", contract.getPaymentStatus());
  model.addAttribute("serverPaymentDate", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
  model.addAttribute("isAdmin", isAdmin(viewer));
+ model.addAttribute("auditEntries", buildAuditEntries(contract, payments));
  model.addAttribute("pageTitle", "Contract " + contract.getContractId() + " - Payments");
  model.addAttribute("activePage", "contracts");
  return "member05/payment-detail";
@@ -404,6 +405,18 @@ public class ContractPaymentController {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  }
  return "redirect:/contracts/view/" + id;
+ }
+
+ private List<String> buildAuditEntries(VendorContract contract, List<Payment> payments) {
+  java.util.ArrayList<String> entries = new java.util.ArrayList<>();
+  entries.add("Contract " + contract.getContractId() + " created on " + contract.getCreatedAt()
+          + " | Status: " + contract.getStatus());
+  for (Payment payment : payments) {
+   entries.add(payment.getRecordedAt() + " | " + payment.getPaymentType() + " | "
+           + payment.getPaymentId() + " | LKR " + payment.getAmount()
+           + (payment.isVoided() ? " | VOIDED" : " | VALID"));
+  }
+  return entries;
  }
 
  private boolean isAdmin(User user) {
