@@ -1,0 +1,94 @@
+/* Éclat global typography system — consistent across every module and dashboard. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --eclat-font-body: 'Inter', 'Segoe UI', Arial, sans-serif;
+  --eclat-font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --eclat-font-numeric: 'Roboto Mono', 'SFMono-Regular', Consolas, monospace;
+}
+
+html,
+body {
+  font-family: var(--eclat-font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body,
+button,
+input,
+select,
+textarea,
+.form-control,
+.form-select,
+.btn,
+.navbar,
+.nav-link,
+.dropdown-menu,
+.dropdown-item,
+.table,
+.badge,
+.alert,
+.pagination {
+  font-family: var(--eclat-font-body);
+}
+
+h1, h2, h3, h4, h5, h6,
+.display-1, .display-2, .display-3,
+.navbar-brand,
+.eclat-auth-brand,
+.eclat-note-mark,
+.card-title {
+  font-family: var(--eclat-font-display);
+}
+
+/* Numeric typography: aligned digits make totals, prices and IDs easier to scan. */
+.eclat-stat-card strong,
+.m05-summary-value,
+.m05-amount,
+.m05-chart-stat strong,
+.m05-mini-stat,
+.eclat-number,
+.numeric-value,
+.number-value,
+.amount-value,
+.price-value,
+.balance-value,
+.payment-amount,
+.stat-value,
+.metric-value,
+[data-number],
+.font-monospace,
+.num,
+.numeric {
+  font-family: var(--eclat-font-numeric) !important;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.035em;
+}
+
+/* Preserve readable sizing and visual hierarchy for dashboard figures. */
+.eclat-stat-card strong {
+  font-size: 1.85rem;
+  font-weight: 600;
+  letter-spacing: -0.07em;
+}
+
+.m05-summary-value {
+  font-size: 1.18rem;
+  font-weight: 600;
+}
+
+.m05-summary-value.m05-money {
+  font-size: clamp(.95rem, 1.2vw, 1.2rem);
+}
+
+.m05-amount {
+  font-weight: 600;
+}
+
+@media print {
+  body, button, input, select, textarea {
+    font-family: var(--eclat-font-body);
+  }
+}
