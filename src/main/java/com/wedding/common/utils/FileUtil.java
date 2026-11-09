@@ -43,8 +43,8 @@ public class FileUtil {
  try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
  String line;
  while ((line = br.readLine()) != null) {
- if (!line.trim().isEmpty()) {
- lines.add(line.trim());
+ if (!line.isBlank()) {
+ lines.add(line);
  }
  }
  } catch (IOException e) {
@@ -92,11 +92,18 @@ public class FileUtil {
  */
  public static void appendLine(String filename, String line) {
  File file = new File(getFilePath(filename));
+ File parent = file.getAbsoluteFile().getParentFile();
+ if (parent != null && !parent.exists() && !parent.mkdirs()) {
+  throw new UncheckedIOException("Unable to create data directory for: " + filename,
+          new IOException("Could not create " + parent));
+ }
+ synchronized (FileUtil.class) {
  try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true), StandardCharsets.UTF_8))) {
- bw.write(line);
+ bw.write(line == null ? "" : line);
  bw.newLine();
  } catch (IOException e) {
  throw new UncheckedIOException("Unable to append to data file: " + filename, e);
+ }
  }
  }
 
