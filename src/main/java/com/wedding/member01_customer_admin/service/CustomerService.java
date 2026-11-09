@@ -48,7 +48,7 @@ public class CustomerService extends BaseService {
  requireNonEmpty(email, "Email");
  requireNonEmpty(phone, "Phone");
  requireNonEmpty(password, "Password");
- requireNonEmpty(address, "Address");
+ 
 
  if (!ValidationUtil.isValidEmail(email)) {
  throw new ValidationException("Email address is not valid.");
@@ -75,7 +75,7 @@ public class CustomerService extends BaseService {
  User.hashPassword(password),
  ValidationUtil.nowDateTime(),
  true,
- address.trim(),
+ address == null ? "" : address.trim(),
  weddingDate == null ? "" : weddingDate.trim()
  );
  customerRepository.save(customer);
