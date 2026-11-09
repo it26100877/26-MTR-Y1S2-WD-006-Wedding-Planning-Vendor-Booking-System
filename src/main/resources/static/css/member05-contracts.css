@@ -35,3 +35,7 @@
 #contractPageLabel{min-width:90px}
 #contractPageSize{margin-left:.35rem}
 .m05-payment-table td:first-child{font-variant-numeric:tabular-nums}
+
+.m05-sort-btn{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;padding:0;text-align:left;white-space:nowrap}
+.m05-sort-btn:hover,.m05-sort-btn:focus{color:#9b742e;text-decoration:underline;outline-offset:3px}
+.m05-sort-btn[aria-pressed="true"]{color:#9b742e}
