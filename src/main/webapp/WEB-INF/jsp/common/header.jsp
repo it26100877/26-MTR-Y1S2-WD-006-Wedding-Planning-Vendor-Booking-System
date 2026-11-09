@@ -173,15 +173,6 @@
                     <li class="nav-item">
                         <a class="nav-link" href="${pageContext.request.contextPath}/vendors">Vendors</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/vendors">Venues</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/vendors">Destinations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="${pageContext.request.contextPath}/vendors">Inspiration</a>
-                    </li>
                 </ul>
 
                 <ul class="navbar-nav ms-auto align-items-center eclat-guest-actions">
