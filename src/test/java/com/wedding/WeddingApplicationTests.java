@@ -83,19 +83,19 @@ public class WeddingApplicationTests {
     void testCustomerManagement() {
         String testEmail = "test_couple_" + System.currentTimeMillis() + "@wedding.com";
         Customer customer = customerService.register(
-                "Saman & Kumari", testEmail, "+94770001122", "secret123", "Colombo", "2027-05-20");
+                "Saman & Kumari", testEmail, "+94770001122", "secret123456", "Colombo", "2027-05-20");
 
         assertNotNull(customer.getUserId());
         assertEquals("CUSTOMER", customer.getRole());
         assertTrue(customer.isActive());
 
         // Verify login
-        Customer loggedIn = customerService.login(testEmail, "secret123");
+        Customer loggedIn = customerService.login(testEmail, "secret123456");
         assertEquals(customer.getUserId(), loggedIn.getUserId());
 
         // Duplicate email must be rejected
         assertThrows(BusinessRuleException.class, () ->
-                customerService.register("Clone", testEmail, "+94770001122", "secret123", "Colombo", "2027-05-20"));
+                customerService.register("Clone", testEmail, "+94770001122", "secret123456", "Colombo", "2027-05-20"));
     }
 
     @Test
@@ -294,7 +294,7 @@ public class WeddingApplicationTests {
     void testCustomerPagesRender() throws Exception {
         String email = "ui_customer_" + System.currentTimeMillis() + "@eclat.test";
         Customer customer = customerService.register("UI Test Couple", email, "+94770009988",
-                "testpass123", "Colombo", java.time.LocalDate.now().plusDays(300).toString());
+                "testpass1234", "Colombo", java.time.LocalDate.now().plusDays(300).toString());
         WeddingPlan plan = planService.createPlan(customer.getUserId(), "UI Test Wedding",
                 java.time.LocalDate.now().plusDays(300).toString(), "Colombo", "Classic", "UI test", "250000.00");
         checklistService.addTask(plan.getPlanId(), "Book photographer", "Confirm package",
@@ -338,7 +338,7 @@ public class WeddingApplicationTests {
 
         Customer otherCustomer = customerService.register("Other Test Couple",
                 "other_ui_" + System.currentTimeMillis() + "@eclat.test", "+94770008877",
-                "testpass123", "Kandy", java.time.LocalDate.now().plusDays(400).toString());
+                "testpass1234", "Kandy", java.time.LocalDate.now().plusDays(400).toString());
         MockHttpSession otherSession = new MockHttpSession();
         otherSession.setAttribute("currentUser", otherCustomer);
         mockMvc.perform(get("/plans/edit/" + plan.getPlanId()).session(otherSession))
