@@ -5,9 +5,10 @@
   "portsAttributes": {
     "8080": {
       "label": "Eclat Spring Boot application",
-      "onAutoForward": "notify",
-      "protocol": "http"
+      "onAutoForward": "openBrowser",
+      "protocol": "http",
+      "visibility": "private"
     }
   },
-  "postCreateCommand": "chmod +x mvnw"
+  "postCreateCommand": "chmod +x mvnw .devcontainer/start-eclat.sh"
 }
