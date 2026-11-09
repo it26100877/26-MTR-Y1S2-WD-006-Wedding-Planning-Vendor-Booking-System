@@ -640,14 +640,44 @@ public class ContractPaymentController {
 
  private List<String> buildAuditEntries(VendorContract contract, List<Payment> payments) {
   java.util.ArrayList<String> entries = new java.util.ArrayList<>();
-  entries.add("Contract " + contract.getContractId() + " created on " + contract.getCreatedAt()
+  entries.add(contract.getCreatedAt() + " | CONTRACT_CREATED | " + contract.getContractId()
           + " | Status: " + contract.getStatus());
-  for (Payment payment : payments) {
-   entries.add(payment.getRecordedAt() + " | " + payment.getPaymentType() + " | "
-           + payment.getPaymentId() + " | LKR " + payment.getAmount()
-           + (payment.isVoided() ? " | VOIDED" : " | VALID"));
+  java.nio.file.Path auditPath = java.nio.file.Paths.get("data", "contract-payment-audit.csv");
+  if (java.nio.file.Files.exists(auditPath)) {
+   try {
+    for (String line : java.nio.file.Files.readAllLines(auditPath)) {
+     String[] parts = line.split("\\|", 5);
+     if (parts.length == 5 && contract.getContractId().equals(parts[0])) {
+      entries.add(parts[1] + " | " + parts[3] + " | " + parts[2] + " | " + parts[4]);
+     }
+    }
+   } catch (java.io.IOException ex) {
+    System.err.println("[Audit] Unable to read contract audit history: " + ex.getMessage());
+   }
   }
+  for (Payment payment : payments) {
+   entries.add(payment.getRecordedAt() + " | PAYMENT_" + payment.getPaymentType() + " | "
+           + payment.getPaymentId() + " | LKR " + payment.getAmount()
+           + (payment.isVoided() ? " | VOIDED" : " | VALID")
+           + (payment.getNotes() == null || payment.getNotes().isBlank() ? "" : " | " + payment.getNotes()));
+  }
+  entries.sort(java.util.Comparator.naturalOrder());
   return entries;
+ }
+
+ private void appendAuditEvent(String contractId, User actor, String action, String detail) {
+  if (contractId == null || actor == null) return;
+  String cleanDetail = detail == null ? "" : detail.replace("|", "/").replace("\\r", " ").replace("\\n", " ");
+  String line = contractId + "|" + java.time.LocalDateTime.now() + "|" + actor.getUserId()
+          + "|" + action + "|" + cleanDetail + System.lineSeparator();
+  try {
+   java.nio.file.Path folder = java.nio.file.Paths.get("data");
+   java.nio.file.Files.createDirectories(folder);
+   java.nio.file.Files.writeString(folder.resolve("contract-payment-audit.csv"), line,
+       java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+  } catch (java.io.IOException ex) {
+   System.err.println("[Audit] Unable to append contract audit event: " + ex.getMessage());
+  }
  }
 
  private boolean isAdmin(User user) {
