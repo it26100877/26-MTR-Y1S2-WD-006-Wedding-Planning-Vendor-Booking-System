@@ -21,6 +21,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Controller managing Vendor Contracts and financial Payment installments.
@@ -186,6 +188,9 @@ public class ContractPaymentController {
  model.addAttribute("contract", contract);
  model.addAttribute("payments", payments);
  model.addAttribute("outstanding", outstanding);
+ model.addAttribute("paymentStatus", contract.getPaymentStatus());
+ model.addAttribute("serverPaymentDate", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+ model.addAttribute("isAdmin", isAdmin(viewer));
  model.addAttribute("pageTitle", "Contract " + contract.getContractId() + " - Payments");
  model.addAttribute("activePage", "contracts");
  return "member05/payment-detail";
@@ -251,18 +256,21 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/advance")
  public String recordAdvancePayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "advancePct", defaultValue = "0.0") double advancePct,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
-   if (!canAccessContract(actor, accessCheck)) {
-    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to record payments for this contract.");
+   if (!isAdmin(actor) || !canAccessContract(actor, accessCheck)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments for this contract.");
     return "redirect:/contracts";
    }
   } catch (AppException ex) {
@@ -271,7 +279,7 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordAdvancePayment(contract, amount, paymentDate, method, transactionRef, notes, advancePct);
+ paymentService.recordAdvancePayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, advancePct);
  contractService.refreshTotals(contractId);
  redirectAttributes.addFlashAttribute("successMessage", "Advance payment of LKR " + amount + " recorded successfully!");
  } catch (AppException e) {
@@ -304,7 +312,7 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordPartialPayment(contract, amount, paymentDate, method, transactionRef, notes, installmentNumber);
+ paymentService.recordPartialPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, installmentNumber);
  contractService.refreshTotals(contractId);
  redirectAttributes.addFlashAttribute("successMessage", "Partial installment #" + installmentNumber + " of LKR " + amount + " recorded!");
  } catch (AppException e) {
@@ -337,7 +345,7 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordFinalPayment(contract, amount, paymentDate, method, transactionRef, notes, receiptNumber);
+ paymentService.recordFinalPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, receiptNumber);
  contractService.refreshTotals(contractId);
  redirectAttributes.addFlashAttribute("successMessage", "Final settlement payment recorded! Contract is now FULLY PAID.");
  } catch (AppException e) {
