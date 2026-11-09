@@ -161,10 +161,11 @@
                             </c:if>
 
                             <li>
-                                <a class="dropdown-item text-danger"
-                                   href="${pageContext.request.contextPath}/logout">
-                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                                </a>
+                                <form action="${pageContext.request.contextPath}/logout" method="post" class="m-0">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </button>
+                                </form>
                             </li>
                         </ul>
                     </li>
