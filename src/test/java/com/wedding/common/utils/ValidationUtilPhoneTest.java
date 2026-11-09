@@ -23,4 +23,11 @@ class ValidationUtilPhoneTest {
         assertFalse(ValidationUtil.isValidPhone(null));
         assertFalse(ValidationUtil.isValidPhone(""));
     }
+    @Test
+    void requiresAtLeastTwelveCharactersForPasswords() {
+        assertFalse(ValidationUtil.isValidPassword("short123"));
+        assertTrue(ValidationUtil.isValidPassword("LongEnough123"));
+        assertFalse(ValidationUtil.isValidPassword(null));
+    }
+
 }
