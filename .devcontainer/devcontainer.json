@@ -1,0 +1,13 @@
+{
+  "name": "Eclat Wedding Planning System",
+  "image": "mcr.microsoft.com/devcontainers/java:1-17-bullseye",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Eclat Spring Boot application",
+      "onAutoForward": "notify",
+      "protocol": "http"
+    }
+  },
+  "postCreateCommand": "chmod +x mvnw"
+}
