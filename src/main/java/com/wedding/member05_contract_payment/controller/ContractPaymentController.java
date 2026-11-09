@@ -424,7 +424,7 @@ public class ContractPaymentController {
  public String showEditContractForm(@PathVariable("id") String id, HttpSession httpSession,
                                     Model model, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) { redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can manage contracts."); return actor == null ? "redirect:/login" : "redirect:/contracts"; }
   try {
    VendorContract contract = contractService.getById(id);
    if (contract.getStatus() == com.wedding.member05_contract_payment.model.ContractStatus.COMPLETED
@@ -450,7 +450,7 @@ public class ContractPaymentController {
                               @RequestParam(value = "terms", required = false) String terms,
                               HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) { redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can manage contracts."); return actor == null ? "redirect:/login" : "redirect:/contracts"; }
   try {
    contractService.updateContract(id, startDate, endDate, contractAmount, terms);
    redirectAttributes.addFlashAttribute("successMessage", "Contract details updated successfully.");
@@ -621,7 +621,7 @@ public class ContractPaymentController {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (!isAdmin(actor)) {
   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can complete a contract.");
-  return "redirect:/login";
+  return actor == null ? "redirect:/login" : "redirect:/contracts";
  }
  try {
  contractService.completeContract(id);
