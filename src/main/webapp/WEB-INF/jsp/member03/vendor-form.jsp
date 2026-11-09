@@ -1,4 +1,3 @@
-```jsp
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
@@ -154,10 +153,15 @@
                            class="form-control"
                            id="phone"
                            name="phone"
-                           maxlength="20"
+                           inputmode="tel"
+                           pattern="(0|\\+94)7[0-9]{8}"
+                           minlength="10"
+                           maxlength="12"
                            required
                            value="<c:out value='${vendor.phone}'/>"
-                           placeholder="07XXXXXXXX">
+                           placeholder="0771234567 or +94771234567"
+                           title="Enter a valid Sri Lankan mobile number: 07XXXXXXXX or +947XXXXXXXX">
+                    <small class="text-muted">Use a Sri Lankan mobile number (07XXXXXXXX or +947XXXXXXXX).</small>
                 </div>
 
                 <div class="col-md-6">
@@ -241,4 +245,3 @@
 </div>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
-```
