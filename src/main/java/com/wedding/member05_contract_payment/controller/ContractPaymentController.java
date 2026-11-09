@@ -366,18 +366,6 @@ public class ContractPaymentController {
       .max().orElse(0) + 1;
  }
 
- @PostMapping("/contracts/{id}/payments/proof")
-
-
- private int nextInstallmentNumber(String contractId) {
-  return paymentService.getAllPayments(contractId).stream()
-      .filter(p -> p instanceof com.wedding.member05_contract_payment.model.PartialPayment)
-      .map(p -> (com.wedding.member05_contract_payment.model.PartialPayment) p)
-      .mapToInt(com.wedding.member05_contract_payment.model.PartialPayment::getInstallmentNumber)
-      .max().orElse(0) + 1;
- }
-
-
  @GetMapping("/contracts/edit/{id}")
  public String showEditContractForm(@PathVariable("id") String id, HttpSession httpSession,
                                     Model model, RedirectAttributes redirectAttributes) {
