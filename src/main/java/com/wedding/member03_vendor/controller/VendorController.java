@@ -268,7 +268,7 @@ public class VendorController {
   return "redirect:/vendors";
  }
  vendorService.deleteVendor(id);
- redirectAttributes.addFlashAttribute("successMessage", "Vendor permanently removed.");
+ redirectAttributes.addFlashAttribute("successMessage", "Vendor archived successfully. Historical booking and review records remain available.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  }

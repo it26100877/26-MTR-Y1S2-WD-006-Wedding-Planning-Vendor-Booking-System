@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [ main ]
   push:
-    branches: [ main, "feature/**" ]
+    branches: [ main, "feature/**", "audit/**" ]
 
 permissions:
   contents: read
@@ -22,4 +22,4 @@ jobs:
           java-version: "17"
           cache: maven
       - name: Build and run tests
-        run: mvn --batch-mode --no-transfer-progress clean test
+        run: ./mvnw --batch-mode --no-transfer-progress clean test

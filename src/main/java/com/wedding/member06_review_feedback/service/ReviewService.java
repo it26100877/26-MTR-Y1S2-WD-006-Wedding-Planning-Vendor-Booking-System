@@ -34,7 +34,7 @@ public class ReviewService extends BaseService {
  /**
  * Submits a verified review for a completed booking.
  */
- public Review submitReview(String customerId, String vendorId, String bookingId,
+ public synchronized Review submitReview(String customerId, String vendorId, String bookingId,
  int rating, String title, String feedback) {
  requireNonEmpty(customerId, "Customer ID");
  requireNonEmpty(vendorId, "Vendor ID");
@@ -91,7 +91,7 @@ public class ReviewService extends BaseService {
  /**
  * Allows customer to edit their pending review before moderation.
  */
- public Review updateReview(String reviewId, int rating, String title, String feedback) {
+ public synchronized Review updateReview(String reviewId, int rating, String title, String feedback) {
  Review review = getById(reviewId);
  if (review.getStatus() != ReviewStatus.PENDING_MODERATION) {
  throw new BusinessRuleException("Only reviews in PENDING_MODERATION status can be edited.");
@@ -114,10 +114,19 @@ public class ReviewService extends BaseService {
  return review;
  }
 
+ public synchronized Review updateReviewForCustomer(String reviewId, String customerId,
+                                                         int rating, String title, String feedback) {
+  Review review = getById(reviewId);
+  if (customerId == null || !customerId.equalsIgnoreCase(review.getCustomerId())) {
+   throw new BusinessRuleException("You can only update your own review.");
+  }
+  return updateReview(reviewId, rating, title, feedback);
+ }
+
  /**
  * Approves a review (Admin moderation).
  */
- public Review approveReview(String reviewId, String adminId) {
+ public synchronized Review approveReview(String reviewId, String adminId) {
  Review review = getById(reviewId);
  if (review.getStatus() != ReviewStatus.PENDING_MODERATION) {
   throw new BusinessRuleException("Only pending reviews can be approved.");
@@ -133,7 +142,7 @@ public class ReviewService extends BaseService {
  /**
  * Rejects a review with a reason (Admin moderation).
  */
- public Review rejectReview(String reviewId, String adminId, String reason) {
+ public synchronized Review rejectReview(String reviewId, String adminId, String reason) {
  requireNonEmpty(reason, "Rejection Reason");
  Review review = getById(reviewId);
  if (review.getStatus() != ReviewStatus.PENDING_MODERATION) {
@@ -172,7 +181,7 @@ public class ReviewService extends BaseService {
  }
 
  public List<Review> getByCustomer(String customerId) {
- return reviewRepository.findByCustomerId(customerId);
+ return reviewRepository.findAllByCustomerId(customerId);
  }
 
  public List<Review> getPendingReviews() {

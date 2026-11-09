@@ -61,6 +61,17 @@ public class HomeController {
         if (user == null) {
             return "redirect:/login";
         }
+        if ("CUSTOMER".equalsIgnoreCase(user.getRole())) {
+            try {
+                if (!customerService.getById(user.getUserId()).isActive()) {
+                    httpSession.invalidate();
+                    return "redirect:/login?inactive";
+                }
+            } catch (com.wedding.common.exceptions.AppException ex) {
+                httpSession.invalidate();
+                return "redirect:/login";
+            }
+        }
 
         if ("ADMIN".equalsIgnoreCase(user.getRole())) {
             model.addAttribute("totalCustomers", customerService.count());

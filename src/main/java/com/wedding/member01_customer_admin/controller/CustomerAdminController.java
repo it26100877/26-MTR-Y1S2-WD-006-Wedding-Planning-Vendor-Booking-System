@@ -206,16 +206,30 @@ public class CustomerAdminController {
  }
  }
 
+ private Customer requireActiveCustomer(HttpSession session) {
+  User actor = (User) session.getAttribute("currentUser");
+  if (actor == null || !"CUSTOMER".equalsIgnoreCase(actor.getRole())) return null;
+  try {
+   Customer customer = customerService.getById(actor.getUserId());
+   if (!customer.isActive()) {
+    session.invalidate();
+    return null;
+   }
+   return customer;
+  } catch (AppException ex) {
+   session.invalidate();
+   return null;
+  }
+ }
+
  // ─── Customer Profile ────────────────────────────────────────────────────────
  @GetMapping("/profile")
  public String viewProfile(HttpSession httpSession, Model model, RedirectAttributes redirectAttributes) {
- User user = (User) httpSession.getAttribute("currentUser");
- if (user == null || !"CUSTOMER".equalsIgnoreCase(user.getRole())) {
- redirectAttributes.addFlashAttribute("errorMessage", "Please log in as a customer to access your profile.");
+ Customer customer = requireActiveCustomer(httpSession);
+ if (customer == null) {
+ redirectAttributes.addFlashAttribute("errorMessage", "Please log in with an active customer account to access your profile.");
  return "redirect:/login";
  }
-
- Customer customer = customerService.getById(user.getUserId());
  model.addAttribute("customer", customer);
  model.addAttribute("pageTitle", "My Profile - Éclat");
  model.addAttribute("activePage", "profile");
@@ -229,12 +243,15 @@ public class CustomerAdminController {
  @RequestParam(value = "weddingDate", required = false) String weddingDate,
  HttpSession httpSession,
  RedirectAttributes redirectAttributes) {
- User user = (User) httpSession.getAttribute("currentUser");
- if (user == null || !"CUSTOMER".equalsIgnoreCase(user.getRole())) return "redirect:/login";
+ Customer activeCustomer = requireActiveCustomer(httpSession);
+ if (activeCustomer == null) {
+  redirectAttributes.addFlashAttribute("errorMessage", "Please log in with an active customer account.");
+  return "redirect:/login";
+ }
 
  try {
- customerService.updateProfile(user.getUserId(), name, phone, address, weddingDate);
- Customer updated = customerService.getById(user.getUserId());
+ customerService.updateProfile(activeCustomer.getUserId(), name, phone, address, weddingDate);
+ Customer updated = customerService.getById(activeCustomer.getUserId());
  httpSession.setAttribute("currentUser", updated);
  redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully!");
  } catch (AppException e) {
