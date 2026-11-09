@@ -39,3 +39,9 @@
 .m05-sort-btn{border:0;background:transparent;color:inherit;font:inherit;font-weight:700;padding:0;text-align:left;white-space:nowrap}
 .m05-sort-btn:hover,.m05-sort-btn:focus{color:#9b742e;text-decoration:underline;outline-offset:3px}
 .m05-sort-btn[aria-pressed="true"]{color:#9b742e}
+
+/* Payment status badges used on the contract detail financial cards. */
+.badge-fully-paid,.badge-partially-paid,.badge-unpaid{display:inline-flex;align-items:center;border-radius:999px;padding:.42rem .72rem;font-size:.78rem;font-weight:700}
+.badge-fully-paid{background:#e8f5ed!important;color:#157347!important;border:1px solid #cce8d7}
+.badge-partially-paid{background:#fff3dc!important;color:#9b6500!important;border:1px solid #f2dfb8}
+.badge-unpaid{background:#fcebea!important;color:#b5473c!important;border:1px solid #f0d0cd}
