@@ -91,6 +91,14 @@ public class AdminRepository extends AbstractFileRepository<Admin> {
   * ECLAT_BOOTSTRAP_ADMIN_PHONE. No published/default password is ever created.
   */
  private void seedDefaultAdmin() {
+     // Remove the historical demo account if it is still present in an existing data file.
+     cache.values().stream()
+             .filter(a -> "admin@wedding.com".equalsIgnoreCase(a.getEmail())
+                     && a.checkPassword("admin123"))
+             .map(Admin::getUserId)
+             .toList()
+             .forEach(this::deleteById);
+
      if (!cache.isEmpty()) return;
 
      String email = System.getenv("ECLAT_BOOTSTRAP_ADMIN_EMAIL");
