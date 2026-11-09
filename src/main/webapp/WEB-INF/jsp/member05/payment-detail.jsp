@@ -5,7 +5,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <a href="${pageContext.request.contextPath}/contracts" class="text-decoration-none text-secondary small">&larr; Back to Contracts</a>
-        <c:if test="${sessionScope.currentUser.role == 'ADMIN' && contract.status == 'ACTIVE'}">
+        <a href="${pageContext.request.contextPath}/contracts/${contract.contractId}/print" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary ms-2"><i class="bi bi-file-earmark-pdf me-1"></i>Contract PDF</a>
+        <c:if test="${isAdmin && contract.status == 'ACTIVE'}">
             <a href="${pageContext.request.contextPath}/contracts/edit/${contract.contractId}" class="btn btn-sm btn-outline-secondary float-end ms-2">Edit Contract</a>
             <c:if test="${contract.totalPaid == 0}">
                 <form action="${pageContext.request.contextPath}/contracts/cancel/${contract.contractId}" method="post" class="d-inline float-end" onsubmit="return confirm('Cancel this unpaid contract?');">
@@ -19,7 +20,7 @@
         <span class="text-muted small">Linked to Booking #${contract.bookingId} &bull; Vendor: ${contract.vendorId} &bull; Customer: ${contract.customerId}</span>
     </div>
     <div>
-        <c:if test="${sessionScope.currentUser.role == 'ADMIN' && contract.status == 'ACTIVE' && contract.paymentStatus == 'FULLY_PAID'}">
+        <c:if test="${isAdmin && contract.status == 'ACTIVE' && contract.paymentStatus == 'FULLY_PAID'}">
             <form action="${pageContext.request.contextPath}/contracts/complete/${contract.contractId}" method="post" style="display:inline;">
                 <button type="submit" class="btn btn-success fw-bold shadow-sm">
                     <i class="bi bi-check2-all me-1"></i> Mark Contract Completed
@@ -64,7 +65,7 @@
 </div>
 
 <!-- Payment Actions -->
-<c:if test="${contract.status == 'ACTIVE' && outstanding > 0}">
+<c:if test="${isAdmin && contract.status == 'ACTIVE' && outstanding > 0}">
     <div class="card card-custom p-3 mb-4 shadow-sm bg-light">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <span class="fw-bold" style="color: #8d6a22;"><i class="bi bi-cash-coin me-1"></i> Record New Payment:</span>
@@ -86,8 +87,12 @@
 <!-- Payment History Table -->
 <div class="card card-custom p-4 shadow-sm mb-4">
     <h5 class="fw-bold mb-3" style="color: #8d6a22;"><i class="bi bi-receipt"></i> Payment Audit Trail &amp; History</h5>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/contracts/${contract.contractId}/export.csv"><i class="bi bi-filetype-csv me-1"></i>Export CSV</a>
+        <a class="btn btn-sm btn-outline-secondary" href="${pageContext.request.contextPath}/contracts/${contract.contractId}/print" target="_blank" rel="noopener"><i class="bi bi-printer me-1"></i>Print / Save PDF</a>
+    </div>
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-hover align-middle m05-payment-table" id="paymentHistoryTable">
             <thead class="table-custom">
                 <tr>
                     <th>Payment ID</th>
@@ -122,7 +127,7 @@
                             <c:if test="${!p.voided}"><span class="badge bg-success">Valid</span></c:if>
                         </td>
                         <td class="text-end">
-                            <c:if test="${!p.voided && sessionScope.currentUser.role == 'ADMIN'}">
+                            <c:if test="${!p.voided && isAdmin}">
                                 <form action="${pageContext.request.contextPath}/payments/void" method="post" style="display:inline;" onsubmit="return confirm('Reverse and void this payment record?');">
                                     <input type="hidden" name="paymentId" value="${p.paymentId}">
                                     <input type="hidden" name="contractId" value="${contract.contractId}">
@@ -163,8 +168,9 @@
                         <input type="number" step="0.1" name="advancePct" class="form-control" placeholder="25.0" value="25.0">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Payment Date *</label>
-                        <input type="date" name="paymentDate" class="form-control" required>
+                        <label class="form-label fw-semibold">Payment Date</label>
+                        <input type="text" class="form-control bg-light" value="${serverPaymentDate}" readonly>
+                        <small class="text-secondary">Automatically assigned by the system when this payment is saved.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Payment Method *</label>
@@ -212,8 +218,9 @@
                         <input type="number" name="installmentNumber" class="form-control" value="2" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Payment Date *</label>
-                        <input type="date" name="paymentDate" class="form-control" required>
+                        <label class="form-label fw-semibold">Payment Date</label>
+                        <input type="text" class="form-control bg-light" value="${serverPaymentDate}" readonly>
+                        <small class="text-secondary">Automatically assigned by the system when this payment is saved.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Payment Method *</label>
@@ -264,8 +271,9 @@
                         <input type="text" name="receiptNumber" class="form-control" placeholder="REC-FINAL-001">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Payment Date *</label>
-                        <input type="date" name="paymentDate" class="form-control" required>
+                        <label class="form-label fw-semibold">Payment Date</label>
+                        <input type="text" class="form-control bg-light" value="${serverPaymentDate}" readonly>
+                        <small class="text-secondary">Automatically assigned by the system when this payment is saved.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Payment Method *</label>
