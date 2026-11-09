@@ -335,6 +335,7 @@ public class ContractPaymentController {
    java.nio.file.Files.write(tempQueue, proofLines);
    try { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
    catch (java.nio.file.AtomicMoveNotSupportedException moveEx) { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+   appendAuditEvent(id, actor, "PAYMENT_PROOF_SUBMITTED", "Proof " + proofId + " | LKR " + amount + " | Reference " + normalizedRef);
    redirectAttributes.addFlashAttribute("successMessage", "Payment proof submitted for Admin verification. Your paid balance will update after verification.");
   } catch (AppException ex) {
    redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
@@ -379,6 +380,8 @@ public class ContractPaymentController {
    if (!java.nio.file.Files.exists(path)) throw new java.io.IOException("Queue does not exist");
    java.util.List<String> updated = new java.util.ArrayList<>();
    boolean found = false;
+   String processedContractId = null;
+   String processedStatus = null;
    for (String line : java.nio.file.Files.readAllLines(path)) {
     String[] parts = line.split("\\|", -1);
     if (parts.length >= 8 && parts[0].equals(proofId)) {
@@ -406,6 +409,8 @@ public class ContractPaymentController {
       throw new com.wedding.common.exceptions.ValidationException("Choose APPROVE or REJECT.");
      }
      found = true;
+     processedContractId = parts[1];
+     processedStatus = parts[7];
      line = String.join("|", parts);
     }
     updated.add(line);
@@ -415,6 +420,7 @@ public class ContractPaymentController {
    java.nio.file.Files.write(temp, updated);
    try { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
    catch (java.nio.file.AtomicMoveNotSupportedException ex) { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+   appendAuditEvent(processedContractId, actor, "PAYMENT_PROOF_" + processedStatus, "Proof " + proofId + " processed by Admin.");
    redirectAttributes.addFlashAttribute("successMessage", "Payment proof " + decision.toLowerCase() + "d successfully.");
   } catch (AppException | java.io.IOException ex) {
    redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
