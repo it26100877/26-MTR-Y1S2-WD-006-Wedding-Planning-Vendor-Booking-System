@@ -84,6 +84,20 @@
     </div>
 </c:if>
 
+<c:if test="${!isAdmin && contract.status == 'ACTIVE' && outstanding > 0}">
+<div class="card card-custom p-3 mb-4 shadow-sm">
+ <h6 class="fw-bold mb-3">Submit Payment Proof</h6>
+ <div class="alert alert-info small">This submits a payment claim for Admin verification. It does not transfer money or update your paid balance until verified.</div>
+ <form method="post" action="${pageContext.request.contextPath}/contracts/${contract.contractId}/payments/proof" class="row g-3">
+  <div class="col-md-4"><label class="form-label">Amount (LKR)</label><input type="number" name="amount" min="0.01" max="${outstanding}" step="0.01" class="form-control" required></div>
+  <div class="col-md-4"><label class="form-label">Payment Method</label><select name="method" class="form-select" required><option value="BANK_TRANSFER">Bank Transfer</option><option value="CARD">Card</option><option value="CASH">Cash</option></select></div>
+  <div class="col-md-4"><label class="form-label">Transaction Reference</label><input name="transactionRef" minlength="4" maxlength="100" class="form-control" required></div>
+  <div class="col-12"><label class="form-label">Notes (optional)</label><input name="notes" maxlength="250" class="form-control"></div>
+  <div class="col-12"><button class="btn btn-outline-primary" type="submit">Submit for verification</button></div>
+ </form>
+</div>
+</c:if>
+
 <!-- Payment History Table -->
 <div class="card card-custom p-4 shadow-sm mb-4">
     <h5 class="fw-bold mb-3" style="color: #8d6a22;"><i class="bi bi-receipt"></i> Payment Audit Trail &amp; History</h5>
