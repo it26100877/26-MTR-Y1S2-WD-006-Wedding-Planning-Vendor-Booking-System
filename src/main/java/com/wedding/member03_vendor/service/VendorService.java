@@ -191,11 +191,13 @@ public class VendorService extends BaseService {
         if (vendorId == null || vendorId.trim().isEmpty()) {
             throw new ValidationException("Vendor ID is required.");
         }
-        boolean deleted = vendorRepository.deleteById(vendorId.trim());
-        if (deleted) {
-            log("Deleted vendor: " + vendorId);
-        }
-        return deleted;
+        Vendor vendor = getById(vendorId.trim());
+        // Keep historical booking, contract and review references valid.
+        vendor.setActive(false);
+        vendor.setApprovalStatus("REJECTED");
+        vendorRepository.save(vendor);
+        log("Archived vendor instead of hard delete: " + vendorId);
+        return true;
     }
 
     public int count() {
