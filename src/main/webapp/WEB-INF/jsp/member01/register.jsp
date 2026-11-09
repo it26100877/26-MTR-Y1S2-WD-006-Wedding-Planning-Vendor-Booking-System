@@ -23,8 +23,8 @@
           <div class="col-12 eclat-form-field"><label for="regName">Full name *</label><input id="regName" type="text" name="name" placeholder="Your full name" required></div>
           <div class="col-md-6 eclat-form-field"><label for="regEmail">Email address *</label><input id="regEmail" type="email" name="email" placeholder="name@example.com" required></div>
           <div class="col-md-6 eclat-form-field"><label for="regPhone">Phone number *</label><input id="regPhone" type="text" name="phone" placeholder="+94 77 123 4567" required></div>
-          <div class="col-md-6 eclat-form-field"><label for="regPassword">Password *</label><input id="regPassword" type="password" name="password" placeholder="At least 6 characters" minlength="6" required></div>
-          <div class="col-md-6 eclat-form-field"><label for="regConfirm">Confirm password *</label><input id="regConfirm" type="password" name="confirmPassword" placeholder="Re-enter password" required></div>
+          <div class="col-md-6 eclat-form-field"><label for="regPassword">Password *</label><input id="regPassword" type="password" name="password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required></div>
+          <div class="col-md-6 eclat-form-field"><label for="regConfirm">Confirm password *</label><input id="regConfirm" type="password" name="confirmPassword" placeholder="Re-enter password" autocomplete="new-password" required></div>
           <div class="col-md-6 eclat-form-field"><label for="regDate">Wedding date</label><input id="regDate" type="date" name="weddingDate"></div>
           <div class="col-md-6 eclat-form-field"><label for="regAddress">Address / district</label><input id="regAddress" type="text" name="address" placeholder="e.g. Matara, Sri Lanka"></div>
           <div class="col-12"><button type="submit" class="eclat-primary-btn w-100">Create my account <i class="bi bi-arrow-right"></i></button></div>
