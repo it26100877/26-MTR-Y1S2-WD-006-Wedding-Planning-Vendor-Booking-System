@@ -47,7 +47,7 @@
     </div>
     <div class="table-responsive m05-table-wrap">
         <table class="table align-middle m05-contract-table" id="contractsTable"><thead><tr>
-            <th>Contract / Booking</th><th>Contract Amount</th><th>Total Paid</th><th>Outstanding</th><th>Payment Status</th><th>Contract Status</th><th class="text-end">Action</th>
+            <th><button type="button" class="m05-sort-btn" data-sort-col="0">Contract / Booking <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="1">Contract Amount <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="2">Total Paid <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="3">Outstanding <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="4">Payment Status <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="5">Contract Status <i class="bi bi-arrow-down-up ms-1"></i></button></th><th class="text-end">Action</th>
         </tr></thead><tbody>
         <c:forEach var="contract" items="${contracts}">
             <tr data-search="${contract.contractId} ${contract.bookingId}" data-payment="${contract.paymentStatus}" data-contract="${contract.status}">
@@ -88,7 +88,7 @@
     const search = document.getElementById('contractSearch');
     const payment = document.getElementById('paymentFilter');
     const status = document.getElementById('contractFilter');
-    const rows = Array.from(document.querySelectorAll('#contractsTable tbody tr[data-search]'));
+    let rows = Array.from(document.querySelectorAll('#contractsTable tbody tr[data-search]'));
     const noResults = document.getElementById('contractNoResults');
     const count = document.getElementById('contractResultCount');
     const pageSize = document.getElementById('contractPageSize');
@@ -115,6 +115,31 @@
     [payment, status, pageSize].forEach(control => control.addEventListener('change', () => { page = 1; applyFilters(); }));
     prev.addEventListener('click', () => { page = Math.max(1, page - 1); applyFilters(); });
     next.addEventListener('click', () => { page++; applyFilters(); });
+    let sortColumn = -1;
+    let sortDirection = 1;
+    document.querySelectorAll('#contractsTable [data-sort-col]').forEach(button => {
+        button.addEventListener('click', () => {
+            const column = Number(button.dataset.sortCol);
+            sortDirection = sortColumn === column ? -sortDirection : 1;
+            sortColumn = column;
+            rows.sort((left, right) => {
+                const a = (left.cells[column]?.textContent || '').trim();
+                const b = (right.cells[column]?.textContent || '').trim();
+                if (column >= 1 && column <= 3) {
+                    const av = Number(a.replace(/[^0-9.-]/g, '')) || 0;
+                    const bv = Number(b.replace(/[^0-9.-]/g, '')) || 0;
+                    return (av - bv) * sortDirection;
+                }
+                return a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}) * sortDirection;
+            });
+            rows.forEach(row => row.parentElement.appendChild(row));
+            document.querySelectorAll('#contractsTable [data-sort-col]').forEach(item => {
+                item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+            });
+            applyFilters();
+        });
+    });
+    applyFilters();
     const chartCanvas = document.getElementById('contractPaymentChart');
     if (chartCanvas && window.Chart) {
       new Chart(chartCanvas, {type:'doughnut',data:{labels:['Collected','Outstanding'],datasets:[{data:[Number('${totalCollected}'),Number('${totalOutstanding}')]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
