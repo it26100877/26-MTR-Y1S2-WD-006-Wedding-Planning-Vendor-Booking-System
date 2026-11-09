@@ -73,6 +73,16 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link ${activePage == 'notifications' ? 'active fw-bold' : ''}"
+                           href="${pageContext.request.contextPath}/bookings/notifications">
+                            <i class="bi bi-bell"></i> Notifications
+                            <c:if test="${unreadNotifications gt 0}">
+                                <span class="badge rounded-pill bg-danger ms-1"><c:out value="${unreadNotifications}"/></span>
+                            </c:if>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link ${activePage == 'contracts' ? 'active fw-bold' : ''}"
                            href="${pageContext.request.contextPath}/contracts">
                             <i class="bi bi-file-earmark-text"></i> Contracts &amp; Payments
