@@ -59,7 +59,7 @@ public class CustomerAdminController {
                 request.changeSessionId();
                 httpSession.setAttribute("currentUser", admin);
                 redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + admin.getName() + "!");
-                return "redirect:/admin/dashboard";
+                return redirectToCurrentHost(request, "/admin/dashboard");
             }
             if ("CUSTOMER".equalsIgnoreCase(role)) {
                 // Step 1: password is correct -> text a code to the phone on file.
@@ -68,7 +68,7 @@ public class CustomerAdminController {
                 otpService.start(httpSession, customer);
                 redirectAttributes.addFlashAttribute("successMessage",
                         "We sent a 6-digit code to " + OtpService.maskPhone(customer.getPhone()) + ".");
-                return "redirect:/login/otp";
+                return redirectToCurrentHost(request, "/login/otp");
             }
             throw new com.wedding.common.exceptions.ValidationException("Select a valid account type.");
         } catch (AppException e) {
@@ -123,7 +123,7 @@ public class CustomerAdminController {
                     httpSession.setAttribute("currentUser", customer);
                     redirectAttributes.addFlashAttribute("successMessage",
                             "Phone verified. Welcome back, " + customer.getName() + "!");
-                    return "redirect:/dashboard";
+                    return redirectToCurrentHost(request, "/dashboard");
                 } catch (AppException e) {
                     otpService.clear(httpSession);
                     redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -307,6 +307,37 @@ public class CustomerAdminController {
  }
  return "redirect:/admin/dashboard";
  }
+
+    /**
+     * Builds an absolute redirect using the incoming request host. This keeps
+     * authentication redirects on the same GitHub Codespaces forwarded domain
+     * instead of accidentally sending the browser to localhost.
+     */
+    private String redirectToCurrentHost(HttpServletRequest request, String path) {
+        String contextPath = request.getContextPath() == null ? "" : request.getContextPath();
+        String targetPath = contextPath + path;
+        String forwardedHost = request.getHeader("X-Forwarded-Host");
+        String forwardedProto = request.getHeader("X-Forwarded-Proto");
+        String forwardedPort = request.getHeader("X-Forwarded-Port");
+
+        if (forwardedHost != null && !forwardedHost.isBlank()) {
+            String scheme = (forwardedProto == null || forwardedProto.isBlank())
+                    ? request.getScheme() : forwardedProto.split(",")[0].trim();
+            String host = forwardedHost.split(",")[0].trim();
+            String port = forwardedPort == null ? "" : forwardedPort.split(",")[0].trim();
+            boolean standardPort = ("https".equalsIgnoreCase(scheme) && "443".equals(port))
+                    || ("http".equalsIgnoreCase(scheme) && "80".equals(port));
+            String authority = host;
+            if (!host.contains(":") && !port.isBlank() && !standardPort) {
+                authority += ":" + port;
+            }
+            return "redirect:" + scheme + "://" + authority + targetPath;
+        }
+
+        return "redirect:" + request.getScheme() + "://" + request.getServerName()
+                + (request.getServerPort() == 80 || request.getServerPort() == 443
+                ? "" : ":" + request.getServerPort()) + targetPath;
+    }
 
  // ─── Logout ──────────────────────────────────────────────────────────────────
  @GetMapping("/logout")
