@@ -91,7 +91,7 @@ public class AdminService extends BaseService {
  throw new ValidationException("Phone number is not valid (9-15 digits).");
  }
  if (!ValidationUtil.isValidPassword(password)) {
- throw new ValidationException("Password must be at least 6 characters.");
+ throw new ValidationException("Password must be at least 12 characters.");
  }
  if (!level.equals("SUPER") && !level.equals("STANDARD")) {
  throw new ValidationException("Admin level must be SUPER or STANDARD.");
