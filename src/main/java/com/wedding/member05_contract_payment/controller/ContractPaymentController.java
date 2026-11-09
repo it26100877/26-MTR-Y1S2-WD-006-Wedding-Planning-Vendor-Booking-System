@@ -158,6 +158,7 @@ public class ContractPaymentController {
  try {
  VendorContract contract = contractService.createContract(
  bookingId, customerId, vendorId, startDate, endDate, contractAmount, terms);
+ appendAuditEvent(contract.getContractId(), actor, "CONTRACT_CREATED", "Booking " + bookingId + " | Amount LKR " + contractAmount);
  redirectAttributes.addFlashAttribute("successMessage",
  "Contract " + contract.getContractId() + " generated successfully! You may now record payments.");
  return "redirect:/contracts/view/" + contract.getContractId();
@@ -307,6 +308,9 @@ public class ContractPaymentController {
     throw new com.wedding.common.exceptions.ValidationException("Enter a transaction reference between 4 and 100 characters.");
    }
    String normalizedRef = transactionRef.trim();
+   if (normalizedRef.chars().anyMatch(Character::isISOControl)) {
+    throw new com.wedding.common.exceptions.ValidationException("Transaction reference cannot contain control characters.");
+   }
    if (!java.util.List.of("BANK_TRANSFER", "CARD", "CASH").contains(method == null ? "" : method.trim().toUpperCase())) {
     throw new com.wedding.common.exceptions.ValidationException("Select a supported payment method.");
    }
@@ -325,7 +329,7 @@ public class ContractPaymentController {
    String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
        + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
        + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-       + "|PENDING|" + (notes == null ? "" : notes.replace("|", "/").replace("\\n", " "));
+       + "|PENDING|" + (notes == null ? "" : notes.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
    proofLines.add(line);
    java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
    java.nio.file.Files.write(tempQueue, proofLines);
@@ -397,7 +401,7 @@ public class ContractPaymentController {
      } else if ("REJECT".equalsIgnoreCase(decision)) {
       parts[7] = "REJECTED";
       parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 9));
-      parts[8] = (reason == null ? "Rejected by Admin" : reason.replace("|", "/").replace("\\n", " "));
+      parts[8] = (reason == null ? "Rejected by Admin" : reason.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
      } else {
       throw new com.wedding.common.exceptions.ValidationException("Choose APPROVE or REJECT.");
      }
@@ -459,6 +463,7 @@ public class ContractPaymentController {
   if (!isAdmin(actor)) { redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can manage contracts."); return actor == null ? "redirect:/login" : "redirect:/contracts"; }
   try {
    contractService.updateContract(id, startDate, endDate, contractAmount, terms);
+   appendAuditEvent(id, actor, "CONTRACT_UPDATED", "Amount LKR " + contractAmount + " | Period " + startDate + " to " + endDate);
    redirectAttributes.addFlashAttribute("successMessage", "Contract details updated successfully.");
   } catch (AppException e) {
    redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -477,6 +482,7 @@ public class ContractPaymentController {
   }
   try {
    contractService.cancelContract(id);
+   appendAuditEvent(id, actor, "CONTRACT_CANCELLED", "Contract cancelled by Admin.");
    redirectAttributes.addFlashAttribute("warningMessage", "Contract cancelled. Its payment history has been retained.");
   } catch (AppException e) {
    redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -513,6 +519,7 @@ public class ContractPaymentController {
  VendorContract contract = contractService.getById(contractId);
  paymentService.recordAdvancePayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, advancePct);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "ADVANCE_PAYMENT_RECORDED", "LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Advance payment of LKR " + amount + " recorded successfully!");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -549,6 +556,7 @@ public class ContractPaymentController {
  VendorContract contract = contractService.getById(contractId);
  paymentService.recordPartialPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, installmentNumber);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "PARTIAL_PAYMENT_RECORDED", "Installment #" + installmentNumber + " | LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Partial installment #" + installmentNumber + " of LKR " + amount + " recorded!");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -585,6 +593,7 @@ public class ContractPaymentController {
  VendorContract contract = contractService.getById(contractId);
  paymentService.recordFinalPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, receiptNumber);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "FINAL_PAYMENT_RECORDED", "LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Final settlement payment recorded! Contract is now FULLY PAID.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -613,6 +622,7 @@ public class ContractPaymentController {
   }
  paymentService.voidPayment(paymentId, reason);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "PAYMENT_REVERSED", "Payment " + paymentId + " | Reason: " + reason);
  redirectAttributes.addFlashAttribute("warningMessage", "Payment reversed and marked VOID.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -631,6 +641,7 @@ public class ContractPaymentController {
  }
  try {
  contractService.completeContract(id);
+ appendAuditEvent(id, actor, "CONTRACT_COMPLETED", "Contract marked completed by Admin.");
  redirectAttributes.addFlashAttribute("successMessage", "Contract marked COMPLETED.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -667,7 +678,7 @@ public class ContractPaymentController {
 
  private void appendAuditEvent(String contractId, User actor, String action, String detail) {
   if (contractId == null || actor == null) return;
-  String cleanDetail = detail == null ? "" : detail.replace("|", "/").replace("\\r", " ").replace("\\n", " ");
+  String cleanDetail = detail == null ? "" : detail.replace('|', '/').replace('\r', ' ').replace('\n', ' ');
   String line = contractId + "|" + java.time.LocalDateTime.now() + "|" + actor.getUserId()
           + "|" + action + "|" + cleanDetail + System.lineSeparator();
   try {
