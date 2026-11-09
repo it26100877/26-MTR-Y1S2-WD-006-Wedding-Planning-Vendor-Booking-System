@@ -94,11 +94,5 @@ public class AppConfig {
     @Bean public ReviewService reviewService(ReviewRepository reviews, BookingRepository bookings) {
         return new ReviewService(reviews, bookings);
     }
-    @Bean public com.wedding.member05_contract_payment.controller.ContractPaymentController contractPaymentController(
-            ContractService contracts, PaymentService payments, BookingService bookings,
-            CustomerService customers, VendorService vendors, WeddingPlanService plans) {
-        return new com.wedding.member05_contract_payment.controller.ContractPaymentController(
-                contracts, payments, bookings, customers, vendors, plans);
-    }
 
 }
