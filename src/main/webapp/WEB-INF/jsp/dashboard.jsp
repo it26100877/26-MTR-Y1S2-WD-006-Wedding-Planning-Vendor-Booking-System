@@ -61,7 +61,6 @@
         <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-customer">
-                <span class="eclat-stat-kicker">MEMBER 01</span>
                 <strong>${totalCustomers}</strong>
                 <span>Customers</span>
             </article>
@@ -69,35 +68,30 @@
         </c:if>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-plans">
-                <span class="eclat-stat-kicker">MEMBER 02</span>
                 <strong>${totalPlans}</strong>
                 <span>Wedding plans</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-vendors">
-                <span class="eclat-stat-kicker">MEMBER 03</span>
                 <strong>${totalVendors}</strong>
                 <span><c:choose><c:when test="${sessionScope.currentUser.role == 'ADMIN'}">Vendors</c:when><c:otherwise>Available vendors</c:otherwise></c:choose></span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-bookings">
-                <span class="eclat-stat-kicker">MEMBER 04</span>
                 <strong>${totalBookings}</strong>
                 <span>Bookings</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-contracts">
-                <span class="eclat-stat-kicker">MEMBER 05</span>
                 <strong>${totalContracts}</strong>
                 <span>Contracts</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-reviews">
-                <span class="eclat-stat-kicker">MEMBER 06</span>
                 <strong>${totalReviews}</strong>
                 <span>Reviews</span>
             </article>
