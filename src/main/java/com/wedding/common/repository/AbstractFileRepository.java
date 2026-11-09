@@ -36,8 +36,11 @@ public abstract class AbstractFileRepository<T> implements Repository<T, String>
 
  @Override
  public synchronized void save(T entity) {
- cache.put(getId(entity), entity);
- persist();
+  if (entity == null) throw new IllegalArgumentException("Cannot save a null entity.");
+  String id = getId(entity);
+  if (id == null || id.isBlank()) throw new IllegalArgumentException("Entity ID is required.");
+  cache.put(id, entity);
+  persist();
  }
 
  @Override
