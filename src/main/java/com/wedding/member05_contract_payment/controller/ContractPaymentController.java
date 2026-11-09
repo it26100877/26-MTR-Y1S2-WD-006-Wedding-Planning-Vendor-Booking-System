@@ -325,11 +325,15 @@ public class ContractPaymentController {
       if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
        throw new com.wedding.common.exceptions.BusinessRuleException("Only active contracts can accept verified payments.");
       }
-      paymentService.recordPartialPayment(contract, new BigDecimal(parts[3]),
-          LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
-          "Customer proof " + proofId + " approved by " + actor.getUserId(), nextInstallmentNumber(parts[1]));
-      contractService.refreshTotals(parts[1]);
-      parts[7] = "APPROVED";
+      boolean alreadyRecorded = paymentService.getAllPayments(parts[1]).stream()
+          .anyMatch(payment -> parts[5].equalsIgnoreCase(payment.getTransactionRef()));
+      if (!alreadyRecorded) {
+       paymentService.recordPartialPayment(contract, new BigDecimal(parts[3]),
+           LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
+           "Customer proof " + proofId + " approved by " + actor.getUserId(), nextInstallmentNumber(parts[1]));
+       contractService.refreshTotals(parts[1]);
+      }
+            parts[7] = "APPROVED";
      } else if ("REJECT".equalsIgnoreCase(decision)) {
       parts[7] = "REJECTED";
       parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 9));
