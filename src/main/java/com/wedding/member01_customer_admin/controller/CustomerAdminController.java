@@ -175,7 +175,7 @@ public class CustomerAdminController {
         return "redirect:/login/otp";
     }
 
-    @GetMapping("/login/otp/cancel")
+    @PostMapping("/login/otp/cancel")
     public String cancelOtp(HttpSession httpSession) {
         otpService.clear(httpSession);
         return "redirect:/login";
@@ -315,7 +315,7 @@ public class CustomerAdminController {
  }
 
  // ─── Logout ──────────────────────────────────────────────────────────────────
- @GetMapping("/logout")
+ @PostMapping("/logout")
  public String logout(HttpSession httpSession, RedirectAttributes redirectAttributes) {
  httpSession.invalidate();
  Session.getInstance().logout();
