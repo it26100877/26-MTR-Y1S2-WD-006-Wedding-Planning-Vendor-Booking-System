@@ -216,7 +216,8 @@ public class VendorService extends BaseService {
             throw new ValidationException("Invalid email address: " + email);
         }
         if (!ValidationUtil.isValidPhone(phone == null ? null : phone.trim())) {
-            throw new ValidationException("Invalid phone number: " + phone);
+            throw new ValidationException(
+                    "Invalid Sri Lankan mobile number. Use 07XXXXXXXX or +947XXXXXXXX.");
         }
         if (basePrice == null || basePrice.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Base price must be greater than zero.");

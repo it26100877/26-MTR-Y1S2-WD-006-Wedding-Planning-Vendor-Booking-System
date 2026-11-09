@@ -24,9 +24,13 @@ public class ValidationUtil {
  return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
  }
 
+ /**
+  * Accept Sri Lankan mobile numbers in local (07XXXXXXXX) or international
+  * (+947XXXXXXXX) format. Spaces and hyphens are intentionally not accepted.
+  */
  public static boolean isValidPhone(String phone) {
  if (isNullOrEmpty(phone)) return false;
- return phone.matches("^[+]?[0-9]{9,15}$");
+ return phone.matches("^(?:07[0-9]{8}|\\+947[0-9]{8})$");
  }
 
  public static boolean isValidDate(String date) {
