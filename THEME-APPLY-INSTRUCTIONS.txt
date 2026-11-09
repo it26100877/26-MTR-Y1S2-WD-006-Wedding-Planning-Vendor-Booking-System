@@ -1,0 +1,5 @@
+Updated Éclat ivory / champagne-gold theme.
+The shared CSS is in src/main/resources/static/css/eclat-royal.css and also injected into target/wedding-planning-system-1.0.0.war.
+Header stylesheet URL includes a cache-busting query. Stop the old server process before launching the updated WAR.
+Run: java -jar target\wedding-planning-system-1.0.0.war
+Then hard refresh browser with Ctrl+F5.

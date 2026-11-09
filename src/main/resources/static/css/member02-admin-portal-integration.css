@@ -1,0 +1,18 @@
+/* Éclat / Member 02 Admin Portal integration – scoped visuals only.
+   Exposes existing wedding module inside the shared admin area without
+   changing any other member service or controller. */
+.m02-admin-entry{display:grid;grid-template-columns:minmax(0,1fr) 290px;align-items:stretch;overflow:hidden;margin:0 0 1.6rem;border:1px solid #e0d2bc;border-radius:20px;background:linear-gradient(115deg,#fffdf8 0%,#f5ece0 100%);box-shadow:0 12px 32px rgba(71,48,23,.08)}
+.m02-admin-entry-content{padding:30px 32px;position:relative;z-index:1}
+.m02-admin-entry-kicker{display:inline-flex;align-items:center;gap:9px;color:#98784b;font-size:.72rem;letter-spacing:.13em;font-weight:800;text-transform:uppercase}
+.m02-admin-entry h2{font:700 clamp(1.65rem,3vw,2.4rem)/1.17 Georgia,serif;color:#30291e;margin:11px 0 9px}
+.m02-admin-entry h2 em{color:#a48758;font-weight:400}
+.m02-admin-entry p,.m02-admin-dashboard-link p{color:#72685a;line-height:1.6;max-width:640px;margin:0 0 19px}
+.m02-admin-entry-actions{display:flex;align-items:center;gap:17px;flex-wrap:wrap}
+.m02-admin-entry-primary{display:inline-flex;align-items:center;justify-content:center;gap:10px;background:#8d7449;color:#fff!important;font-weight:700;text-decoration:none;padding:13px 18px;border-radius:10px;border:1px solid #8d7449;transition:background .2s,transform .2s}
+.m02-admin-entry-primary:hover,.m02-admin-entry-primary:focus-visible{background:#6e5738;color:#fff!important;transform:translateY(-1px)}
+.m02-admin-entry-meta{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;color:#807560}
+.m02-admin-entry-photo{min-height:215px;background:linear-gradient(90deg,rgba(248,240,226,.10),rgba(20,12,7,.10)),url('../images/member02/wedding-classic.jpg') center/cover no-repeat}
+.m02-admin-dashboard-link{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:23px 25px;border:1px solid #dfd2bd;border-radius:17px;background:linear-gradient(95deg,#fffdf9,#f5ebdd);box-shadow:0 8px 25px rgba(71,48,23,.05)}
+.m02-admin-dashboard-link h2{font:700 1.55rem Georgia,serif;margin:7px 0 6px;color:#30291e}
+.m02-admin-dashboard-link p{margin:0}
+@media(max-width:760px){.m02-admin-entry{grid-template-columns:1fr}.m02-admin-entry-photo{min-height:155px;order:-1}.m02-admin-entry-content{padding:22px}.m02-admin-entry-primary{width:100%}.m02-admin-dashboard-link{padding:20px}}
