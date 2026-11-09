@@ -2,8 +2,8 @@ package com.wedding.member05_contract_payment.controller;
 
 import com.wedding.common.exceptions.AppException;
 import com.wedding.common.model.User;
-import com.wedding.member01_customer.model.Customer;
-import com.wedding.member01_customer.service.CustomerService;
+import com.wedding.member01_customer_admin.model.Customer;
+import com.wedding.member01_customer_admin.service.CustomerService;
 import com.wedding.member04_booking.model.Booking;
 import com.wedding.member04_booking.model.BookingStatus;
 import com.wedding.member04_booking.service.BookingService;
