@@ -87,7 +87,11 @@
                     </li>
 
                     <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
-                        <li class="nav-item dropdown">
+                        <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
+                    <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/payment-proofs"><i class="bi bi-shield-check"></i> Payment Proofs</a></li>
+                </c:if>
+
+                <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-warning ${activePage == 'admin' ? 'active fw-bold' : ''}"
                                href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-shield-lock"></i> Admin Tools
