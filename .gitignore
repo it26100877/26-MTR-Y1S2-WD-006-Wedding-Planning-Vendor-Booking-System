@@ -4,3 +4,13 @@ target/
 .DS_Store
 *.log
 data/
+
+# Local testing dependencies and reports
+node_modules/
+test-reports/
+
+# Local backup files
+Member05_Contract_Payment_Codespaces_Bundle.zip
+data-backup-before-demo-20261109-032958/
+member05-pre-integration-backup-20261106-175721/
+member05-pre-integration-backup-20261106-175941/
