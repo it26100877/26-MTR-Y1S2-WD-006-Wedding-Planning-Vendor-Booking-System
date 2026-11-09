@@ -209,6 +209,7 @@ public class ContractPaymentController {
   User viewer = (User) session.getAttribute("currentUser");
   if (viewer == null) return "redirect:/login";
   try {
+   contractService.refreshTotals(id);
    VendorContract contract = contractService.getById(id);
    if (!canAccessContract(viewer, contract)) {
     redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this contract.");
@@ -277,7 +278,8 @@ public class ContractPaymentController {
 
  private String csvCell(String value) {
   String safe = value == null ? "" : value;
-  if (safe.matches("^[=+@-].*")) safe = "'" + safe;
+  String formulaProbe = safe.stripLeading();
+  if (!formulaProbe.isEmpty() && "=+-@".indexOf(formulaProbe.charAt(0)) >= 0) safe = "'" + safe;
   return "\"" + safe.replace("\"", "\"\"") + "\"";
  }
 
@@ -392,15 +394,21 @@ public class ContractPaymentController {
        throw new com.wedding.common.exceptions.BusinessRuleException("Only active contracts can accept verified payments.");
       }
       final String submittedReference = parts[5];
-      boolean alreadyRecorded = paymentService.getAllPayments(parts[1]).stream()
-          .anyMatch(payment -> submittedReference.equalsIgnoreCase(payment.getTransactionRef()));
-      if (!alreadyRecorded) {
-       paymentService.recordPartialPayment(contract, new BigDecimal(parts[3]),
+      final BigDecimal submittedAmount = new BigDecimal(parts[3]);
+      Payment existingPayment = paymentService.getAllPayments(parts[1]).stream()
+          .filter(payment -> submittedReference.equalsIgnoreCase(payment.getTransactionRef()))
+          .findFirst().orElse(null);
+      if (existingPayment != null) {
+       if (existingPayment.isVoided() || existingPayment.getAmount().compareTo(submittedAmount) != 0) {
+        throw new com.wedding.common.exceptions.BusinessRuleException("A payment with this reference exists but does not match the pending proof.");
+       }
+      } else {
+       paymentService.recordPartialPayment(contract, submittedAmount,
            LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
            "Customer proof " + proofId + " approved by " + actor.getUserId(), nextInstallmentNumber(parts[1]));
-       contractService.refreshTotals(parts[1]);
       }
-            parts[7] = "APPROVED";
+      contractService.refreshTotals(parts[1]);
+      parts[7] = "APPROVED";
       parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 10));
       parts[9] = "Verified by " + actor.getUserId();
      } else if ("REJECT".equalsIgnoreCase(decision)) {
