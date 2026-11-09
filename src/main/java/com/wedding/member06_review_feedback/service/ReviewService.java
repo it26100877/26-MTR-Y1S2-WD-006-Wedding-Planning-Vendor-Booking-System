@@ -172,7 +172,7 @@ public class ReviewService extends BaseService {
  }
 
  public List<Review> getByCustomer(String customerId) {
- return reviewRepository.findByCustomerId(customerId);
+ return reviewRepository.findAllByCustomerId(customerId);
  }
 
  public List<Review> getPendingReviews() {
