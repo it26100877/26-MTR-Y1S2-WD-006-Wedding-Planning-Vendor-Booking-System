@@ -152,7 +152,7 @@ public class ReviewFeedbackController {
              redirectAttributes.addFlashAttribute("errorMessage", "You can only edit your own review.");
              return "redirect:/reviews";
          }
-         reviewService.updateReview(id, rating, title, feedback);
+         reviewService.updateReviewForCustomer(id, user.getUserId(), rating, title, feedback);
          redirectAttributes.addFlashAttribute("successMessage", "Review updated successfully.");
      } catch (AppException e) {
          redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
