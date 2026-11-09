@@ -57,7 +57,7 @@ public class CustomerService extends BaseService {
  throw new ValidationException("Phone number is not valid (9-15 digits).");
  }
  if (!ValidationUtil.isValidPassword(password)) {
- throw new ValidationException("Password must be at least 6 characters.");
+ throw new ValidationException("Password must be at least 8 characters.");
  }
  if (!ValidationUtil.isNullOrEmpty(weddingDate) && !ValidationUtil.isValidDate(weddingDate)) {
  throw new ValidationException("Wedding date must be in yyyy-MM-dd format.");
