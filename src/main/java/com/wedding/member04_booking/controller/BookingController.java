@@ -328,36 +328,6 @@ public class BookingController {
  return "redirect:/bookings/view/" + id;
  }
 
- @GetMapping("/bookings/notifications")
- public String listNotifications(HttpSession session, Model model) {
-  User user = (User) session.getAttribute("currentUser");
-  if (user == null) return "redirect:/login";
-  String recipient = "ADMIN".equalsIgnoreCase(user.getRole()) ? "ADMIN" : user.getUserId();
-  model.addAttribute("notifications", notificationService.forRecipient(recipient));
-  model.addAttribute("unreadNotifications", notificationService.unreadCount(recipient));
-  model.addAttribute("pageTitle", "Notifications - Éclat");
-  model.addAttribute("activePage", "notifications");
-  return "member04/booking-notifications";
- }
-
- @PostMapping("/bookings/notifications/read-all")
- public String markAllNotificationsRead(HttpSession session) {
-  User user = (User) session.getAttribute("currentUser");
-  if (user == null) return "redirect:/login";
-  String recipient = "ADMIN".equalsIgnoreCase(user.getRole()) ? "ADMIN" : user.getUserId();
-  notificationService.markAllRead(recipient);
-  return "redirect:/bookings/notifications";
- }
-
- @PostMapping("/bookings/notifications/read/{id}")
- public String markNotificationRead(@PathVariable("id") String id, HttpSession session) {
-  User user = (User) session.getAttribute("currentUser");
-  if (user == null) return "redirect:/login";
-  String recipient = "ADMIN".equalsIgnoreCase(user.getRole()) ? "ADMIN" : user.getUserId();
-  notificationService.markRead(recipient, id);
-  return "redirect:/bookings/notifications";
- }
-
  private boolean isAdmin(HttpSession session) {
  User user = (User) session.getAttribute("currentUser");
  return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
