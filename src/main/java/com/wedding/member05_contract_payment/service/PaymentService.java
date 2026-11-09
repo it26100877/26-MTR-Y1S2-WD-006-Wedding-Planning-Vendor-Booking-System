@@ -210,6 +210,11 @@ public class PaymentService extends BaseService {
  return outstanding.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ZERO : outstanding;
  }
 
+ public Payment getAllPaymentsForReceipt(String paymentId) {
+  return paymentRepository.findById(paymentId)
+          .orElseThrow(() -> new EntityNotFoundException("Payment", paymentId));
+ }
+
  public List<Payment> getPaymentsByContract(String contractId) {
  return paymentRepository.findNonVoidedByContractId(contractId);
  }

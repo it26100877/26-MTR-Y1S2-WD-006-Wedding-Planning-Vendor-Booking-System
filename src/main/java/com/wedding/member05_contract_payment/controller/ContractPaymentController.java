@@ -2,6 +2,7 @@ package com.wedding.member05_contract_payment.controller;
 
 import com.wedding.common.exceptions.AppException;
 import com.wedding.common.model.User;
+import com.wedding.member01_customer_admin.service.CustomerService;
 import com.wedding.member04_booking.model.Booking;
 import com.wedding.member04_booking.model.BookingStatus;
 import com.wedding.member04_booking.service.BookingService;
@@ -21,6 +22,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Controller managing Vendor Contracts and financial Payment installments.
@@ -35,17 +38,20 @@ public class ContractPaymentController {
  private final ContractService contractService;
  private final PaymentService paymentService;
  private final BookingService bookingService;
+ private final CustomerService customerService;
  private final VendorService vendorService;
  private final WeddingPlanService weddingPlanService;
 
  public ContractPaymentController(ContractService contractService,
  PaymentService paymentService,
  BookingService bookingService,
+ CustomerService customerService,
  VendorService vendorService,
  WeddingPlanService weddingPlanService) {
  this.contractService = contractService;
  this.paymentService = paymentService;
  this.bookingService = bookingService;
+ this.customerService = customerService;
  this.vendorService = vendorService;
  this.weddingPlanService = weddingPlanService;
  }
@@ -152,6 +158,7 @@ public class ContractPaymentController {
  try {
  VendorContract contract = contractService.createContract(
  bookingId, customerId, vendorId, startDate, endDate, contractAmount, terms);
+ appendAuditEvent(contract.getContractId(), actor, "CONTRACT_CREATED", "Booking " + bookingId + " | Amount LKR " + contractAmount);
  redirectAttributes.addFlashAttribute("successMessage",
  "Contract " + contract.getContractId() + " generated successfully! You may now record payments.");
  return "redirect:/contracts/view/" + contract.getContractId();
@@ -186,17 +193,264 @@ public class ContractPaymentController {
  model.addAttribute("contract", contract);
  model.addAttribute("payments", payments);
  model.addAttribute("outstanding", outstanding);
+ model.addAttribute("paymentStatus", contract.getPaymentStatus());
+ model.addAttribute("serverPaymentDate", LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE));
+ model.addAttribute("isAdmin", isAdmin(viewer));
+ model.addAttribute("auditEntries", buildAuditEntries(contract, payments));
  model.addAttribute("pageTitle", "Contract " + contract.getContractId() + " - Payments");
  model.addAttribute("activePage", "contracts");
  return "member05/payment-detail";
  }
 
 
+ @GetMapping("/contracts/{id}/print")
+ public String printContract(@PathVariable("id") String id, HttpSession session,
+                             Model model, RedirectAttributes redirectAttributes) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  try {
+   contractService.refreshTotals(id);
+   VendorContract contract = contractService.getById(id);
+   if (!canAccessContract(viewer, contract)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this contract.");
+    return "redirect:/contracts";
+   }
+   model.addAttribute("contract", contract);
+   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("payments", paymentService.getAllPayments(id));
+   model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
+   return "member05/contract-print";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+   return "redirect:/contracts";
+  }
+ }
+
+ @GetMapping("/contracts/{id}/export.csv")
+ public org.springframework.http.ResponseEntity<String> exportPaymentsCsv(
+         @PathVariable("id") String id, HttpSession session) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return org.springframework.http.ResponseEntity.status(401).build();
+  VendorContract contract = contractService.getById(id);
+  if (!canAccessContract(viewer, contract)) return org.springframework.http.ResponseEntity.status(403).build();
+  StringBuilder csv = new StringBuilder("Payment ID,Type,Amount,Payment Date,Method,Transaction Reference,Status,Recorded At,Notes\r\n");
+  for (Payment p : paymentService.getAllPayments(id)) {
+   csv.append(csvCell(p.getPaymentId())).append(',')
+      .append(csvCell(p.getPaymentType())).append(',')
+      .append(csvCell(p.getAmount().toPlainString())).append(',')
+      .append(csvCell(p.getPaymentDate())).append(',')
+      .append(csvCell(p.getPaymentMethod())).append(',')
+      .append(csvCell(p.getTransactionRef())).append(',')
+      .append(csvCell(p.isVoided() ? "VOIDED" : "VALID")).append(',')
+      .append(csvCell(p.getRecordedAt())).append(',')
+      .append(csvCell(p.getNotes())).append("\r\n");
+  }
+  return org.springframework.http.ResponseEntity.ok()
+      .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=contract-" + id + "-payments.csv")
+      .contentType(new org.springframework.http.MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8))
+      .body(csv.toString());
+ }
+
+ @GetMapping("/payments/{paymentId}/receipt")
+ public String printPaymentReceipt(@PathVariable("paymentId") String paymentId,
+                                   HttpSession session, Model model,
+                                   RedirectAttributes redirectAttributes) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  try {
+   Payment payment = paymentService.getAllPaymentsForReceipt(paymentId);
+   VendorContract contract = contractService.getById(payment.getContractId());
+   if (!canAccessContract(viewer, contract)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this receipt.");
+    return "redirect:/contracts";
+   }
+   model.addAttribute("payment", payment);
+   model.addAttribute("contract", contract);
+   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
+   return "member05/payment-receipt";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+   return "redirect:/contracts";
+  }
+ }
+
+ private String csvCell(String value) {
+  String safe = value == null ? "" : value;
+  String formulaProbe = safe.stripLeading();
+  if (!formulaProbe.isEmpty() && "=+-@".indexOf(formulaProbe.charAt(0)) >= 0) safe = "'" + safe;
+  return "\"" + safe.replace("\"", "\"\"") + "\"";
+ }
+
+ @PostMapping("/contracts/{id}/payments/proof")
+ public synchronized String submitPaymentProof(@PathVariable("id") String id,
+                                  @RequestParam("amount") BigDecimal amount,
+                                  @RequestParam("method") String method,
+                                  @RequestParam("transactionRef") String transactionRef,
+                                  @RequestParam(value = "notes", required = false) String notes,
+                                  HttpSession session, RedirectAttributes redirectAttributes) {
+  User actor = (User) session.getAttribute("currentUser");
+  if (actor == null) return "redirect:/login";
+  try {
+   VendorContract contract = contractService.getById(id);
+   if (!"CUSTOMER".equalsIgnoreCase(actor.getRole())
+           || !actor.getUserId().equalsIgnoreCase(contract.getCustomerId())) {
+    redirectAttributes.addFlashAttribute("errorMessage", "Only the owner customer may submit payment proof.");
+    return "redirect:/contracts";
+   }
+   if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
+    throw new com.wedding.common.exceptions.BusinessRuleException("Payment proof can only be submitted for an active contract.");
+   }
+   if (amount == null || amount.stripTrailingZeros().scale() > 2 || amount.compareTo(BigDecimal.ZERO) <= 0
+           || amount.compareTo(paymentService.getOutstandingBalance(contract)) > 0) {
+    throw new com.wedding.common.exceptions.ValidationException("Enter a positive amount within the outstanding balance, using no more than two decimal places.");
+   }
+   if (transactionRef == null || transactionRef.trim().length() < 4 || transactionRef.trim().length() > 100) {
+    throw new com.wedding.common.exceptions.ValidationException("Enter a transaction reference between 4 and 100 characters.");
+   }
+   String normalizedRef = transactionRef.trim();
+   if (normalizedRef.chars().anyMatch(Character::isISOControl)) {
+    throw new com.wedding.common.exceptions.ValidationException("Transaction reference cannot contain control characters.");
+   }
+   if (!java.util.List.of("BANK_TRANSFER", "CARD", "CASH").contains(method == null ? "" : method.trim().toUpperCase())) {
+    throw new com.wedding.common.exceptions.ValidationException("Select a supported payment method.");
+   }
+   boolean duplicatePayment = paymentService.getAllPayments(id).stream()
+       .anyMatch(p -> normalizedRef.equalsIgnoreCase(p.getTransactionRef()));
+   if (duplicatePayment) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference already exists in the payment ledger.");
+   java.nio.file.Path folder = java.nio.file.Paths.get("data", "payment-proofs");
+   java.nio.file.Files.createDirectories(folder);
+   java.nio.file.Path queue = folder.resolve("payment-proofs.csv");
+   java.util.List<String> proofLines = java.nio.file.Files.exists(queue)
+       ? java.nio.file.Files.readAllLines(queue) : new java.util.ArrayList<>();
+   boolean duplicateRef = proofLines.stream().map(existing -> existing.split("\\|", -1))
+       .anyMatch(parts -> parts.length >= 8 && normalizedRef.equalsIgnoreCase(parts[5]));
+   if (duplicateRef) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference has already been submitted.");
+   String proofId = com.wedding.common.utils.FileUtil.generateId("PRF");
+   String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
+       + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
+       + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+       + "|PENDING|" + (notes == null ? "" : notes.replace('|', '/').replace('\r', ' ').replace('\n', ' ')) + "|";
+   proofLines.add(line);
+   java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
+   java.nio.file.Files.write(tempQueue, proofLines);
+   try { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
+   catch (java.nio.file.AtomicMoveNotSupportedException moveEx) { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+   appendAuditEvent(id, actor, "PAYMENT_PROOF_SUBMITTED", "Proof " + proofId + " | LKR " + amount + " | Reference " + normalizedRef);
+   redirectAttributes.addFlashAttribute("successMessage", "Payment proof submitted for Admin verification. Your paid balance will update after verification.");
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+  } catch (java.io.IOException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Unable to save payment proof right now.");
+  }
+  return "redirect:/contracts/view/" + id;
+ }
+
+ @GetMapping("/admin/payment-proofs")
+ public String paymentProofQueue(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+  User actor = (User) session.getAttribute("currentUser");
+  if (!isAdmin(actor)) return actor == null ? "redirect:/login" : "redirect:/dashboard";
+  try {
+   java.nio.file.Path path = java.nio.file.Paths.get("data", "payment-proofs", "payment-proofs.csv");
+   java.util.List<String[]> rows = new java.util.ArrayList<>();
+   if (java.nio.file.Files.exists(path)) {
+    for (String line : java.nio.file.Files.readAllLines(path)) {
+     String[] parts = line.split("\\|", -1);
+     if (parts.length >= 8) rows.add(java.util.Arrays.copyOf(parts, Math.max(parts.length, 10)));
+    }
+   }
+   model.addAttribute("paymentProofs", rows);
+   model.addAttribute("pageTitle", "Payment Proof Verification");
+   model.addAttribute("activePage", "admin");
+   return "member05/payment-proofs";
+  } catch (java.io.IOException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Unable to read payment proof queue.");
+   return "redirect:/dashboard";
+  }
+ }
+
+ @PostMapping("/admin/payment-proofs/decision")
+ public synchronized String decidePaymentProof(@RequestParam("proofId") String proofId,
+                                  @RequestParam("decision") String decision,
+                                  @RequestParam(value = "reason", required = false) String reason,
+                                  HttpSession session, RedirectAttributes redirectAttributes) {
+  User actor = (User) session.getAttribute("currentUser");
+  if (!isAdmin(actor)) return actor == null ? "redirect:/login" : "redirect:/dashboard";
+  java.nio.file.Path path = java.nio.file.Paths.get("data", "payment-proofs", "payment-proofs.csv");
+  try {
+   if (!java.nio.file.Files.exists(path)) throw new java.io.IOException("Queue does not exist");
+   java.util.List<String> updated = new java.util.ArrayList<>();
+   boolean found = false;
+   String processedContractId = null;
+   String processedStatus = null;
+   for (String line : java.nio.file.Files.readAllLines(path)) {
+    String[] parts = line.split("\\|", -1);
+    if (parts.length >= 8 && parts[0].equals(proofId)) {
+     if (!"PENDING".equals(parts[7])) throw new com.wedding.common.exceptions.BusinessRuleException("This proof was already processed.");
+     if ("APPROVE".equalsIgnoreCase(decision)) {
+      VendorContract contract = contractService.getById(parts[1]);
+      if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
+       throw new com.wedding.common.exceptions.BusinessRuleException("Only active contracts can accept verified payments.");
+      }
+      final String submittedReference = parts[5];
+      final BigDecimal submittedAmount = new BigDecimal(parts[3]);
+      Payment existingPayment = paymentService.getAllPayments(parts[1]).stream()
+          .filter(payment -> submittedReference.equalsIgnoreCase(payment.getTransactionRef()))
+          .findFirst().orElse(null);
+      if (existingPayment != null) {
+       if (existingPayment.isVoided() || existingPayment.getAmount().compareTo(submittedAmount) != 0) {
+        throw new com.wedding.common.exceptions.BusinessRuleException("A payment with this reference exists but does not match the pending proof.");
+       }
+      } else {
+       paymentService.recordPartialPayment(contract, submittedAmount,
+           LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
+           "Customer proof " + proofId + " approved by " + actor.getUserId(), nextInstallmentNumber(parts[1]));
+      }
+      contractService.refreshTotals(parts[1]);
+      parts[7] = "APPROVED";
+      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 10));
+      parts[9] = "Verified by " + actor.getUserId();
+     } else if ("REJECT".equalsIgnoreCase(decision)) {
+      parts[7] = "REJECTED";
+      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 10));
+      parts[9] = (reason == null || reason.isBlank() ? "Rejected by Admin" : reason.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
+     } else {
+      throw new com.wedding.common.exceptions.ValidationException("Choose APPROVE or REJECT.");
+     }
+     found = true;
+     processedContractId = parts[1];
+     processedStatus = parts[7];
+     line = String.join("|", parts);
+    }
+    updated.add(line);
+   }
+   if (!found) throw new com.wedding.common.exceptions.EntityNotFoundException("Payment Proof", proofId);
+   java.nio.file.Path temp = path.resolveSibling("payment-proofs.csv.tmp");
+   java.nio.file.Files.write(temp, updated);
+   try { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
+   catch (java.nio.file.AtomicMoveNotSupportedException ex) { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+   appendAuditEvent(processedContractId, actor, "PAYMENT_PROOF_" + processedStatus, "Proof " + proofId + " processed by Admin.");
+   redirectAttributes.addFlashAttribute("successMessage", "Payment proof " + decision.toLowerCase() + "d successfully.");
+  } catch (AppException | java.io.IOException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+  }
+  return "redirect:/admin/payment-proofs";
+ }
+
+ private int nextInstallmentNumber(String contractId) {
+  return paymentService.getAllPayments(contractId).stream()
+      .filter(p -> p instanceof com.wedding.member05_contract_payment.model.PartialPayment)
+      .map(p -> (com.wedding.member05_contract_payment.model.PartialPayment) p)
+      .mapToInt(com.wedding.member05_contract_payment.model.PartialPayment::getInstallmentNumber)
+      .max().orElse(0) + 1;
+ }
+
  @GetMapping("/contracts/edit/{id}")
  public String showEditContractForm(@PathVariable("id") String id, HttpSession httpSession,
                                     Model model, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) { redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can manage contracts."); return actor == null ? "redirect:/login" : "redirect:/contracts"; }
   try {
    VendorContract contract = contractService.getById(id);
    if (contract.getStatus() == com.wedding.member05_contract_payment.model.ContractStatus.COMPLETED
@@ -222,9 +476,10 @@ public class ContractPaymentController {
                               @RequestParam(value = "terms", required = false) String terms,
                               HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) { redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can manage contracts."); return actor == null ? "redirect:/login" : "redirect:/contracts"; }
   try {
    contractService.updateContract(id, startDate, endDate, contractAmount, terms);
+   appendAuditEvent(id, actor, "CONTRACT_UPDATED", "Amount LKR " + contractAmount + " | Period " + startDate + " to " + endDate);
    redirectAttributes.addFlashAttribute("successMessage", "Contract details updated successfully.");
   } catch (AppException e) {
    redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -237,9 +492,13 @@ public class ContractPaymentController {
  public String cancelContract(@PathVariable("id") String id, HttpSession httpSession,
                               RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can cancel contracts.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    contractService.cancelContract(id);
+   appendAuditEvent(id, actor, "CONTRACT_CANCELLED", "Contract cancelled by Admin.");
    redirectAttributes.addFlashAttribute("warningMessage", "Contract cancelled. Its payment history has been retained.");
   } catch (AppException e) {
    redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -251,18 +510,21 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/advance")
  public String recordAdvancePayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "advancePct", defaultValue = "0.0") double advancePct,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
-   if (!canAccessContract(actor, accessCheck)) {
-    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to record payments for this contract.");
+   if (!isAdmin(actor) || !canAccessContract(actor, accessCheck)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments for this contract.");
     return "redirect:/contracts";
    }
   } catch (AppException ex) {
@@ -271,8 +533,9 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordAdvancePayment(contract, amount, paymentDate, method, transactionRef, notes, advancePct);
+ paymentService.recordAdvancePayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, advancePct);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "ADVANCE_PAYMENT_RECORDED", "LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Advance payment of LKR " + amount + " recorded successfully!");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -284,14 +547,17 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/partial")
  public String recordPartialPayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "installmentNumber", defaultValue = "1") int installmentNumber,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
    if (!canAccessContract(actor, accessCheck)) {
@@ -304,8 +570,9 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordPartialPayment(contract, amount, paymentDate, method, transactionRef, notes, installmentNumber);
+ paymentService.recordPartialPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, installmentNumber);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "PARTIAL_PAYMENT_RECORDED", "Installment #" + installmentNumber + " | LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Partial installment #" + installmentNumber + " of LKR " + amount + " recorded!");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -317,14 +584,17 @@ public class ContractPaymentController {
  @PostMapping("/contracts/{id}/payments/final")
  public String recordFinalPayment(@PathVariable("id") String contractId,
  @RequestParam("amount") BigDecimal amount,
- @RequestParam("paymentDate") String paymentDate,
+ @RequestParam(value = "paymentDate", required = false) String paymentDate,
  @RequestParam("method") String method,
  @RequestParam(value = "transactionRef", required = false) String transactionRef,
  @RequestParam(value = "notes", required = false) String notes,
  @RequestParam(value = "receiptNumber", required = false) String receiptNumber,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can record payments.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    VendorContract accessCheck = contractService.getById(contractId);
    if (!canAccessContract(actor, accessCheck)) {
@@ -337,8 +607,9 @@ public class ContractPaymentController {
   }
  try {
  VendorContract contract = contractService.getById(contractId);
- paymentService.recordFinalPayment(contract, amount, paymentDate, method, transactionRef, notes, receiptNumber);
+ paymentService.recordFinalPayment(contract, amount, LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), method, transactionRef, notes, receiptNumber);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "FINAL_PAYMENT_RECORDED", "LKR " + amount + " | Reference " + (transactionRef == null ? "" : transactionRef));
  redirectAttributes.addFlashAttribute("successMessage", "Final settlement payment recorded! Contract is now FULLY PAID.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -367,6 +638,7 @@ public class ContractPaymentController {
   }
  paymentService.voidPayment(paymentId, reason);
  contractService.refreshTotals(contractId);
+ appendAuditEvent(contractId, actor, "PAYMENT_REVERSED", "Payment " + paymentId + " | Reason: " + reason);
  redirectAttributes.addFlashAttribute("warningMessage", "Payment reversed and marked VOID.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -381,15 +653,58 @@ public class ContractPaymentController {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (!isAdmin(actor)) {
   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can complete a contract.");
-  return "redirect:/login";
+  return actor == null ? "redirect:/login" : "redirect:/contracts";
  }
  try {
  contractService.completeContract(id);
+ appendAuditEvent(id, actor, "CONTRACT_COMPLETED", "Contract marked completed by Admin.");
  redirectAttributes.addFlashAttribute("successMessage", "Contract marked COMPLETED.");
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  }
  return "redirect:/contracts/view/" + id;
+ }
+
+ private List<String> buildAuditEntries(VendorContract contract, List<Payment> payments) {
+  java.util.ArrayList<String> entries = new java.util.ArrayList<>();
+  entries.add(contract.getCreatedAt() + " | CONTRACT_CREATED | " + contract.getContractId()
+          + " | Status: " + contract.getStatus());
+  java.nio.file.Path auditPath = java.nio.file.Paths.get("data", "contract-payment-audit.csv");
+  if (java.nio.file.Files.exists(auditPath)) {
+   try {
+    for (String line : java.nio.file.Files.readAllLines(auditPath)) {
+     String[] parts = line.split("\\|", 5);
+     if (parts.length == 5 && contract.getContractId().equals(parts[0])) {
+      entries.add(parts[1] + " | " + parts[3] + " | " + parts[2] + " | " + parts[4]);
+     }
+    }
+   } catch (java.io.IOException ex) {
+    System.err.println("[Audit] Unable to read contract audit history: " + ex.getMessage());
+   }
+  }
+  for (Payment payment : payments) {
+   entries.add(payment.getRecordedAt() + " | PAYMENT_" + payment.getPaymentType() + " | "
+           + payment.getPaymentId() + " | LKR " + payment.getAmount()
+           + (payment.isVoided() ? " | VOIDED" : " | VALID")
+           + (payment.getNotes() == null || payment.getNotes().isBlank() ? "" : " | " + payment.getNotes()));
+  }
+  entries.sort(java.util.Comparator.naturalOrder());
+  return entries;
+ }
+
+ private synchronized void appendAuditEvent(String contractId, User actor, String action, String detail) {
+  if (contractId == null || actor == null) return;
+  String cleanDetail = detail == null ? "" : detail.replace('|', '/').replace('\r', ' ').replace('\n', ' ');
+  String line = contractId + "|" + com.wedding.common.utils.ValidationUtil.nowDateTime() + "|" + actor.getUserId()
+          + "|" + action + "|" + cleanDetail + System.lineSeparator();
+  try {
+   java.nio.file.Path folder = java.nio.file.Paths.get("data");
+   java.nio.file.Files.createDirectories(folder);
+   java.nio.file.Files.writeString(folder.resolve("contract-payment-audit.csv"), line,
+       java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+  } catch (java.io.IOException ex) {
+   System.err.println("[Audit] Unable to append contract audit event: " + ex.getMessage());
+  }
  }
 
  private boolean isAdmin(User user) {

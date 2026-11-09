@@ -94,4 +94,5 @@ public class AppConfig {
     @Bean public ReviewService reviewService(ReviewRepository reviews, BookingRepository bookings) {
         return new ReviewService(reviews, bookings);
     }
+
 }

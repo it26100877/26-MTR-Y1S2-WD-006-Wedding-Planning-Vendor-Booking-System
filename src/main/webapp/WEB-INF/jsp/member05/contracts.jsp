@@ -47,7 +47,7 @@
     </div>
     <div class="table-responsive m05-table-wrap">
         <table class="table align-middle m05-contract-table" id="contractsTable"><thead><tr>
-            <th>Contract / Booking</th><th>Contract Amount</th><th>Total Paid</th><th>Outstanding</th><th>Payment Status</th><th>Contract Status</th><th class="text-end">Action</th>
+            <th><button type="button" class="m05-sort-btn" data-sort-col="0">Contract / Booking <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="1">Contract Amount <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="2">Total Paid <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="3">Outstanding <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="4">Payment Status <i class="bi bi-arrow-down-up ms-1"></i></button></th><th><button type="button" class="m05-sort-btn" data-sort-col="5">Contract Status <i class="bi bi-arrow-down-up ms-1"></i></button></th><th class="text-end">Action</th>
         </tr></thead><tbody>
         <c:forEach var="contract" items="${contracts}">
             <tr data-search="${contract.contractId} ${contract.bookingId}" data-payment="${contract.paymentStatus}" data-contract="${contract.status}">
@@ -71,27 +71,79 @@
         <c:if test="${empty contracts}"><tr><td colspan="7" class="text-center py-5"><div class="m05-empty-icon"><i class="bi bi-file-earmark-plus"></i></div><div class="fw-semibold mt-2">No vendor contracts yet</div><div class="text-secondary small">Contracts appear here after an administrator generates one from a confirmed booking.</div></td></tr></c:if>
         </tbody></table>
         <div id="contractNoResults" class="m05-no-results d-none">No contracts match your search or selected filters.</div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 p-2 border-top"><label class="small text-secondary">Rows per page <select id="contractPageSize" class="form-select form-select-sm d-inline-block" style="width:auto"><option>5</option><option selected>10</option><option>25</option><option>50</option></select></label><div class="btn-group btn-group-sm"><button type="button" class="btn btn-outline-secondary" id="contractPrev">Previous</button><span class="btn btn-light disabled" id="contractPageLabel">Page 1</span><button type="button" class="btn btn-outline-secondary" id="contractNext">Next</button></div></div>
     </div>
     <div class="m05-table-foot"><span id="contractResultCount"><c:out value="${totalContracts}"/> contract(s)</span><span><i class="bi bi-lock me-1"></i>Payment records are retained for audit history.</span></div>
 </section>
+
+<section class="m05-panel mt-4" aria-label="Contract payment overview">
+ <div class="m05-panel-head"><div><h3 class="m05-section-title">Payment overview</h3><p class="m05-section-caption mb-0">Recorded contract value and collection progress.</p></div></div>
+ <div class="row g-3 align-items-center"><div class="col-md-4"><div class="m05-chart-wrap"><canvas id="contractPaymentChart" height="190" aria-label="Collected and outstanding contract value"></canvas></div></div>
+ <div class="col-md-8"><div class="row g-3"><div class="col-sm-4"><div class="m05-chart-stat"><span>Contract value</span><strong>LKR <c:out value="${totalContractValue}"/></strong></div></div><div class="col-sm-4"><div class="m05-chart-stat"><span>Collected</span><strong class="text-success">LKR <c:out value="${totalCollected}"/></strong></div></div><div class="col-sm-4"><div class="m05-chart-stat"><span>Outstanding</span><strong class="text-danger">LKR <c:out value="${totalOutstanding}"/></strong></div></div></div></div></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 (function () {
     const search = document.getElementById('contractSearch');
     const payment = document.getElementById('paymentFilter');
     const status = document.getElementById('contractFilter');
-    const rows = Array.from(document.querySelectorAll('#contractsTable tbody tr[data-search]'));
+    let rows = Array.from(document.querySelectorAll('#contractsTable tbody tr[data-search]'));
     const noResults = document.getElementById('contractNoResults');
     const count = document.getElementById('contractResultCount');
+    const pageSize = document.getElementById('contractPageSize');
+    const pageLabel = document.getElementById('contractPageLabel');
+    const prev = document.getElementById('contractPrev');
+    const next = document.getElementById('contractNext');
+    let page = 1;
     function applyFilters() {
-        const term = (search.value || '').trim().toLowerCase(); let visible = 0;
-        rows.forEach(row => {
-            const matches = row.dataset.search.toLowerCase().includes(term) && (!payment.value || row.dataset.payment === payment.value) && (!status.value || row.dataset.contract === status.value);
-            row.classList.toggle('d-none', !matches); if (matches) visible++;
-        });
-        noResults.classList.toggle('d-none', visible !== 0 || rows.length === 0); count.textContent = visible + ' of ' + rows.length + ' contract(s)';
+        const term = (search.value || '').trim().toLowerCase();
+        const filtered = rows.filter(row => row.dataset.search.toLowerCase().includes(term)
+            && (!payment.value || row.dataset.payment === payment.value)
+            && (!status.value || row.dataset.contract === status.value));
+        const size = Number(pageSize.value) || 10;
+        const pages = Math.max(1, Math.ceil(filtered.length / size));
+        page = Math.min(page, pages);
+        rows.forEach(row => row.classList.add('d-none'));
+        filtered.slice((page - 1) * size, page * size).forEach(row => row.classList.remove('d-none'));
+        noResults.classList.toggle('d-none', filtered.length !== 0 || rows.length === 0);
+        count.textContent = filtered.length + ' matching contract(s)';
+        pageLabel.textContent = 'Page ' + page + ' of ' + pages;
+        prev.disabled = page <= 1; next.disabled = page >= pages;
     }
-    [search, payment, status].forEach(control => control.addEventListener('input', applyFilters));
-    [payment, status].forEach(control => control.addEventListener('change', applyFilters));
+    [search, payment, status].forEach(control => control.addEventListener('input', () => { page = 1; applyFilters(); }));
+    [payment, status, pageSize].forEach(control => control.addEventListener('change', () => { page = 1; applyFilters(); }));
+    prev.addEventListener('click', () => { page = Math.max(1, page - 1); applyFilters(); });
+    next.addEventListener('click', () => { page++; applyFilters(); });
+    let sortColumn = -1;
+    let sortDirection = 1;
+    document.querySelectorAll('#contractsTable [data-sort-col]').forEach(button => {
+        button.addEventListener('click', () => {
+            const column = Number(button.dataset.sortCol);
+            sortDirection = sortColumn === column ? -sortDirection : 1;
+            sortColumn = column;
+            rows.sort((left, right) => {
+                const a = (left.cells[column]?.textContent || '').trim();
+                const b = (right.cells[column]?.textContent || '').trim();
+                if (column >= 1 && column <= 3) {
+                    const av = Number(a.replace(/[^0-9.-]/g, '')) || 0;
+                    const bv = Number(b.replace(/[^0-9.-]/g, '')) || 0;
+                    return (av - bv) * sortDirection;
+                }
+                return a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}) * sortDirection;
+            });
+            rows.forEach(row => row.parentElement.appendChild(row));
+            document.querySelectorAll('#contractsTable [data-sort-col]').forEach(item => {
+                item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+            });
+            applyFilters();
+        });
+    });
+    applyFilters();
+    const chartCanvas = document.getElementById('contractPaymentChart');
+    if (chartCanvas && window.Chart) {
+      new Chart(chartCanvas, {type:'doughnut',data:{labels:['Collected','Outstanding'],datasets:[{data:[Number('${totalCollected}'),Number('${totalOutstanding}')]}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
+    }
 })();
 </script>
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
