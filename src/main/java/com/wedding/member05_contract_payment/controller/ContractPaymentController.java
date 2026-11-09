@@ -329,7 +329,7 @@ public class ContractPaymentController {
    String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
        + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
        + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-       + "|PENDING|" + (notes == null ? "" : notes.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
+       + "|PENDING|" + (notes == null ? "" : notes.replace('|', '/').replace('\r', ' ').replace('\n', ' ')) + "|";
    proofLines.add(line);
    java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
    java.nio.file.Files.write(tempQueue, proofLines);
@@ -401,10 +401,12 @@ public class ContractPaymentController {
        contractService.refreshTotals(parts[1]);
       }
             parts[7] = "APPROVED";
+      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 10));
+      parts[9] = "Verified by " + actor.getUserId();
      } else if ("REJECT".equalsIgnoreCase(decision)) {
       parts[7] = "REJECTED";
-      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 9));
-      parts[8] = (reason == null ? "Rejected by Admin" : reason.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
+      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 10));
+      parts[9] = (reason == null || reason.isBlank() ? "Rejected by Admin" : reason.replace('|', '/').replace('\r', ' ').replace('\n', ' '));
      } else {
       throw new com.wedding.common.exceptions.ValidationException("Choose APPROVE or REJECT.");
      }
