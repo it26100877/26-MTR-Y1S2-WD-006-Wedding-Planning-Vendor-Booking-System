@@ -28,9 +28,10 @@ public class WebSecurityHeadersAndCsrfFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
         addSecurityHeaders(request, response);
 
-        HttpSession session = request.getSession(request.getMethod().equalsIgnoreCase("GET"));
+        HttpSession session = isStaticAsset(request) ? request.getSession(false)
+                : request.getSession(request.getMethod().equalsIgnoreCase("GET"));
         String token = session == null ? null : (String) session.getAttribute(SESSION_TOKEN);
-        if (token == null && session != null) {
+        if (token == null && session != null && !isStaticAsset(request)) {
             token = UUID.randomUUID().toString();
             session.setAttribute(SESSION_TOKEN, token);
         }
@@ -45,6 +46,17 @@ public class WebSecurityHeadersAndCsrfFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private static boolean isStaticAsset(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith(request.getContextPath() + "/css/")
+                || path.startsWith(request.getContextPath() + "/js/")
+                || path.startsWith(request.getContextPath() + "/images/")
+                || path.startsWith(request.getContextPath() + "/webjars/")
+                || path.endsWith(".ico") || path.endsWith(".png") || path.endsWith(".jpg")
+                || path.endsWith(".jpeg") || path.endsWith(".svg") || path.endsWith(".woff2")
+                || path.endsWith(".css") || path.endsWith(".js");
     }
 
     private static boolean isStateChanging(String method) {
