@@ -257,17 +257,22 @@ public class ContractPaymentController {
                                    RedirectAttributes redirectAttributes) {
   User viewer = (User) session.getAttribute("currentUser");
   if (viewer == null) return "redirect:/login";
-  Payment payment = paymentService.getAllPaymentsForReceipt(paymentId);
-  VendorContract contract = contractService.getById(payment.getContractId());
-  if (!canAccessContract(viewer, contract)) {
-   redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this receipt.");
+  try {
+   Payment payment = paymentService.getAllPaymentsForReceipt(paymentId);
+   VendorContract contract = contractService.getById(payment.getContractId());
+   if (!canAccessContract(viewer, contract)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this receipt.");
+    return "redirect:/contracts";
+   }
+   model.addAttribute("payment", payment);
+   model.addAttribute("contract", contract);
+   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
+   return "member05/payment-receipt";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
    return "redirect:/contracts";
   }
-  model.addAttribute("payment", payment);
-  model.addAttribute("contract", contract);
-  model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
-  model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
-  return "member05/payment-receipt";
  }
 
  private String csvCell(String value) {
