@@ -280,6 +280,66 @@ public class ContractPaymentController {
   return "\"" + safe.replace("\"", "\"\"") + "\"";
  }
 
+ @PostMapping("/contracts/{id}/payments/proof")
+ public String submitPaymentProof(@PathVariable("id") String id,
+                                  @RequestParam("amount") BigDecimal amount,
+                                  @RequestParam("method") String method,
+                                  @RequestParam("transactionRef") String transactionRef,
+                                  @RequestParam(value = "notes", required = false) String notes,
+                                  HttpSession session, RedirectAttributes redirectAttributes) {
+  User actor = (User) session.getAttribute("currentUser");
+  if (actor == null) return "redirect:/login";
+  try {
+   VendorContract contract = contractService.getById(id);
+   if (!"CUSTOMER".equalsIgnoreCase(actor.getRole())
+           || !actor.getUserId().equalsIgnoreCase(contract.getCustomerId())) {
+    redirectAttributes.addFlashAttribute("errorMessage", "Only the owner customer may submit payment proof.");
+    return "redirect:/contracts";
+   }
+   if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
+    throw new com.wedding.common.exceptions.BusinessRuleException("Payment proof can only be submitted for an active contract.");
+   }
+   if (amount == null || amount.stripTrailingZeros().scale() > 2 || amount.compareTo(BigDecimal.ZERO) <= 0
+           || amount.compareTo(paymentService.getOutstandingBalance(contract)) > 0) {
+    throw new com.wedding.common.exceptions.ValidationException("Enter a positive amount within the outstanding balance, using no more than two decimal places.");
+   }
+   if (transactionRef == null || transactionRef.trim().length() < 4 || transactionRef.trim().length() > 100) {
+    throw new com.wedding.common.exceptions.ValidationException("Enter a transaction reference between 4 and 100 characters.");
+   }
+   String normalizedRef = transactionRef.trim();
+   if (!java.util.List.of("BANK_TRANSFER", "CARD", "CASH").contains(method == null ? "" : method.trim().toUpperCase())) {
+    throw new com.wedding.common.exceptions.ValidationException("Select a supported payment method.");
+   }
+   boolean duplicatePayment = paymentService.getAllPayments(id).stream()
+       .anyMatch(p -> normalizedRef.equalsIgnoreCase(p.getTransactionRef()));
+   if (duplicatePayment) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference already exists in the payment ledger.");
+   java.nio.file.Path folder = java.nio.file.Paths.get("data", "payment-proofs");
+   java.nio.file.Files.createDirectories(folder);
+   java.nio.file.Path queue = folder.resolve("payment-proofs.csv");
+   java.util.List<String> proofLines = java.nio.file.Files.exists(queue)
+       ? java.nio.file.Files.readAllLines(queue) : new java.util.ArrayList<>();
+   boolean duplicateRef = proofLines.stream().map(existing -> existing.split("\\|", -1))
+       .anyMatch(parts -> parts.length >= 8 && normalizedRef.equalsIgnoreCase(parts[5]));
+   if (duplicateRef) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference has already been submitted.");
+   String proofId = com.wedding.common.utils.FileUtil.generateId("PRF");
+   String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
+       + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
+       + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
+       + "|PENDING|" + (notes == null ? "" : notes.replace("|", "/").replace("\\n", " "));
+   proofLines.add(line);
+   java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
+   java.nio.file.Files.write(tempQueue, proofLines);
+   try { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
+   catch (java.nio.file.AtomicMoveNotSupportedException moveEx) { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
+   redirectAttributes.addFlashAttribute("successMessage", "Payment proof submitted for Admin verification. Your paid balance will update after verification.");
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+  } catch (java.io.IOException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Unable to save payment proof right now.");
+  }
+  return "redirect:/contracts/view/" + id;
+ }
+
  @GetMapping("/admin/payment-proofs")
  public String paymentProofQueue(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
   User actor = (User) session.getAttribute("currentUser");
