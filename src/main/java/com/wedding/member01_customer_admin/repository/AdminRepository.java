@@ -1,6 +1,5 @@
 package com.wedding.member01_customer_admin.repository;
 
-import com.wedding.common.model.User;
 import com.wedding.common.repository.AbstractFileRepository;
 import com.wedding.common.utils.FileUtil;
 import com.wedding.member01_customer_admin.model.Admin;
@@ -11,7 +10,7 @@ import java.util.Optional;
  * File-based repository for {@link Admin} entities.
  * Extends AbstractFileRepository demonstrating Inheritance.
  * Data is persisted in admins.csv with 8 fields.
- * Seeds a default SUPER admin if the file is empty.
+ * Optionally bootstraps the first SUPER admin from environment variables; never uses default credentials.
  *
  * @author Member 01
  */
@@ -83,26 +82,48 @@ public class AdminRepository extends AbstractFileRepository<Admin> {
  .findFirst();
  }
 
- // ─── Seeding ─────────────────────────────────────────────────────────────────
+ // ─── Secure one-time bootstrap ───────────────────────────────────────────────
 
  /**
- * Seeds a default SUPER admin if no admins exist.
- * Default credentials: admin@wedding.com / admin123
- */
+  * Creates the first administrator only when explicit deployment secrets are present.
+  * Required environment variables: ECLAT_BOOTSTRAP_ADMIN_EMAIL,
+  * ECLAT_BOOTSTRAP_ADMIN_PASSWORD, ECLAT_BOOTSTRAP_ADMIN_NAME and
+  * ECLAT_BOOTSTRAP_ADMIN_PHONE. No published/default password is ever created.
+  */
  private void seedDefaultAdmin() {
- if (cache.isEmpty()) {
- Admin defaultAdmin = new Admin(
- "ADM-001",
- "System Admin",
- "admin@wedding.com",
- "0000000000",
- User.hashPassword("admin123"),
- com.wedding.common.utils.ValidationUtil.nowDateTime(),
- true,
- "SUPER"
- );
- save(defaultAdmin);
- System.out.println("[AdminRepository] Default SUPER admin seeded.");
- }
+     // Remove the historical demo account if it is still present in an existing data file.
+     cache.values().stream()
+             .filter(a -> "admin@wedding.com".equalsIgnoreCase(a.getEmail())
+                     && a.checkPassword("admin123"))
+             .map(Admin::getUserId)
+             .toList()
+             .forEach(this::deleteById);
+
+     if (!cache.isEmpty()) return;
+
+     String email = System.getenv("ECLAT_BOOTSTRAP_ADMIN_EMAIL");
+     String password = System.getenv("ECLAT_BOOTSTRAP_ADMIN_PASSWORD");
+     String name = System.getenv("ECLAT_BOOTSTRAP_ADMIN_NAME");
+     String phone = System.getenv("ECLAT_BOOTSTRAP_ADMIN_PHONE");
+
+     if (email == null || email.isBlank() || password == null || password.length() < 12
+             || name == null || name.isBlank() || phone == null || phone.isBlank()) {
+         System.out.println("[AdminRepository] No admin exists. Configure ECLAT_BOOTSTRAP_ADMIN_* "
+                 + "environment variables to create the initial SUPER admin.");
+         return;
+     }
+
+     Admin admin = new Admin(
+             FileUtil.generateId("ADM"),
+             name.trim(),
+             email.trim().toLowerCase(java.util.Locale.ROOT),
+             phone.trim(),
+             com.wedding.common.model.User.hashPassword(password),
+             com.wedding.common.utils.ValidationUtil.nowDateTime(),
+             true,
+             "SUPER"
+     );
+     save(admin);
+     System.out.println("[AdminRepository] Initial SUPER admin bootstrapped from environment.");
  }
 }

@@ -9,6 +9,7 @@ import com.wedding.member01_customer_admin.model.OtpChallenge;
 import com.wedding.member01_customer_admin.service.AdminService;
 import com.wedding.member01_customer_admin.service.CustomerService;
 import com.wedding.member01_customer_admin.service.OtpService;
+import com.wedding.member01_customer_admin.service.LoginRateLimiter;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
@@ -32,12 +33,14 @@ public class CustomerAdminController {
  private final CustomerService customerService;
  private final AdminService adminService;
     private final OtpService otpService;
+    private final LoginRateLimiter loginRateLimiter;
 
  public CustomerAdminController(CustomerService customerService, AdminService adminService,
-                                   OtpService otpService) {
+                                   OtpService otpService, LoginRateLimiter loginRateLimiter) {
  this.customerService = customerService;
  this.adminService = adminService;
         this.otpService = otpService;
+        this.loginRateLimiter = loginRateLimiter;
  }
 
  // ─── Login Page ──────────────────────────────────────────────────────────────
@@ -54,6 +57,7 @@ public class CustomerAdminController {
                                HttpSession httpSession, HttpServletRequest request,
                                RedirectAttributes redirectAttributes) {
         try {
+            loginRateLimiter.recordLoginAttempt(request, email);
             if ("ADMIN".equalsIgnoreCase(role)) {
                 User admin = adminService.login(email, password);
                 request.changeSessionId();
@@ -151,13 +155,15 @@ public class CustomerAdminController {
     }
 
     @PostMapping("/login/otp/resend")
-    public String resendOtp(HttpSession httpSession, RedirectAttributes redirectAttributes) {
+    public String resendOtp(HttpSession httpSession, HttpServletRequest request,
+                            RedirectAttributes redirectAttributes) {
         OtpChallenge challenge = otpService.current(httpSession);
         if (challenge == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Your login session has expired. Please log in again.");
             return "redirect:/login";
         }
         try {
+            loginRateLimiter.recordOtpResend(request);
             Customer customer = customerService.getById(challenge.getUserId());
             otpService.resend(httpSession, customer);
             redirectAttributes.addFlashAttribute("successMessage",
@@ -169,7 +175,7 @@ public class CustomerAdminController {
         return "redirect:/login/otp";
     }
 
-    @GetMapping("/login/otp/cancel")
+    @PostMapping("/login/otp/cancel")
     public String cancelOtp(HttpSession httpSession) {
         otpService.clear(httpSession);
         return "redirect:/login";
@@ -309,7 +315,7 @@ public class CustomerAdminController {
  }
 
  // ─── Logout ──────────────────────────────────────────────────────────────────
- @GetMapping("/logout")
+ @PostMapping("/logout")
  public String logout(HttpSession httpSession, RedirectAttributes redirectAttributes) {
  httpSession.invalidate();
  Session.getInstance().logout();
