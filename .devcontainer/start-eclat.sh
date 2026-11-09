@@ -8,7 +8,6 @@ PORT="${SERVER_PORT:-8080}"
 LOG_DIR="$APP_DIR/logs"
 PID_FILE="$APP_DIR/.eclat-app.pid"
 LOG_FILE="$LOG_DIR/codespaces-app.log"
-
 mkdir -p "$LOG_DIR"
 chmod +x ./mvnw
 
@@ -20,24 +19,38 @@ port_pids() {
   fi
 }
 
-if [[ -f "$PID_FILE" ]]; then
-  OLD_PID="$(cat "$PID_FILE" 2>/dev/null || true)"
-  if [[ "$OLD_PID" =~ ^[0-9]+$ ]] && kill -0 "$OLD_PID" 2>/dev/null; then
-    echo "Éclat may already be running (PID $OLD_PID). Checking health..."
-    if curl --fail --silent --show-error "http://127.0.0.1:$PORT/login" >/dev/null 2>&1; then
-      echo "Éclat is already responding at port $PORT."
-      exit 0
-    fi
-    echo "Recorded process is not healthy; cleaning stale PID file."
+health_check() {
+  curl --fail --silent "http://127.0.0.1:$PORT/login" >/dev/null 2>&1
+}
+
+print_forwarded_url_hint() {
+  if [[ -n "${CODESPACE_NAME:-}" && -n "${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN:-}" ]]; then
+    echo "Forwarded application URL:"
+    echo "https://${CODESPACE_NAME}-${PORT}.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}/"
+    echo "Open this URL, not localhost:$PORT."
+  else
+    echo "Open the PORTS panel and click the forwarded address for port $PORT."
+    echo "Do not open localhost:$PORT from your computer browser."
   fi
-  rm -f "$PID_FILE"
+}
+
+if health_check; then
+  echo "Éclat is already responding on port $PORT."
+  print_forwarded_url_hint
+  exit 0
 fi
 
 RUNNING_PIDS="$(port_pids)"
 if [[ -n "$RUNNING_PIDS" ]]; then
-  echo "Port $PORT is already occupied by PID(s): $RUNNING_PIDS"
-  echo "Not killing unknown processes. Inspect with: lsof -iTCP:$PORT -sTCP:LISTEN"
+  echo "Port $PORT is occupied by process(es): $RUNNING_PIDS, but /login is not responding."
+  echo "Not killing unknown processes. Recent app log:"
+  tail -n 80 "$LOG_FILE" 2>/dev/null || true
+  echo "Inspect the port with: lsof -iTCP:$PORT -sTCP:LISTEN"
   exit 1
+fi
+
+if [[ -f "$PID_FILE" ]]; then
+  rm -f "$PID_FILE"
 fi
 
 echo "Starting Éclat in Codespaces on port $PORT..."
@@ -49,21 +62,21 @@ APP_PID=$!
 echo "$APP_PID" > "$PID_FILE"
 
 for attempt in $(seq 1 90); do
+  if health_check; then
+    echo "Éclat is ready."
+    echo "Startup PID: $APP_PID"
+    print_forwarded_url_hint
+    exit 0
+  fi
   if ! kill -0 "$APP_PID" 2>/dev/null; then
-    echo "Éclat process stopped during startup. Last 100 log lines:"
+    echo "Éclat stopped during startup. Recent log:"
     tail -n 100 "$LOG_FILE" || true
     rm -f "$PID_FILE"
     exit 1
   fi
-  if curl --fail --silent "http://127.0.0.1:$PORT/login" >/dev/null 2>&1; then
-    echo "Éclat is ready."
-    echo "Codespaces forwards port $PORT. Open the forwarded URL from the PORTS panel."
-    echo "PID: $APP_PID"
-    exit 0
-  fi
   sleep 2
 done
 
-echo "Éclat did not become ready within 180 seconds. Last 100 log lines:"
+echo "Éclat did not become ready within 180 seconds. Recent log:"
 tail -n 100 "$LOG_FILE" || true
 exit 1
