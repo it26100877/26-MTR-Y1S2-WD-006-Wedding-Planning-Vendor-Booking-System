@@ -465,7 +465,10 @@ public class ContractPaymentController {
  public String cancelContract(@PathVariable("id") String id, HttpSession httpSession,
                               RedirectAttributes redirectAttributes) {
   User actor = (User) httpSession.getAttribute("currentUser");
-  if (!isAdmin(actor)) return "redirect:/login";
+  if (!isAdmin(actor)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "Only an administrator can cancel contracts.");
+   return actor == null ? "redirect:/login" : "redirect:/contracts";
+  }
   try {
    contractService.cancelContract(id);
    redirectAttributes.addFlashAttribute("warningMessage", "Contract cancelled. Its payment history has been retained.");
