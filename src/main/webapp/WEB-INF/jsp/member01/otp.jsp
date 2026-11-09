@@ -21,7 +21,9 @@
   </div>
   <div class="eclat-auth-panel">
     <div class="eclat-auth-card">
-      <a class="eclat-auth-back" href="${pageContext.request.contextPath}/login/otp/cancel"><i class="bi bi-arrow-left"></i> Use a different account</a>
+      <form action="${pageContext.request.contextPath}/login/otp/cancel" method="post" class="mb-3">
+        <button type="submit" class="eclat-auth-back border-0 bg-transparent p-0"><i class="bi bi-arrow-left"></i> Use a different account</button>
+      </form>
       <div class="eclat-auth-brand">Éclat<span>.</span></div>
       <span class="eclat-eyebrow">VERIFY YOUR PHONE</span>
       <h2>Enter your 6-digit code</h2>
