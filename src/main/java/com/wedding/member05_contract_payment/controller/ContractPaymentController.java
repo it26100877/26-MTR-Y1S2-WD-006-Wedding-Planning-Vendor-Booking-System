@@ -2,6 +2,8 @@ package com.wedding.member05_contract_payment.controller;
 
 import com.wedding.common.exceptions.AppException;
 import com.wedding.common.model.User;
+import com.wedding.member01_customer.model.Customer;
+import com.wedding.member01_customer.service.CustomerService;
 import com.wedding.member04_booking.model.Booking;
 import com.wedding.member04_booking.model.BookingStatus;
 import com.wedding.member04_booking.service.BookingService;
@@ -37,17 +39,20 @@ public class ContractPaymentController {
  private final ContractService contractService;
  private final PaymentService paymentService;
  private final BookingService bookingService;
+ private final CustomerService customerService;
  private final VendorService vendorService;
  private final WeddingPlanService weddingPlanService;
 
  public ContractPaymentController(ContractService contractService,
  PaymentService paymentService,
  BookingService bookingService,
+ CustomerService customerService,
  VendorService vendorService,
  WeddingPlanService weddingPlanService) {
  this.contractService = contractService;
  this.paymentService = paymentService;
  this.bookingService = bookingService;
+ this.customerService = customerService;
  this.vendorService = vendorService;
  this.weddingPlanService = weddingPlanService;
  }
@@ -236,6 +241,7 @@ public class ContractPaymentController {
     return "redirect:/contracts";
    }
    model.addAttribute("contract", contract);
+   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
    model.addAttribute("payments", paymentService.getAllPayments(id));
    model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
    return "member05/contract-print";
@@ -259,6 +265,7 @@ public class ContractPaymentController {
   }
   model.addAttribute("payment", payment);
   model.addAttribute("contract", contract);
+  model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
   model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
   return "member05/payment-receipt";
  }
