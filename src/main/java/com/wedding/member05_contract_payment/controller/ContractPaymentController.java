@@ -355,7 +355,7 @@ public class ContractPaymentController {
    if (java.nio.file.Files.exists(path)) {
     for (String line : java.nio.file.Files.readAllLines(path)) {
      String[] parts = line.split("\\|", -1);
-     if (parts.length >= 8) rows.add(parts);
+     if (parts.length >= 8) rows.add(java.util.Arrays.copyOf(parts, Math.max(parts.length, 10)));
     }
    }
    model.addAttribute("paymentProofs", rows);
@@ -687,7 +687,7 @@ public class ContractPaymentController {
  private void appendAuditEvent(String contractId, User actor, String action, String detail) {
   if (contractId == null || actor == null) return;
   String cleanDetail = detail == null ? "" : detail.replace('|', '/').replace('\r', ' ').replace('\n', ' ');
-  String line = contractId + "|" + java.time.LocalDateTime.now() + "|" + actor.getUserId()
+  String line = contractId + "|" + com.wedding.common.utils.ValidationUtil.nowDateTime() + "|" + actor.getUserId()
           + "|" + action + "|" + cleanDetail + System.lineSeparator();
   try {
    java.nio.file.Path folder = java.nio.file.Paths.get("data");
