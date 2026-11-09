@@ -20,6 +20,9 @@
 
     <!-- Vendor Marketplace CSS -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-marketplace.css?v=20261108-vendor">
+
+    <!-- Éclat global typography: Inter, Playfair Display and Roboto Mono -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-typography.css?v=20261109-fonts1">
 </head>
 
 <body>
