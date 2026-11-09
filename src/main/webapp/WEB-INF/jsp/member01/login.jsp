@@ -96,7 +96,7 @@
                                        type="email"
                                        name="email"
                                        placeholder="name@example.com"
-                                       autocomplete="off"
+                                       autocomplete="username" autocapitalize="none" spellcheck="false"
                                        required>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                                        type="password"
                                        name="password"
                                        placeholder="Enter your password"
-                                       autocomplete="new-password"
+                                       autocomplete="current-password"
                                        required>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                                        type="email"
                                        name="email"
                                        placeholder="Enter administrator email"
-                                       autocomplete="off"
+                                       autocomplete="username" autocapitalize="none" spellcheck="false"
                                        required>
                             </div>
                         </div>
@@ -164,7 +164,7 @@
                                        type="password"
                                        name="password"
                                        placeholder="Enter administrator password"
-                                       autocomplete="new-password"
+                                       autocomplete="current-password"
                                        required>
                             </div>
                         </div>
