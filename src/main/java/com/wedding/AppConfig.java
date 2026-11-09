@@ -3,7 +3,6 @@ package com.wedding;
 import com.wedding.member01_customer_admin.repository.AdminRepository;
 import com.wedding.member01_customer_admin.repository.CustomerRepository;
 import com.wedding.member01_customer_admin.service.AdminService;
-import com.wedding.member01_customer_admin.service.ConsoleSmsService;
 import com.wedding.member01_customer_admin.service.CustomerService;
 import com.wedding.member01_customer_admin.service.OtpService;
 import com.wedding.member01_customer_admin.service.SmsService;
@@ -42,7 +41,6 @@ public class AppConfig {
     @Bean public AdminRepository adminRepository() { return new AdminRepository(); }
     @Bean public CustomerService customerService(CustomerRepository repository) { return new CustomerService(repository); }
     @Bean public AdminService adminService(AdminRepository repository) { return new AdminService(repository); }
-    @Bean public SmsService smsService() { return new ConsoleSmsService(); }
     @Bean public OtpService otpService(SmsService smsService) { return new OtpService(smsService); }
 
     // Member 02 — Wedding Plan, Checklist, Budget and Guests
