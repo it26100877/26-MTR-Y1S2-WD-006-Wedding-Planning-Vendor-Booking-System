@@ -273,14 +273,16 @@ public class WeddingApplicationTests {
     @Test
     @DisplayName("Security: protected state-changing actions redirect anonymous visitors")
     void testProtectedActionsRequireLogin() throws Exception {
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/bookings/confirm/BKG-401"))
+        MockHttpSession csrfSession = new MockHttpSession();
+        csrfSession.setAttribute("ECLAT_CSRF_TOKEN", "csrf-test-token");
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/bookings/confirm/BKG-401").session(csrfSession).param("_csrf", "csrf-test-token"))
                 .andExpect(status().is3xxRedirection());
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/contracts/complete/CON-501"))
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/contracts/complete/CON-501").session(csrfSession).param("_csrf", "csrf-test-token"))
                 .andExpect(status().is3xxRedirection());
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/payments/void")
-                        .param("paymentId", "PAY-501").param("contractId", "CON-501").param("reason", "test"))
+                        .param("paymentId", "PAY-501").param("contractId", "CON-501").param("reason", "test").session(csrfSession).param("_csrf", "csrf-test-token"))
                 .andExpect(status().is3xxRedirection());
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/admin/vendors/delete/VND-101"))
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/admin/vendors/delete/VND-101").session(csrfSession).param("_csrf", "csrf-test-token"))
                 .andExpect(status().is3xxRedirection());
     }
 
