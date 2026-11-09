@@ -324,8 +324,9 @@ public class ContractPaymentController {
       if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
        throw new com.wedding.common.exceptions.BusinessRuleException("Only active contracts can accept verified payments.");
       }
+      final String submittedReference = parts[5];
       boolean alreadyRecorded = paymentService.getAllPayments(parts[1]).stream()
-          .anyMatch(payment -> parts[5].equalsIgnoreCase(payment.getTransactionRef()));
+          .anyMatch(payment -> submittedReference.equalsIgnoreCase(payment.getTransactionRef()));
       if (!alreadyRecorded) {
        paymentService.recordPartialPayment(contract, new BigDecimal(parts[3]),
            LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
