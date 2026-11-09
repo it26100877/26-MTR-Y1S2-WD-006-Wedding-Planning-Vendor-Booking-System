@@ -367,78 +367,7 @@ public class ContractPaymentController {
  }
 
  @PostMapping("/contracts/{id}/payments/proof")
- @GetMapping("/admin/payment-proofs")
- public String paymentProofQueue(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
-  User actor = (User) session.getAttribute("currentUser");
-  if (!isAdmin(actor)) return actor == null ? "redirect:/login" : "redirect:/dashboard";
-  try {
-   java.nio.file.Path path = java.nio.file.Paths.get("data", "payment-proofs", "payment-proofs.csv");
-   java.util.List<String[]> rows = new java.util.ArrayList<>();
-   if (java.nio.file.Files.exists(path)) {
-    for (String line : java.nio.file.Files.readAllLines(path)) {
-     String[] parts = line.split("\\|", -1);
-     if (parts.length >= 8) rows.add(parts);
-    }
-   }
-   model.addAttribute("paymentProofs", rows);
-   model.addAttribute("pageTitle", "Payment Proof Verification");
-   model.addAttribute("activePage", "admin");
-   return "member05/payment-proofs";
-  } catch (java.io.IOException ex) {
-   redirectAttributes.addFlashAttribute("errorMessage", "Unable to read payment proof queue.");
-   return "redirect:/dashboard";
-  }
- }
 
- @PostMapping("/admin/payment-proofs/decision")
- public String decidePaymentProof(@RequestParam("proofId") String proofId,
-                                  @RequestParam("decision") String decision,
-                                  @RequestParam(value = "reason", required = false) String reason,
-                                  HttpSession session, RedirectAttributes redirectAttributes) {
-  User actor = (User) session.getAttribute("currentUser");
-  if (!isAdmin(actor)) return actor == null ? "redirect:/login" : "redirect:/dashboard";
-  java.nio.file.Path path = java.nio.file.Paths.get("data", "payment-proofs", "payment-proofs.csv");
-  try {
-   if (!java.nio.file.Files.exists(path)) throw new java.io.IOException("Queue does not exist");
-   java.util.List<String> updated = new java.util.ArrayList<>();
-   boolean found = false;
-   for (String line : java.nio.file.Files.readAllLines(path)) {
-    String[] parts = line.split("\\|", -1);
-    if (parts.length >= 8 && parts[0].equals(proofId)) {
-     if (!"PENDING".equals(parts[7])) throw new com.wedding.common.exceptions.BusinessRuleException("This proof was already processed.");
-     if ("APPROVE".equalsIgnoreCase(decision)) {
-      VendorContract contract = contractService.getById(parts[1]);
-      if (contract.getStatus() != com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE) {
-       throw new com.wedding.common.exceptions.BusinessRuleException("Only active contracts can accept verified payments.");
-      }
-      paymentService.recordPartialPayment(contract, new BigDecimal(parts[3]),
-          LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), parts[4], parts[5],
-          "Customer proof " + proofId + " approved by " + actor.getUserId(), nextInstallmentNumber(parts[1]));
-      contractService.refreshTotals(parts[1]);
-      parts[7] = "APPROVED";
-     } else if ("REJECT".equalsIgnoreCase(decision)) {
-      parts[7] = "REJECTED";
-      parts = java.util.Arrays.copyOf(parts, Math.max(parts.length, 9));
-      parts[8] = (reason == null ? "Rejected by Admin" : reason.replace("|", "/").replace("\\n", " "));
-     } else {
-      throw new com.wedding.common.exceptions.ValidationException("Choose APPROVE or REJECT.");
-     }
-     found = true;
-     line = String.join("|", parts);
-    }
-    updated.add(line);
-   }
-   if (!found) throw new com.wedding.common.exceptions.EntityNotFoundException("Payment Proof", proofId);
-   java.nio.file.Path temp = path.resolveSibling("payment-proofs.csv.tmp");
-   java.nio.file.Files.write(temp, updated);
-   try { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
-   catch (java.nio.file.AtomicMoveNotSupportedException ex) { java.nio.file.Files.move(temp, path, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
-   redirectAttributes.addFlashAttribute("successMessage", "Payment proof " + decision.toLowerCase() + "d successfully.");
-  } catch (AppException | java.io.IOException ex) {
-   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-  }
-  return "redirect:/admin/payment-proofs";
- }
 
  private int nextInstallmentNumber(String contractId) {
   return paymentService.getAllPayments(contractId).stream()
@@ -448,63 +377,6 @@ public class ContractPaymentController {
       .max().orElse(0) + 1;
  }
 
- @PostMapping("/contracts/{id}/payments/proof")
- public String submitPaymentProof(@PathVariable("id") String id,
-                                  @RequestParam("amount") BigDecimal amount,
-                                  @RequestParam("method") String method,
-                                  @RequestParam("transactionRef") String transactionRef,
-                                  @RequestParam(value = "notes", required = false) String notes,
-                                  HttpSession session, RedirectAttributes redirectAttributes) {
-  User actor = (User) session.getAttribute("currentUser");
-  if (actor == null) return "redirect:/login";
-  try {
-   VendorContract contract = contractService.getById(id);
-   if (!"CUSTOMER".equalsIgnoreCase(actor.getRole())
-           || !actor.getUserId().equalsIgnoreCase(contract.getCustomerId())) {
-    redirectAttributes.addFlashAttribute("errorMessage", "Only the owner customer may submit payment proof.");
-    return "redirect:/contracts";
-   }
-   if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0
-           || amount.compareTo(paymentService.getOutstandingBalance(contract)) > 0) {
-    throw new com.wedding.common.exceptions.ValidationException("Enter a positive amount within the outstanding balance.");
-   }
-   if (transactionRef == null || transactionRef.trim().length() < 4) {
-    throw new com.wedding.common.exceptions.ValidationException("Enter a valid transaction reference.");
-   }
-   if (!java.util.List.of("BANK_TRANSFER", "CARD", "CASH").contains(method == null ? "" : method.trim().toUpperCase())) {
-    throw new com.wedding.common.exceptions.ValidationException("Select a supported payment method.");
-   }
-   String normalizedRef = transactionRef.trim();
-   boolean duplicate = paymentService.getAllPayments(id).stream()
-       .anyMatch(p -> normalizedRef.equalsIgnoreCase(p.getTransactionRef()));
-   if (duplicate) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference already exists.");
-   // Proof is recorded as a pending audit note and is not added to paid totals until Admin verification.
-   java.nio.file.Path folder = java.nio.file.Paths.get("data", "payment-proofs");
-   java.nio.file.Files.createDirectories(folder);
-   String proofId = com.wedding.common.utils.FileUtil.generateId("PRF");
-   java.nio.file.Path queue = folder.resolve("payment-proofs.csv");
-   java.util.List<String> proofLines = java.nio.file.Files.exists(queue)
-       ? java.nio.file.Files.readAllLines(queue) : new java.util.ArrayList<>();
-   boolean duplicateRef = proofLines.stream().map(existing -> existing.split("\\|", -1))
-       .anyMatch(parts -> parts.length >= 8 && normalizedRef.equalsIgnoreCase(parts[5]));
-   if (duplicateRef) throw new com.wedding.common.exceptions.BusinessRuleException("This transaction reference has already been submitted.");
-   String line = proofId + "|" + id + "|" + actor.getUserId() + "|" + amount.toPlainString()
-       + "|" + method.trim().toUpperCase() + "|" + normalizedRef.replace("|", "/")
-       + "|" + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE)
-       + "|PENDING|" + (notes == null ? "" : notes.replace("|", "/").replace("\\n", " "));
-   proofLines.add(line);
-   java.nio.file.Path tempQueue = queue.resolveSibling("payment-proofs.csv.tmp");
-   java.nio.file.Files.write(tempQueue, proofLines);
-   try { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE); }
-   catch (java.nio.file.AtomicMoveNotSupportedException moveEx) { java.nio.file.Files.move(tempQueue, queue, java.nio.file.StandardCopyOption.REPLACE_EXISTING); }
-   redirectAttributes.addFlashAttribute("successMessage", "Payment proof submitted for Admin verification. Your paid balance will update after verification.");
-  } catch (AppException ex) {
-   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-  } catch (java.io.IOException ex) {
-   redirectAttributes.addFlashAttribute("errorMessage", "Unable to save payment proof right now.");
-  }
-  return "redirect:/contracts/view/" + id;
- }
 
  @GetMapping("/contracts/edit/{id}")
  public String showEditContractForm(@PathVariable("id") String id, HttpSession httpSession,
