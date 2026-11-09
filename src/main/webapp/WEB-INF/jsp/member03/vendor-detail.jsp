@@ -1,72 +1,238 @@
+```jsp
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
 
-<div class="row justify-content-center">
-    <div class="col-md-9">
-        <a href="${pageContext.request.contextPath}/vendors" class="text-decoration-none text-secondary small d-inline-block mb-3">&larr; Back to Vendors Directory</a>
-        <div class="card card-custom p-4 shadow mb-4">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                    <span class="badge bg-purple mb-2">${vendor.category.displayName}</span>
-                    <h3 class="fw-bold mb-1" style="color: #8d6a22;">${vendor.vendorName}</h3>
-                    <div class="text-muted"><i class="bi bi-geo-alt"></i> ${vendor.address}</div>
-                </div>
-                <div class="text-end">
-                    <div class="text-warning fs-4">
+<style>
+    .vendor-detail-wrapper {
+        max-width: 1100px;
+        margin: 35px auto;
+    }
+
+    .vendor-detail-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 35px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.07);
+    }
+
+    .vendor-detail-title {
+        color: #54213a;
+        font-weight: 700;
+    }
+
+    .vendor-info-label {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+
+    .vendor-info-value {
+        color: #333;
+        font-weight: 500;
+        margin-bottom: 20px;
+        overflow-wrap: anywhere;
+    }
+
+    .vendor-description {
+        background: #faf6f7;
+        padding: 20px;
+        border-radius: 12px;
+        line-height: 1.7;
+    }
+
+    .vendor-price {
+        color: #8c4968;
+        font-size: 25px;
+        font-weight: 700;
+    }
+
+    .vendor-status {
+        display: inline-block;
+        padding: 7px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .vendor-status.inactive {
+        background: #ffebee;
+        color: #c62828;
+    }
+</style>
+
+<div class="vendor-detail-wrapper">
+
+    <div class="mb-3">
+        <a href="${pageContext.request.contextPath}/vendors"
+           class="btn btn-outline-secondary">
+            &larr; Back to Vendors
+        </a>
+    </div>
+
+    <c:choose>
+        <c:when test="${not empty vendor}">
+
+            <div class="vendor-detail-card">
+
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+
+                    <div>
+                        <h2 class="vendor-detail-title">
+                            <c:out value="${vendor.vendorName}" />
+                        </h2>
+
+                        <p class="text-muted mb-2">
+                            <c:out value="${vendor.category.displayName}" />
+                        </p>
+
                         <c:choose>
-                            <c:when test="${avgRating > 0}">★ <span class="fw-bold text-dark fs-5">${avgRating} / 5.0</span></c:when>
-                            <c:otherwise><span class="text-muted small">No reviews yet</span></c:otherwise>
+                            <c:when test="${vendor.active}">
+                                <span class="vendor-status">Active</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="vendor-status inactive">Inactive</span>
+                            </c:otherwise>
                         </c:choose>
                     </div>
-                    <small class="text-secondary">(${reviewCount} verified reviews)</small>
-                </div>
-            </div>
-            <hr>
-            <div class="row g-4 my-2">
-                <div class="col-md-4">
-                    <div class="card bg-light p-3 border-0 rounded-3">
-                        <small class="text-secondary fw-semibold">Starting Price</small>
-                        <div class="fs-4 fw-bold text-success">LKR ${vendor.basePrice}</div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card bg-light p-3 border-0 rounded-3">
-                        <small class="text-secondary fw-semibold">Contact Person</small>
-                        <div class="fw-bold text-dark">${vendor.contactPerson}</div>
-                        <small class="text-muted">${vendor.phone}</small>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card bg-light p-3 border-0 rounded-3">
-                        <small class="text-secondary fw-semibold">Availability Status</small>
-                        <div>
-                            <c:choose>
-                                <c:when test="${vendor.availability == 'AVAILABLE'}"><span class="badge badge-active">Available</span></c:when>
-                                <c:otherwise><span class="badge badge-pending">${vendor.availability}</span></c:otherwise>
-                            </c:choose>
+
+                    <div class="text-md-end">
+                        <div class="vendor-info-label">Starting Price</div>
+                        <div class="vendor-price">
+                            LKR
+                            <fmt:formatNumber value="${vendor.basePrice}" pattern="#,##0.00"/>
                         </div>
                     </div>
+
                 </div>
-            </div>
-            <div class="my-4">
-                <h5 class="fw-bold mb-2" style="color: #8d6a22;">Service Description &amp; Offerings</h5>
-                <p class="text-secondary" style="white-space: pre-line;">${vendor.serviceDescription}</p>
-            </div>
-            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                <div>
-                    <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
-                        <a href="${pageContext.request.contextPath}/vendors/edit/${vendor.vendorId}" class="btn btn-outline-secondary me-2"><i class="bi bi-pencil"></i> Edit Vendor</a>
-                    </c:if>
+
+                <hr>
+
+                <h5 class="vendor-detail-title mb-4">Vendor Information</h5>
+
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Vendor ID</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.vendorId}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Contact Person</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.contactPerson}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Email Address</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.email}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Phone Number</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.phone}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Category</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.category.displayName}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Availability</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.availability}" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="vendor-info-label">Address</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.address}" />
+                        </div>
+                    </div>
+
                 </div>
-                <div>
-                    <c:if test="${sessionScope.currentUser.role == 'CUSTOMER'}">
-                        <a href="${pageContext.request.contextPath}/bookings/new?vendorId=${vendor.vendorId}" class="btn btn-purple px-4 py-2 fw-bold"><i class="bi bi-bookmark-plus me-1"></i> Book This Vendor</a>
-                    </c:if>
+
+                <hr>
+
+                <h5 class="vendor-detail-title mb-3">Service Description</h5>
+
+                <div class="vendor-description">
+                    <c:choose>
+                        <c:when test="${not empty vendor.serviceDescription}">
+                            <c:out value="${vendor.serviceDescription}" />
+                        </c:when>
+                        <c:otherwise>
+                            <span class="text-muted">
+                                No service description available.
+                            </span>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
+
+                <hr>
+
+                <div class="row mt-4">
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Approval Status</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.approvalStatus}" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="vendor-info-label">Registered Date</div>
+                        <div class="vendor-info-value">
+                            <c:out value="${vendor.registeredAt}" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+                    <a href="${pageContext.request.contextPath}/vendors"
+                       class="btn btn-outline-secondary">
+                        Back to Vendor List
+                    </a>
+                </div>
+
             </div>
-        </div>
-    </div>
+
+        </c:when>
+
+        <c:otherwise>
+
+            <div class="vendor-detail-card text-center">
+                <h4 class="text-danger">Vendor Not Found</h4>
+                <p class="text-muted">
+                    The requested vendor could not be found.
+                </p>
+
+                <a href="${pageContext.request.contextPath}/vendors"
+                   class="btn btn-primary">
+                    Return to Vendors
+                </a>
+            </div>
+
+        </c:otherwise>
+    </c:choose>
+
 </div>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
+```
