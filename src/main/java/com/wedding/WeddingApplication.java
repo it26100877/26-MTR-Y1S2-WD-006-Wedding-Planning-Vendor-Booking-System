@@ -4,6 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Central Main Application Entry Point.
@@ -16,6 +17,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Wedding Planning System Development Team (SE1020)
  */
 @SpringBootApplication
+@EnableScheduling
 public class WeddingApplication extends SpringBootServletInitializer {
 
  @Override
