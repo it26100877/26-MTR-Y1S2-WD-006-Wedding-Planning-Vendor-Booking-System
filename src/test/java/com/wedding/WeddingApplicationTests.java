@@ -348,7 +348,10 @@ public class WeddingApplicationTests {
     @Test
     @DisplayName("Admin UI: administration pages render and protected moderation is accessible")
     void testAdminPagesRender() throws Exception {
-        var admin = adminService.login("admin@wedding.com", "admin123");
+        String adminEmail = "test_admin_" + System.currentTimeMillis() + "@eclat.test";
+        adminService.createAdmin("Test Administrator", adminEmail, "+94770001234",
+                "SecureTestAdmin123", "SUPER");
+        var admin = adminService.login(adminEmail, "SecureTestAdmin123");
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("currentUser", admin);
 
