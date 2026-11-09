@@ -63,10 +63,38 @@ public class ContractPaymentController {
  contracts = contractService.getByCustomer(user.getUserId());
  }
 
- // Recalculate totals for all displayed contracts
- contracts.forEach(c -> contractService.refreshTotals(c.getContractId()));
+ // Refresh payment totals before building the dashboard summary.
+ contracts.forEach(c -> {
+     contractService.refreshTotals(c.getContractId());
+     c.setTotalPaid(paymentService.getTotalPaid(c.getContractId()));
+     c.updatePaymentStatus();
+ });
+
+ BigDecimal totalContractValue = contracts.stream()
+         .map(VendorContract::getContractAmount)
+         .filter(amount -> amount != null)
+         .reduce(BigDecimal.ZERO, BigDecimal::add);
+ BigDecimal totalCollected = contracts.stream()
+         .map(VendorContract::getTotalPaid)
+         .filter(amount -> amount != null)
+         .reduce(BigDecimal.ZERO, BigDecimal::add);
+ BigDecimal totalOutstanding = contracts.stream()
+         .map(VendorContract::getOutstandingBalance)
+         .reduce(BigDecimal.ZERO, BigDecimal::add);
+ long activeContracts = contracts.stream()
+         .filter(c -> c.getStatus() == com.wedding.member05_contract_payment.model.ContractStatus.ACTIVE)
+         .count();
+ long completedContracts = contracts.stream()
+         .filter(c -> c.getStatus() == com.wedding.member05_contract_payment.model.ContractStatus.COMPLETED)
+         .count();
 
  model.addAttribute("contracts", contracts);
+ model.addAttribute("totalContracts", contracts.size());
+ model.addAttribute("activeContracts", activeContracts);
+ model.addAttribute("completedContracts", completedContracts);
+ model.addAttribute("totalContractValue", totalContractValue);
+ model.addAttribute("totalCollected", totalCollected);
+ model.addAttribute("totalOutstanding", totalOutstanding);
  model.addAttribute("pageTitle", "Contracts & Payments - Éclat");
  model.addAttribute("activePage", "contracts");
  return "member05/contracts";
