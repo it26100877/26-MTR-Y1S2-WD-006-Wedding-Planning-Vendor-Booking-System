@@ -198,6 +198,77 @@ public class ContractPaymentController {
  }
 
 
+ @GetMapping("/contracts/{id}/export.csv")
+ public org.springframework.http.ResponseEntity<String> exportPaymentsCsv(
+         @PathVariable("id") String id, HttpSession session) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return org.springframework.http.ResponseEntity.status(401).build();
+  VendorContract contract = contractService.getById(id);
+  if (!canAccessContract(viewer, contract)) return org.springframework.http.ResponseEntity.status(403).build();
+  StringBuilder csv = new StringBuilder("Payment ID,Type,Amount,Payment Date,Method,Transaction Reference,Status,Recorded At,Notes\r\n");
+  for (Payment p : paymentService.getAllPayments(id)) {
+   csv.append(csvCell(p.getPaymentId())).append(',')
+      .append(csvCell(p.getPaymentType())).append(',')
+      .append(csvCell(p.getAmount().toPlainString())).append(',')
+      .append(csvCell(p.getPaymentDate())).append(',')
+      .append(csvCell(p.getPaymentMethod())).append(',')
+      .append(csvCell(p.getTransactionRef())).append(',')
+      .append(csvCell(p.isVoided() ? "VOIDED" : "VALID")).append(',')
+      .append(csvCell(p.getRecordedAt())).append(',')
+      .append(csvCell(p.getNotes())).append("\r\n");
+  }
+  return org.springframework.http.ResponseEntity.ok()
+      .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+          "attachment; filename=contract-" + id + "-payments.csv")
+      .contentType(new org.springframework.http.MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8))
+      .body(csv.toString());
+ }
+
+ @GetMapping("/contracts/{id}/print")
+ public String printContract(@PathVariable("id") String id, HttpSession session,
+                             Model model, RedirectAttributes redirectAttributes) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  try {
+   VendorContract contract = contractService.getById(id);
+   if (!canAccessContract(viewer, contract)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this contract.");
+    return "redirect:/contracts";
+   }
+   model.addAttribute("contract", contract);
+   model.addAttribute("payments", paymentService.getAllPayments(id));
+   model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
+   return "member05/contract-print";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+   return "redirect:/contracts";
+  }
+ }
+
+ @GetMapping("/payments/{paymentId}/receipt")
+ public String printPaymentReceipt(@PathVariable("paymentId") String paymentId,
+                                   HttpSession session, Model model,
+                                   RedirectAttributes redirectAttributes) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  Payment payment = paymentService.getAllPaymentsForReceipt(paymentId);
+  VendorContract contract = contractService.getById(payment.getContractId());
+  if (!canAccessContract(viewer, contract)) {
+   redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this receipt.");
+   return "redirect:/contracts";
+  }
+  model.addAttribute("payment", payment);
+  model.addAttribute("contract", contract);
+  model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
+  return "member05/payment-receipt";
+ }
+
+ private String csvCell(String value) {
+  String safe = value == null ? "" : value;
+  if (safe.matches("^[=+@-].*")) safe = "'" + safe;
+  return "\"" + safe.replace("\"", "\"\"") + "\"";
+ }
+
  @GetMapping("/contracts/edit/{id}")
  public String showEditContractForm(@PathVariable("id") String id, HttpSession httpSession,
                                     Model model, RedirectAttributes redirectAttributes) {
