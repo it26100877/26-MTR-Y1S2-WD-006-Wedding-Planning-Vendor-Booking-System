@@ -273,6 +273,8 @@ public class WeddingApplicationTests {
     @Test
     @DisplayName("Security: protected state-changing actions redirect anonymous visitors")
     void testProtectedActionsRequireLogin() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/bookings/confirm/BKG-401"))
+                .andExpect(status().isForbidden());
         MockHttpSession csrfSession = new MockHttpSession();
         csrfSession.setAttribute("ECLAT_CSRF_TOKEN", "csrf-test-token");
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/bookings/confirm/BKG-401").session(csrfSession).param("_csrf", "csrf-test-token"))
