@@ -69,7 +69,10 @@ public class OtpService {
     public Result verify(HttpSession session, String code) {
         OtpChallenge ch = current(session);
         if (ch == null) return Result.NONE;
-        if (System.currentTimeMillis() > ch.getExpiresAt()) return Result.EXPIRED;
+        if (System.currentTimeMillis() > ch.getExpiresAt()) {
+            clear(session);
+            return Result.EXPIRED;
+        }
 
         String entered = code == null ? "" : code.trim();
         if (MessageDigest.isEqual(hash(ch.getSalt(), entered), ch.getCodeHash())) {
