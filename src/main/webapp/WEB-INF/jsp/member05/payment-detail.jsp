@@ -55,8 +55,8 @@
             <div class="text-secondary small fw-semibold">Payment Status</div>
             <div class="mt-1">
                 <c:choose>
-                    <c:when test="${contract.paymentStatus == 'FULLY_PAID'}"><span class="badge badge-fully-paid fs-6">Fully Paid</span></c:when>
-                    <c:when test="${contract.paymentStatus == 'PARTIALLY_PAID'}"><span class="badge badge-partially-paid fs-6">Partially Paid</span></c:when>
+                    <c:when test="${paymentStatus == 'FULLY_PAID'}"><span class="badge badge-fully-paid fs-6">Fully Paid</span></c:when>
+                    <c:when test="${paymentStatus == 'PARTIALLY_PAID'}"><span class="badge badge-partially-paid fs-6">Partially Paid</span></c:when>
                     <c:otherwise><span class="badge badge-unpaid fs-6">Unpaid</span></c:otherwise>
                 </c:choose>
             </div>
