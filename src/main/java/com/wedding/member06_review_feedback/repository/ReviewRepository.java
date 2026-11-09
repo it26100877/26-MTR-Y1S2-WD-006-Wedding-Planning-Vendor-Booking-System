@@ -75,7 +75,7 @@ public class ReviewRepository extends AbstractFileRepository<Review> {
  .collect(Collectors.toList());
  }
 
- public List<Review> findByCustomerId(String cid) {
+ public List<Review> findAllByCustomerId(String cid) {
  return findAll().stream()
  .filter(r -> cid != null && cid.equalsIgnoreCase(r.getCustomerId()))
  .collect(Collectors.toList());
