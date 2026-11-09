@@ -203,6 +203,28 @@ public class ContractPaymentController {
  }
 
 
+ @GetMapping("/contracts/{id}/print")
+ public String printContract(@PathVariable("id") String id, HttpSession session,
+                             Model model, RedirectAttributes redirectAttributes) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  try {
+   VendorContract contract = contractService.getById(id);
+   if (!canAccessContract(viewer, contract)) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this contract.");
+    return "redirect:/contracts";
+   }
+   model.addAttribute("contract", contract);
+   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("payments", paymentService.getAllPayments(id));
+   model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
+   return "member05/contract-print";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+   return "redirect:/contracts";
+  }
+ }
+
  @GetMapping("/contracts/{id}/export.csv")
  public org.springframework.http.ResponseEntity<String> exportPaymentsCsv(
          @PathVariable("id") String id, HttpSession session) {
@@ -227,28 +249,6 @@ public class ContractPaymentController {
           "attachment; filename=contract-" + id + "-payments.csv")
       .contentType(new org.springframework.http.MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8))
       .body(csv.toString());
- }
-
- @GetMapping("/contracts/{id}/print")
- public String printContract(@PathVariable("id") String id, HttpSession session,
-                             Model model, RedirectAttributes redirectAttributes) {
-  User viewer = (User) session.getAttribute("currentUser");
-  if (viewer == null) return "redirect:/login";
-  try {
-   VendorContract contract = contractService.getById(id);
-   if (!canAccessContract(viewer, contract)) {
-    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this contract.");
-    return "redirect:/contracts";
-   }
-   model.addAttribute("contract", contract);
-   model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
-   model.addAttribute("payments", paymentService.getAllPayments(id));
-   model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
-   return "member05/contract-print";
-  } catch (AppException ex) {
-   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
-   return "redirect:/contracts";
-  }
  }
 
  @GetMapping("/payments/{paymentId}/receipt")
