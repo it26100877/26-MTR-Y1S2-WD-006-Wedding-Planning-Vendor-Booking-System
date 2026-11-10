@@ -15,7 +15,7 @@
     <div class="eclat-auth-visual-copy">
       <span class="eclat-eyebrow">ONE QUICK CHECK</span>
       <h1>Let&rsquo;s make sure<br>it&rsquo;s <em>really</em> you.</h1>
-      <p>We text a short code to the phone number on your account before you sign in.</p>
+      <p>We use a one-time code to verify your phone when you create your account.</p>
       <div class="eclat-auth-caption">ÉCLAT · WEDDING PLANNING &amp; VENDOR DIRECTORY</div>
     </div>
   </div>
@@ -25,9 +25,9 @@
         <button type="submit" class="eclat-auth-back border-0 bg-transparent p-0"><i class="bi bi-arrow-left"></i> Use a different account</button>
       </form>
       <div class="eclat-auth-brand">Éclat<span>.</span></div>
-      <span class="eclat-eyebrow">VERIFY YOUR PHONE</span>
+      <span class="eclat-eyebrow"><c:choose><c:when test="${registrationVerification}">COMPLETE YOUR REGISTRATION</c:when><c:otherwise>VERIFY YOUR PHONE</c:otherwise></c:choose></span>
       <h2>Enter your 6-digit code</h2>
-      <p class="eclat-auth-intro">We sent a code to <strong><c:out value="${maskedPhone}"/></strong>. It expires in 5 minutes.</p>
+      <p class="eclat-auth-intro"><c:choose><c:when test="${registrationVerification}">Verify your phone number <strong><c:out value="${maskedPhone}"/></strong> to activate your new account.</c:when><c:otherwise>We sent a code to <strong><c:out value="${maskedPhone}"/></strong>. It expires in 5 minutes.</c:otherwise></c:choose> The code expires in 5 minutes.</p>
 
       <form action="${pageContext.request.contextPath}/login/otp" method="post">
         <div class="eclat-form-field">
@@ -37,7 +37,7 @@
                    autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" placeholder="••••••" required autofocus>
           </div>
         </div>
-        <button type="submit" class="eclat-primary-btn w-100">Verify and sign in <i class="bi bi-arrow-right"></i></button>
+        <button type="submit" class="eclat-primary-btn w-100">Verify phone and continue <i class="bi bi-arrow-right"></i></button>
       </form>
 
       <form class="eclat-otp-resend" action="${pageContext.request.contextPath}/login/otp/resend" method="post">
