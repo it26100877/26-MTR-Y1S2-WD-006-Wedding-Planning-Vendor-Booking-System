@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BookingPdfReceiptTest {
     @Test
-    void createsValidPdfHeaderAndReferences() {
+    void createsValidPdfWithEclatDocumentBrandingAndBookingDetails() {
         Booking booking = new Booking();
         booking.setBookingId("BKG-TEST-001");
         booking.setStatus(BookingStatus.CONFIRMED);
@@ -19,12 +19,17 @@ class BookingPdfReceiptTest {
         booking.setRequestedAt("2026-11-08 10:00");
         booking.setConfirmedAt("2026-11-08 10:01");
         booking.setServiceDetails("Wedding planning and decor consultation");
+
         byte[] pdf = BookingPdfReceipt.generate(booking, "Test Customer", "Test Vendor", "Our Plan");
         String pdfSource = new String(pdf, StandardCharsets.US_ASCII);
+
         assertTrue(pdfSource.startsWith("%PDF-1.4"));
+        assertTrue(pdfSource.contains("ECLAT"));
+        assertTrue(pdfSource.contains("BOOKING RECEIPT"));
+        assertTrue(pdfSource.contains("BOOKING DETAILS"));
         assertTrue(pdfSource.contains("BKG-TEST-001"));
         assertTrue(pdfSource.contains("40000.00"));
         assertTrue(pdfSource.contains("xref"));
-        assertTrue(pdf.length > 600);
+        assertTrue(pdf.length > 700);
     }
 }
