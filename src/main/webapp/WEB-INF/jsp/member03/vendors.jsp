@@ -90,10 +90,8 @@
         <c:forEach var="v" items="${vendors}">
             <article class="vendor-directory-card">
                 <div class="vendor-directory-card-media">
-                    <img src="${pageContext.request.contextPath}/vendor-images/${v.vendorId}"
-                         alt="${v.vendorName} wedding service portfolio"
-                         loading="lazy"
-                         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&amp;fit=crop&amp;w=900&amp;q=82';">
+                    <img src="${pageContext.request.contextPath}${vendorImageSources[v.vendorId]}"
+                         alt="${v.vendorName} wedding service portfolio" loading="lazy">
                     <span class="vendor-directory-category"><c:out value="${v.category.displayName}"/></span>
                 </div>
                 <div class="vendor-directory-card-content">
