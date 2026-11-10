@@ -184,7 +184,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 .findFirst().orElse(null);
         if (contract == null) {
             contract = contracts.createContract(booking.getBookingId(), customer.getUserId(),
-                    featured.getVendorId(), LocalDate.now().toString(), eventDate.toString(),
+                    featured.getVendorId(), eventDate.toString(), eventDate.toString(),
                     booking.getAgreedAmount(),
                     "Demo agreement: service scope, event schedule, delivery timeline, and cancellation terms.");
         }
