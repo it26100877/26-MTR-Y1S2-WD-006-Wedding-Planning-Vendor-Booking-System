@@ -66,13 +66,11 @@ public class CustomerAdminController {
                 return "redirect:/admin/dashboard";
             }
             if ("CUSTOMER".equalsIgnoreCase(role)) {
-                // Step 1: password is correct -> text a code to the phone on file.
-                // The customer is NOT logged in until the code is verified.
                 Customer customer = customerService.login(email, password);
-                otpService.start(httpSession, customer);
-                redirectAttributes.addFlashAttribute("successMessage",
-                        "We sent a 6-digit code to " + OtpService.maskPhone(customer.getPhone()) + ".");
-                return "redirect:/login/otp";
+                request.changeSessionId();
+                httpSession.setAttribute("currentUser", customer);
+                redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + customer.getName() + "!");
+                return "redirect:/dashboard";
             }
             throw new com.wedding.common.exceptions.ValidationException("Select a valid account type.");
         } catch (AppException e) {
@@ -92,6 +90,7 @@ public class CustomerAdminController {
         try {
             Customer customer = customerService.getById(challenge.getUserId());
             model.addAttribute("maskedPhone", OtpService.maskPhone(customer.getPhone()));
+            model.addAttribute("registrationVerification", !customer.isPhoneVerified());
         } catch (AppException e) {
             otpService.clear(httpSession);
             return "redirect:/login";
@@ -121,6 +120,10 @@ public class CustomerAdminController {
                         redirectAttributes.addFlashAttribute("errorMessage",
                                 "Your account has been deactivated. Please contact support.");
                         return "redirect:/login";
+                    }
+                    if (!customer.isPhoneVerified()) {
+                        customerService.markPhoneVerified(customer.getUserId());
+                        customer = customerService.getById(customer.getUserId());
                     }
                     otpService.clear(httpSession);
                     request.changeSessionId();
@@ -196,16 +199,17 @@ public class CustomerAdminController {
  @RequestParam("confirmPassword") String confirmPassword,
  @RequestParam(value = "address", required = false) String address,
  @RequestParam(value = "weddingDate", required = false) String weddingDate,
- RedirectAttributes redirectAttributes) {
+ HttpSession httpSession, RedirectAttributes redirectAttributes) {
  if (!password.equals(confirmPassword)) {
  redirectAttributes.addFlashAttribute("errorMessage", "Passwords do not match.");
  return "redirect:/register";
  }
  try {
- Customer customer = customerService.register(name, email, phone, password, address, weddingDate);
+ Customer customer = customerService.registerPendingPhoneVerification(name, email, phone, password, address, weddingDate);
+ otpService.start(httpSession, customer);
  redirectAttributes.addFlashAttribute("successMessage",
- "Account registered successfully for " + customer.getName() + "! Please log in.");
- return "redirect:/login";
+ "Account created. Verify your phone to complete registration.");
+ return "redirect:/login/otp";
  } catch (AppException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  return "redirect:/register";
