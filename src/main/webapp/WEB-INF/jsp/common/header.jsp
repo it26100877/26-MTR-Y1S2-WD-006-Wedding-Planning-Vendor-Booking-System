@@ -23,6 +23,7 @@
 
     <!-- Éclat global typography: Inter, Playfair Display and Roboto Mono -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-typography.css?v=20261109-fonts1">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-1">
 </head>
 
 <body>
