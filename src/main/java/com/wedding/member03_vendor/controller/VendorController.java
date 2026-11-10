@@ -90,7 +90,7 @@ public class VendorController {
  VendorCategory category = null;
  if (categoryStr != null && !categoryStr.trim().isEmpty()) {
      try {
-         category = VendorCategory.valueOf(categoryStr.trim().toUpperCase());
+         category = VendorCategory.fromStringStrict(categoryStr.trim());
      } catch (IllegalArgumentException ex) {
          // An unknown category should return no results, not silently show all vendors.
          model.addAttribute("vendors", List.of());
