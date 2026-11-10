@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
@@ -28,6 +29,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -43,6 +46,7 @@ public class VendorController {
  private final ReviewService reviewService;
  private final BookingService bookingService;
  private static final long MAX_VENDOR_IMAGE_BYTES = 5L * 1024 * 1024;
+ private static final int MAX_VENDOR_IMAGES = 8;
  private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
  private static final Map<VendorCategory, String> CATEGORY_DEMO_IMAGES = Map.ofEntries(
   Map.entry(VendorCategory.PHOTOGRAPHY, "/images/photography.jpg"),
@@ -158,17 +162,18 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
- @RequestParam(value = "vendorImage", required = false) MultipartFile vendorImage,
+ MultipartHttpServletRequest multipartRequest,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null) return "redirect:/login";
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
- validateVendorImage(vendorImage);
+ List<MultipartFile> vendorImages = getVendorImageFiles(multipartRequest);
+ validateVendorImages(vendorImages);
  Vendor vendor = vendorService.addVendor(
  vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
- saveVendorImage(vendor.getVendorId(), vendorImage);
+ saveVendorImages(vendor.getVendorId(), vendorImages);
  redirectAttributes.addFlashAttribute("successMessage",
  "Vendor '" + vendor.getVendorName() + "' registered successfully! (Awaiting admin approval)");
  return "redirect:/vendors";
@@ -194,6 +199,7 @@ public class VendorController {
 
  model.addAttribute("vendor", vendor);
  model.addAttribute("vendorImageSource", getVendorImageSource(vendor));
+ model.addAttribute("vendorGallerySources", getVendorGallerySources(vendor));
  model.addAttribute("avgRating", avgRating);
  model.addAttribute("reviewCount", reviewCount);
  model.addAttribute("pageTitle", vendor.getVendorName() + " - Vendor Details");
@@ -234,9 +240,10 @@ public class VendorController {
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
- validateVendorImage(vendorImage);
+ List<MultipartFile> vendorImages = getVendorImageFiles(multipartRequest);
+ validateVendorImages(vendorImages);
  vendorService.updateVendor(id, vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
- saveVendorImage(id, vendorImage);
+ saveVendorImages(id, vendorImages);
  redirectAttributes.addFlashAttribute("successMessage", "Vendor details updated successfully!");
  } catch (AppException | IllegalArgumentException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -325,22 +332,52 @@ public class VendorController {
   return null;
  }
 
+ private List<Path> findUploadedVendorImages(String id) {
+  List<Path> results = new ArrayList<>();
+  if (id == null || !id.matches("[A-Za-z0-9_-]{1,100}")) return results;
+  Path directory = getVendorImageDirectory();
+  if (!Files.isDirectory(directory)) return results;
+  try (java.util.stream.Stream<Path> files = Files.list(directory)) {
+   files.filter(path -> path.getFileName().toString().matches(java.util.regex.Pattern.quote(id) + "-[0-7]\\.(jpg|jpeg|png|gif)"))
+        .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+        .forEach(results::add);
+  } catch (IOException ignored) { }
+  return results;
+ }
+
  private String getVendorImageSource(Vendor vendor) {
-  Path upload = findUploadedVendorImage(vendor.getVendorId());
-  if (upload != null) return "/vendor-images/" + vendor.getVendorId();
+  List<Path> uploaded = findUploadedVendorImages(vendor.getVendorId());
+  if (!uploaded.isEmpty()) return "/vendor-images/" + vendor.getVendorId() + "/0";
   return CATEGORY_DEMO_IMAGES.getOrDefault(vendor.getCategory(), "/images/other-services.jpg");
  }
 
- @GetMapping("/vendor-images/{id}")
+ private List<String> getVendorGallerySources(Vendor vendor) {
+  List<Path> uploaded = findUploadedVendorImages(vendor.getVendorId());
+  if (!uploaded.isEmpty()) {
+   List<String> urls = new ArrayList<>();
+   for (int i = 0; i < uploaded.size(); i++) urls.add("/vendor-images/" + vendor.getVendorId() + "/" + i);
+   return urls;
+  }
+  return List.of(getVendorImageSource(vendor));
+ }
+
+ @GetMapping("/vendor-images/{id}/{index}")
  @ResponseBody
- public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id) throws IOException {
-  Path image = findUploadedVendorImage(id);
-  if (image == null) return ResponseEntity.notFound().build();
+ public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id, @PathVariable("index") int index) throws IOException {
+  List<Path> images = findUploadedVendorImages(id);
+  if (index < 0 || index >= images.size()) return ResponseEntity.notFound().build();
+  Path image = images.get(index);
   String filename = image.getFileName().toString().toLowerCase(Locale.ROOT);
   MediaType type = filename.endsWith(".png") ? MediaType.IMAGE_PNG
           : filename.endsWith(".gif") ? MediaType.IMAGE_GIF : MediaType.IMAGE_JPEG;
   return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "public, max-age=300")
           .contentType(type).body(Files.readAllBytes(image));
+ }
+
+ @GetMapping("/vendor-images/{id}")
+ @ResponseBody
+ public ResponseEntity<byte[]> getVendorCoverImage(@PathVariable("id") String id) throws IOException {
+  return getVendorImage(id, 0);
  }
 
  @GetMapping("/api/vendors/{id}/photos")
@@ -367,66 +404,51 @@ public class VendorController {
 
  private String validateVendorImage(MultipartFile image) {
   if (image == null || image.isEmpty()) return null;
-  if (image.getSize() > MAX_VENDOR_IMAGE_BYTES) throw new IllegalArgumentException("Vendor image must be 5 MB or smaller.");
+  if (image.getSize() > MAX_VENDOR_IMAGE_BYTES) throw new IllegalArgumentException("Each vendor image must be 5 MB or smaller.");
   String original = image.getOriginalFilename() == null ? "" : image.getOriginalFilename();
   int dot = original.lastIndexOf('.');
   String extension = dot < 0 ? "" : original.substring(dot + 1).toLowerCase(Locale.ROOT);
   if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) throw new IllegalArgumentException("Only JPG, PNG or GIF images are allowed.");
   try {
-   if (ImageIO.read(new ByteArrayInputStream(image.getBytes())) == null) throw new IllegalArgumentException("The selected file is not a valid image.");
-  } catch (IOException ex) { throw new IllegalArgumentException("Unable to read the selected image.", ex); }
+   if (ImageIO.read(new ByteArrayInputStream(image.getBytes())) == null) throw new IllegalArgumentException("A selected file is not a valid image.");
+  } catch (IOException ex) { throw new IllegalArgumentException("Unable to read a selected image.", ex); }
   return extension;
  }
 
- private void saveVendorImage(String vendorId, MultipartFile image) {
-  if (image == null || image.isEmpty()) return;
-  String extension = validateVendorImage(image);
+ private List<MultipartFile> getVendorImageFiles(MultipartHttpServletRequest request) {
+  return request.getFiles("vendorImage").stream().filter(file -> file != null && !file.isEmpty()).toList();
+ }
+
+ private void validateVendorImages(List<MultipartFile> images) {
+  if (images.size() > MAX_VENDOR_IMAGES) throw new IllegalArgumentException("Choose up to 8 portfolio photos.");
+  for (MultipartFile image : images) validateVendorImage(image);
+ }
+
+ private void saveVendorImages(String vendorId, List<MultipartFile> images) {
+  if (images == null || images.isEmpty()) return;
   try {
-   byte[] bytes = image.getBytes();
    Path directory = getVendorImageDirectory();
    Files.createDirectories(directory);
-   Path target = directory.resolve(vendorId + "." + extension).normalize();
-   if (!target.startsWith(directory)) throw new IllegalArgumentException("Invalid image name.");
-   Files.write(target, bytes);
-   for (String oldExtension : ALLOWED_IMAGE_EXTENSIONS) {
-    if (!oldExtension.equals(extension)) Files.deleteIfExists(directory.resolve(vendorId + "." + oldExtension));
+   for (int i = 0; i < images.size(); i++) {
+    MultipartFile image = images.get(i);
+    String extension = validateVendorImage(image);
+    Path target = directory.resolve(vendorId + "-" + i + "." + extension).normalize();
+    if (!target.startsWith(directory)) throw new IllegalArgumentException("Invalid image name.");
+    Files.write(target, image.getBytes());
    }
-  } catch (IOException ex) { throw new IllegalStateException("Unable to save vendor image. Please try again.", ex); }
- }
- 
-bstring(dot + 1).toLowerCase(Locale.ROOT);
-  if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
-   throw new IllegalArgumentException("Only JPG, PNG or GIF images are allowed.");
-  }
-  try {
-   if (ImageIO.read(new ByteArrayInputStream(image.getBytes())) == null) {
-    throw new IllegalArgumentException("The selected file is not a valid image.");
+   try (java.util.stream.Stream<Path> existing = Files.list(directory)) {
+    existing.filter(path -> path.getFileName().toString().matches(java.util.regex.Pattern.quote(vendorId) + "-[0-7]\\.(jpg|jpeg|png|gif)"))
+      .filter(path -> {
+       String name = path.getFileName().toString();
+       for (int i = 0; i < images.size(); i++) if (name.startsWith(vendorId + "-" + i + ".")) return false;
+       return true;
+      })
+      .forEach(path -> { try { Files.deleteIfExists(path); } catch (IOException ignored) { } });
    }
-  } catch (IOException ex) {
-   throw new IllegalArgumentException("Unable to read the selected image.", ex);
-  }
-  return extension;
+  } catch (IOException ex) { throw new IllegalStateException("Unable to save vendor photos. Please try again.", ex); }
  }
 
- private void saveVendorImage(String vendorId, MultipartFile image) {
-  if (image == null || image.isEmpty()) return;
-  String extension = validateVendorImage(image);
-  try {
-   byte[] bytes = image.getBytes();
-   Path directory = Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
-   Files.createDirectories(directory);
-   Path target = directory.resolve(vendorId + "." + extension).normalize();
-   if (!target.startsWith(directory)) throw new IllegalArgumentException("Invalid image name.");
-   Files.write(target, bytes);
-   for (String oldExtension : ALLOWED_IMAGE_EXTENSIONS) {
-    if (!oldExtension.equals(extension)) Files.deleteIfExists(directory.resolve(vendorId + "." + oldExtension));
-   }
-  } catch (IOException ex) {
-   throw new IllegalStateException("Unable to save vendor image. Please try again.", ex);
-  }
- }
-
- private BigDecimal parseBasePrice(String value) {
+  private BigDecimal parseBasePrice(String value) {
   if (value == null || value.trim().isEmpty()) {
    throw new com.wedding.common.exceptions.ValidationException("Base price is required.");
   }
