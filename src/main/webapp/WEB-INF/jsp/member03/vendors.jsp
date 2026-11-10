@@ -42,6 +42,19 @@
 .vendor-directory-empty{grid-column:1/-1;text-align:center;padding:55px 20px;background:#fff;border:1px solid #eadfd1;border-radius:15px;color:#82796f}
 @media(max-width:1050px){.vendor-directory-filter{grid-template-columns:1.4fr 1fr 1.2fr}.vendor-filter-actions{grid-column:1/-1;justify-content:flex-end}.vendor-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.vendor-directory-page{width:calc(100% - 22px);padding-top:18px}.vendor-directory-heading{align-items:flex-start;flex-direction:column}.vendor-directory-register{width:100%}.vendor-directory-filter{grid-template-columns:1fr;padding:13px}.vendor-filter-actions{grid-column:auto}.vendor-filter-actions .btn{flex:1}.vendor-directory-grid{grid-template-columns:1fr;gap:16px}.vendor-directory-card{min-height:285px}.vendor-directory-card h2{font-size:1.2rem}}
+/* Vendor photography cards */
+.vendor-directory-card{padding:0;overflow:hidden;min-height:390px}
+.vendor-directory-card-media{height:190px;position:relative;overflow:hidden;background:#eee8df}
+.vendor-directory-card-media img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.vendor-directory-card:hover .vendor-directory-card-media img{transform:scale(1.045)}
+.vendor-directory-card-content{display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:17px 18px 16px}
+.vendor-directory-card h2{font-size:1.18rem}
+.vendor-directory-card .vendor-directory-description{min-height:44px}
+.vendor-directory-card .vendor-directory-card-actions{padding-top:10px}
+.vendor-directory-category{position:absolute;left:13px;bottom:12px;padding:5px 10px;border-radius:30px;background:rgba(39,36,31,.78);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.04em;backdrop-filter:blur(8px)}
+@media(max-width:680px){.vendor-directory-card{min-height:360px}.vendor-directory-card-media{height:180px}}
+@media(prefers-reduced-motion:reduce){.vendor-directory-card-media img{transition:none}}
+
 </style>
 
 <section class="vendor-directory-page">
@@ -76,7 +89,34 @@
     <section class="vendor-directory-grid" aria-label="Available wedding vendors">
         <c:forEach var="v" items="${vendors}">
             <article class="vendor-directory-card">
-                <div>
+                <div class="vendor-directory-card-media">
+                    <c:choose>
+                        <c:when test="${v.category == 'PHOTOGRAPHY' || v.category == 'VIDEOGRAPHY'}">
+                            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding photography in Sri Lanka" loading="lazy">
+                        </c:when>
+                        <c:when test="${v.category == 'DECORATION' || v.category == 'FLORISTS'}">
+                            <img src="https://images.unsplash.com/photo-1507504031003-b417219a0fda?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding floral decorations" loading="lazy">
+                        </c:when>
+                        <c:when test="${v.category == 'CATERING'}">
+                            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding reception catering" loading="lazy">
+                        </c:when>
+                        <c:when test="${v.category == 'MUSIC_DJ'}">
+                            <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding DJ and sound setup" loading="lazy">
+                        </c:when>
+                        <c:when test="${v.category == 'WEDDING_CAKES'}">
+                            <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding cake" loading="lazy">
+                        </c:when>
+                        <c:when test="${v.category == 'VENUES'}">
+                            <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding reception venue" loading="lazy">
+                        </c:when>
+                        <c:otherwise>
+                            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding celebration in Sri Lanka" loading="lazy">
+                        </c:otherwise>
+                    </c:choose>
+                    <span class="vendor-directory-category">${v.category.displayName}</span>
+                </div>
+                <div class="vendor-directory-card-content">
+                    <div>
                     <h2>${v.vendorName}</h2>
                     <p class="vendor-directory-location"><i class="bi bi-geo-alt"></i> ${v.address}</p>
                     <c:if test="${v.approvalStatus != 'APPROVED'}">
@@ -114,6 +154,7 @@
                             <button type="submit" class="btn vendor-delete-btn" title="Delete vendor"><i class="bi bi-trash"></i></button>
                         </form>
                     </c:if>
+                </div>
                 </div>
             </article>
         </c:forEach>
