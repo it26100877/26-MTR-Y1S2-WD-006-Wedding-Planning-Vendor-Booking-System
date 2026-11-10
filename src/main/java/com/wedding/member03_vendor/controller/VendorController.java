@@ -322,16 +322,6 @@ public class VendorController {
   return Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
  }
 
- private Path findUploadedVendorImage(String id) {
-  if (id == null || !id.matches("[A-Za-z0-9_-]{1,100}")) return null;
-  Path directory = getVendorImageDirectory();
-  for (String extension : ALLOWED_IMAGE_EXTENSIONS) {
-   Path candidate = directory.resolve(id + "." + extension).normalize();
-   if (candidate.startsWith(directory) && Files.isRegularFile(candidate)) return candidate;
-  }
-  return null;
- }
-
  private List<Path> findUploadedVendorImages(String id) {
   List<Path> results = new ArrayList<>();
   if (id == null || !id.matches("[A-Za-z0-9_-]{1,100}")) return results;
@@ -384,8 +374,7 @@ public class VendorController {
  @ResponseBody
  public ResponseEntity<List<String>> getVendorPhotos(@PathVariable("id") String id) {
   Vendor vendor = vendorService.getById(id);
-  List<String> photos = findUploadedVendorImage(id) == null
-          ? List.of(getVendorImageSource(vendor)) : List.of(getVendorImageSource(vendor));
+  List<String> photos = getVendorGallerySources(vendor);
   return ResponseEntity.ok(photos);
  }
 
