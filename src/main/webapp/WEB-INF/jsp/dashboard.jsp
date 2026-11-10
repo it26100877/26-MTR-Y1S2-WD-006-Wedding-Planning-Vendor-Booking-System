@@ -61,38 +61,38 @@
         <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-customer">
-                <strong>${totalCustomers}</strong>
+                <span class="eclat-stat-kicker">TOTAL ACCOUNTS</span><strong>${totalCustomers}</strong>
                 <span>Customers</span>
             </article>
         </div>
         </c:if>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-plans">
-                <strong>${totalPlans}</strong>
+                <span class="eclat-stat-kicker">PLANNING</span><strong>${totalPlans}</strong>
                 <span>Wedding plans</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-vendors">
-                <strong>${totalVendors}</strong>
+                <span class="eclat-stat-kicker">DIRECTORY</span><strong>${totalVendors}</strong>
                 <span><c:choose><c:when test="${sessionScope.currentUser.role == 'ADMIN'}">Vendors</c:when><c:otherwise>Available vendors</c:otherwise></c:choose></span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-bookings">
-                <strong>${totalBookings}</strong>
+                <span class="eclat-stat-kicker">RESERVATIONS</span><strong>${totalBookings}</strong>
                 <span>Bookings</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-contracts">
-                <strong>${totalContracts}</strong>
+                <span class="eclat-stat-kicker">AGREEMENTS</span><strong>${totalContracts}</strong>
                 <span>Contracts</span>
             </article>
         </div>
         <div class="col-6 col-md-4 col-xl-2">
             <article class="eclat-stat-card stat-reviews">
-                <strong>${totalReviews}</strong>
+                <span class="eclat-stat-kicker">FEEDBACK</span><strong>${totalReviews}</strong>
                 <span>Reviews</span>
             </article>
         </div>
