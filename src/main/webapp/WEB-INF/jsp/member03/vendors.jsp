@@ -44,7 +44,7 @@
 @media(max-width:680px){.vendor-directory-page{width:calc(100% - 22px);padding-top:18px}.vendor-directory-heading{align-items:flex-start;flex-direction:column}.vendor-directory-register{width:100%}.vendor-directory-filter{grid-template-columns:1fr;padding:13px}.vendor-filter-actions{grid-column:auto}.vendor-filter-actions .btn{flex:1}.vendor-directory-grid{grid-template-columns:1fr;gap:16px}.vendor-directory-card{min-height:285px}.vendor-directory-card h2{font-size:1.2rem}}
 </style>
 
-<main class="vendor-directory-page">
+<section class="vendor-directory-page">
     <div class="vendor-directory-heading">
         <div>
             <h1><i class="bi bi-shop"></i> Wedding Vendors Directory</h1>
@@ -125,6 +125,6 @@
             </div>
         </c:if>
     </section>
-</main>
+</section>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
