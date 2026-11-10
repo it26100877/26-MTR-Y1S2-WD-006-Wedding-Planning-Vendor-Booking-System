@@ -42,6 +42,8 @@
     background: #80643d;
     color: white;
 }
+.vendor-image-upload{background:#fbf8f3;border:1px dashed #cdb894}
+.vendor-image-upload .form-control{background:#fff}
 </style>
 
 <div class="vendor-form-page">
@@ -72,7 +74,7 @@
 
     <section class="vendor-form-panel">
 
-        <form method="post"
+        <form method="post" enctype="multipart/form-data"
               action="${pageContext.request.contextPath}<c:choose><c:when test='${isEdit}'>/vendors/edit/${vendor.vendorId}</c:when><c:otherwise>/vendors/new</c:otherwise></c:choose>">
 
             <div class="mb-4">
@@ -196,6 +198,26 @@
                 </div>
 
                 <div class="col-12">
+                    <label class="form-label vendor-form-label" for="vendorImage">Business / Portfolio Photos</label>
+                    <div class="vendor-image-upload p-3 p-md-4 rounded-3">
+                        <input type="file" class="form-control" id="vendorImage" name="vendorImage"
+                               accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif">
+                        <small class="vendor-form-help d-block mt-2">Choose a photo from your computer or phone. JPG, PNG or GIF · maximum 5 MB. Uploading a new photo replaces the current one.</small>
+                        <div class="mt-3" id="vendorImagePreviewWrap" style="display:none">
+                            <img id="vendorImagePreview" alt="Selected vendor photo preview"
+                                 style="width:100%;max-width:420px;max-height:230px;object-fit:cover;border-radius:12px;border:1px solid #e9e2d8">
+                        </div>
+                        <c:if test="${isEdit}">
+                            <div class="mt-3">
+                                <img src="${pageContext.request.contextPath}/vendor-images/${vendor.vendorId}"
+                                     alt="Current vendor photo" onerror="this.parentElement.style.display='none'"
+                                     style="width:100%;max-width:420px;max-height:230px;object-fit:cover;border-radius:12px;border:1px solid #e9e2d8">
+                            </div>
+                        </c:if>
+                    </div>
+                </div>
+
+                <div class="col-12">
                     <label class="form-label vendor-form-label" for="serviceDescription">
                         Service Description *
                     </label>
@@ -244,4 +266,26 @@
     </section>
 </div>
 
+<script>
+(function () {
+    const input = document.getElementById('vendorImage');
+    const wrap = document.getElementById('vendorImagePreviewWrap');
+    const preview = document.getElementById('vendorImagePreview');
+    if (!input || !wrap || !preview) return;
+    input.addEventListener('change', function () {
+        const file = input.files && input.files[0];
+        if (!file) { wrap.style.display = 'none'; preview.removeAttribute('src'); return; }
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Please choose an image smaller than 5 MB.');
+            input.value = ''; wrap.style.display = 'none'; return;
+        }
+        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+            alert('Please choose a JPG, PNG or GIF image.');
+            input.value = ''; wrap.style.display = 'none'; return;
+        }
+        preview.src = URL.createObjectURL(file);
+        wrap.style.display = 'block';
+    });
+})();
+</script>
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
