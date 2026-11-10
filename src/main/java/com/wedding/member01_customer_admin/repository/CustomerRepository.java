@@ -40,7 +40,8 @@ public class CustomerRepository extends AbstractFileRepository<Customer> {
  FileUtil.escape(c.getCreatedAt()),
  String.valueOf(c.isActive()),
  FileUtil.escape(c.getAddress()),
- FileUtil.escape(c.getWeddingDate())
+ FileUtil.escape(c.getWeddingDate()),
+ String.valueOf(c.isPhoneVerified())
  );
  }
 
@@ -61,7 +62,8 @@ public class CustomerRepository extends AbstractFileRepository<Customer> {
  p[5].trim(), // createdAt
  Boolean.parseBoolean(p[6].trim()), // active
  p[7].trim(), // address
- p[8].trim() // weddingDate
+ p[8].trim(), // weddingDate
+ p.length < 10 || Boolean.parseBoolean(p[9].trim()) // legacy records are already verified
  );
  }
 
