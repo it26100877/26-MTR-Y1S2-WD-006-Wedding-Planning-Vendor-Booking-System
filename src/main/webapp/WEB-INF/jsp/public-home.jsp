@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-royal.css?v=20261105-marketplace">
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-marketplace.css?v=20261105">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-marketplace.css?v=20261110-destinations">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-3">
 
 <style id="eclat-vendor-picker-final-override">
