@@ -202,13 +202,11 @@
                     <div class="vendor-image-upload p-3 p-md-4 rounded-3">
                         <input type="file" class="form-control" id="vendorImage" name="vendorImage" multiple
                                accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif">
-                        <small class="vendor-form-help d-block mt-2">Choose a photo from your computer or phone. JPG, PNG or GIF · maximum 5 MB. Select up to 8 portfolio photos. JPG, PNG or GIF · maximum 5 MB each. The first image is used as the directory cover.</small>
-                        <div class="mt-3 d-flex flex-wrap gap-2" id="vendorImagePreviewWrap" style="display:none">
-                            
-                        </div>
+                        <small class="vendor-form-help d-block mt-2">Select up to 8 portfolio photos from your computer or phone. JPG, PNG or GIF · maximum 5 MB each. The first image becomes the directory cover.</small>
+                        <div class="mt-3 d-flex flex-wrap gap-2" id="vendorImagePreviewWrap" style="display:none"></div>
                         <c:if test="${isEdit}">
                             <div class="mt-3">
-                                <img src="${pageContext.request.contextPath}/vendor-images/${vendor.vendorId}"
+                                <img src="${pageContext.request.contextPath}${vendorImageSource}"
                                      alt="Current vendor photo" onerror="this.parentElement.style.display='none'"
                                      style="width:100%;max-width:420px;max-height:230px;object-fit:cover;border-radius:12px;border:1px solid #e9e2d8">
                             </div>
