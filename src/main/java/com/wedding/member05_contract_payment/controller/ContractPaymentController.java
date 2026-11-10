@@ -217,6 +217,12 @@ public class ContractPaymentController {
    }
    model.addAttribute("contract", contract);
    model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("vendor", vendorService.getById(contract.getVendorId()));
+   Booking linkedBooking = bookingService.getById(contract.getBookingId());
+   model.addAttribute("booking", linkedBooking);
+   if (linkedBooking.getPlanId() != null && !linkedBooking.getPlanId().isBlank()) {
+    model.addAttribute("plan", weddingPlanService.getById(linkedBooking.getPlanId()));
+   }
    model.addAttribute("payments", paymentService.getAllPayments(id));
    model.addAttribute("pageTitle", "Contract " + id + " - Printable Copy");
    return "member05/contract-print";
@@ -268,6 +274,8 @@ public class ContractPaymentController {
    model.addAttribute("payment", payment);
    model.addAttribute("contract", contract);
    model.addAttribute("customer", customerService.getById(contract.getCustomerId()));
+   model.addAttribute("vendor", vendorService.getById(contract.getVendorId()));
+   model.addAttribute("booking", bookingService.getById(contract.getBookingId()));
    model.addAttribute("pageTitle", "Payment Receipt - " + paymentId);
    return "member05/payment-receipt";
   } catch (AppException ex) {
