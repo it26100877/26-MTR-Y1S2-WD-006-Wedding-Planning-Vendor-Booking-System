@@ -200,12 +200,11 @@
                 <div class="col-12">
                     <label class="form-label vendor-form-label" for="vendorImage">Business / Portfolio Photos</label>
                     <div class="vendor-image-upload p-3 p-md-4 rounded-3">
-                        <input type="file" class="form-control" id="vendorImage" name="vendorImage"
+                        <input type="file" class="form-control" id="vendorImage" name="vendorImage" multiple
                                accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif">
-                        <small class="vendor-form-help d-block mt-2">Choose a photo from your computer or phone. JPG, PNG or GIF · maximum 5 MB. Uploading a new photo replaces the current one.</small>
-                        <div class="mt-3" id="vendorImagePreviewWrap" style="display:none">
-                            <img id="vendorImagePreview" alt="Selected vendor photo preview"
-                                 style="width:100%;max-width:420px;max-height:230px;object-fit:cover;border-radius:12px;border:1px solid #e9e2d8">
+                        <small class="vendor-form-help d-block mt-2">Choose a photo from your computer or phone. JPG, PNG or GIF · maximum 5 MB. Select up to 8 portfolio photos. JPG, PNG or GIF · maximum 5 MB each. The first image is used as the directory cover.</small>
+                        <div class="mt-3 d-flex flex-wrap gap-2" id="vendorImagePreviewWrap" style="display:none">
+                            
                         </div>
                         <c:if test="${isEdit}">
                             <div class="mt-3">
@@ -270,22 +269,24 @@
 (function () {
     const input = document.getElementById('vendorImage');
     const wrap = document.getElementById('vendorImagePreviewWrap');
-    const preview = document.getElementById('vendorImagePreview');
-    if (!input || !wrap || !preview) return;
+    if (!input || !wrap) return;
     input.addEventListener('change', function () {
-        const file = input.files && input.files[0];
-        if (!file) { wrap.style.display = 'none'; preview.removeAttribute('src'); return; }
-        if (file.size > 5 * 1024 * 1024) {
-            alert('Please choose an image smaller than 5 MB.');
-            input.value = ''; wrap.style.display = 'none'; return;
+        wrap.innerHTML = '';
+        const files = Array.from(input.files || []);
+        if (files.length > 8) { alert('Please select up to 8 photos.'); input.value = ''; wrap.style.display = 'none'; return; }
+        const allowed = ['image/jpeg', 'image/png', 'image/gif'];
+        for (const file of files) {
+            if (!allowed.includes(file.type)) { alert('Please select only JPG, PNG or GIF photos.'); input.value = ''; wrap.style.display = 'none'; return; }
+            if (file.size > 5 * 1024 * 1024) { alert('Each photo must be 5 MB or smaller.'); input.value = ''; wrap.style.display = 'none'; return; }
+            const image = document.createElement('img');
+            image.alt = 'Selected portfolio photo preview';
+            image.src = URL.createObjectURL(file);
+            image.style.cssText = 'width:128px;height:96px;object-fit:cover;border-radius:10px;border:1px solid #e9e2d8';
+            wrap.appendChild(image);
         }
-        if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
-            alert('Please choose a JPG, PNG or GIF image.');
-            input.value = ''; wrap.style.display = 'none'; return;
-        }
-        preview.src = URL.createObjectURL(file);
-        wrap.style.display = 'block';
+        wrap.style.display = files.length ? 'flex' : 'none';
     });
 })();
 </script>
+
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
