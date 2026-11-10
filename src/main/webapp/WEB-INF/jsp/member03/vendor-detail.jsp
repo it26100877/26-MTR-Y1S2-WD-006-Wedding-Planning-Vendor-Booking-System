@@ -63,6 +63,11 @@
         background: #ffebee;
         color: #c62828;
     }
+    .vendor-detail-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:26px}
+    .vendor-detail-photo{width:100%;height:clamp(180px,24vw,300px);object-fit:cover;border-radius:14px;border:1px solid #eadfD1}
+    @media(max-width:600px){.vendor-detail-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.vendor-detail-photo{height:145px}}
+    .vendor-detail-gallery-note{color:#8a8177;font-size:.82rem;margin-top:8px}
+
 </style>
 
 <div class="vendor-detail-wrapper">
@@ -78,6 +83,13 @@
         <c:when test="${not empty vendor}">
 
             <div class="vendor-detail-card">
+
+                <div class="vendor-detail-gallery" aria-label="Vendor portfolio photos">
+                    <c:forEach items="${vendorGallerySources}" var="photo" varStatus="photoStatus">
+                        <img class="vendor-detail-photo" src="${pageContext.request.contextPath}${photo}"
+                             alt="${vendor.vendorName} portfolio photo ${photoStatus.count}" loading="lazy">
+                    </c:forEach>
+                </div>
 
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
 

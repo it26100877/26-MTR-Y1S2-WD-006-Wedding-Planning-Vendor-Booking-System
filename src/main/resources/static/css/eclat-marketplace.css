@@ -12,7 +12,7 @@
 .market-signup{font-size:.85rem;color:#4b4337;text-decoration:none}
 .market-login{background:#282722;color:#fff;text-decoration:none;padding:13px 24px;font:500 .9rem 'Playfair Display',serif}
 .market-menu-toggle{display:none;background:none;border:0;font-size:1.7rem}
-.market-hero{min-height:650px;position:relative;display:grid;place-items:center;text-align:center;color:white;background:#5c4b3d url('https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=2200&q=90') center 44%/cover no-repeat}
+.market-hero{min-height:650px;position:relative;display:grid;place-items:center;text-align:center;color:white;background:#5c4b3d url('../images/wedding-hero.png') center 44%/cover no-repeat}
 .market-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,#231e1b66,#211b1855),linear-gradient(0deg,#1f1b1744,transparent 65%)}
 .market-hero-content{position:relative;z-index:1;width:min(100% - 32px,940px);padding:85px 0 95px}
 .eyebrow{font-size:.68rem;letter-spacing:.22em;font-weight:700;color:#a58a5b;margin-bottom:17px}
@@ -63,7 +63,7 @@
 .inspiration-grid article div{padding:20px 22px}
 .inspiration-grid small{font-size:.62rem;letter-spacing:.17em;color:#a58a5b;font-weight:700}
 .inspiration-grid h3{font:500 1.35rem 'Playfair Display',serif;margin:8px 0 0}
-.market-cta{text-align:center;padding:90px 20px;background:linear-gradient(#29241fbb,#29241fbb),url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=2000&q=85') center/cover;color:white}
+.market-cta{text-align:center;padding:90px 20px;background:linear-gradient(#29241fbb,#29241fbb),url('../images/member02/wedding-editorial-banner.jpg') center/cover;color:white}
 .market-cta h2{color:#fff}
 .market-cta>a{display:inline-block;margin-top:16px;padding:15px 25px;background:#d6bd91;color:#29251f;text-decoration:none;font:500 .95rem 'Playfair Display',serif}
 .market-footer{display:flex;align-items:center;justify-content:space-between;padding:30px clamp(22px,5vw,80px);background:#fff;border-top:1px solid #eee5d8}
@@ -304,3 +304,28 @@
     max-height: 280px;
   }
 }
+
+/* Éclat Sri Lanka destination and sample-story sections */
+.destination-section{max-width:none;background:#f6f1e9;padding-left:max(24px,calc((100% - 1320px)/2));padding-right:max(24px,calc((100% - 1320px)/2))}
+.destination-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.destination-card,.sample-story-grid article{background:#fff;box-shadow:0 12px 34px #30271b0d;overflow:hidden}
+.destination-image{height:245px;display:block;position:relative;overflow:hidden;background:#e7ded1}
+.destination-image:after{content:'';position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#17130f8c)}
+.destination-image img{width:100%;height:100%;object-fit:cover;transition:transform .55s}
+.destination-image:hover img{transform:scale(1.05)}
+.destination-image span{position:absolute;z-index:1;left:18px;bottom:16px;color:#fff;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase}
+.destination-copy{padding:22px 23px 25px}
+.destination-copy .eyebrow{font-size:.6rem;margin-bottom:8px}
+.destination-copy h3,.sample-story-grid h3{font:500 1.42rem 'Playfair Display',serif;margin:0 0 10px;color:#29251f}
+.destination-copy>p:not(.eyebrow),.sample-story-grid p{font-size:.84rem;line-height:1.7;color:#777064;min-height:58px}
+.destination-copy>a{display:inline-flex;gap:8px;align-items:center;margin-top:8px;color:#8b7045;font-size:.8rem;text-decoration:none;border-bottom:1px solid #d8c9af;padding-bottom:4px}
+.destination-disclaimer{text-align:center;color:#938a7d;font-size:.73rem;margin:28px auto 0}
+.sample-stories-section{background:#eee7dc;max-width:none;padding-left:max(24px,calc((100% - 1320px)/2));padding-right:max(24px,calc((100% - 1320px)/2))}
+.sample-story-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.sample-story-grid img{width:100%;height:255px;object-fit:cover}
+.sample-story-grid article>div{padding:22px 24px 24px}
+.sample-story-grid article span{font-size:.61rem;letter-spacing:.14em;color:#9c8054;font-weight:700}
+.sample-story-grid h3{margin-top:10px}
+.sample-story-grid p{min-height:0;margin-bottom:0}
+@media(max-width:900px){.destination-grid,.sample-story-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.destination-grid,.sample-story-grid{grid-template-columns:1fr}.destination-image{height:220px}.sample-story-grid img{height:220px}}

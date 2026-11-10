@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-</div><!-- /.container -->
+</main><!-- /#mainContent -->
 
 <!-- Synchronizer-token CSRF: attach a server-generated token to every HTML form submission. -->
 <script>

@@ -4,7 +4,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#faf8f4">
     <title>${pageTitle != null ? pageTitle : "Wedding Planning System"}</title>
 
     <!-- Bootstrap 5 CSS -->
@@ -12,6 +13,11 @@
 
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Fonts: preconnected to avoid the CSS @import request chain -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Éclat Styles -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-royal.css?v=20261104-final">
@@ -23,12 +29,14 @@
 
     <!-- Éclat global typography: Inter, Playfair Display and Roboto Mono -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-typography.css?v=20261109-fonts1">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-3">
 </head>
 
 <body>
+<a class="eclat-skip-link" href="#mainContent">Skip to main content</a>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-light eclat-topbar shadow-sm sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light eclat-topbar shadow-sm sticky-top" aria-label="Main navigation">
     <div class="container-fluid px-4">
 
         <a class="navbar-brand" href="${pageContext.request.contextPath}/">
@@ -36,7 +44,7 @@
         </a>
 
         <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navContent">
+                data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -100,7 +108,6 @@
                     </li>
 
                     <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
-                        <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/payment-proofs"><i class="bi bi-shield-check"></i> Payment Proofs</a></li>
                 </c:if>
 
@@ -194,5 +201,5 @@
     </div>
 </nav>
 
-<div class="container py-4 flex-grow-1">
+<main id="mainContent" class="container py-4 flex-grow-1" tabindex="-1">
     <jsp:include page="/WEB-INF/jsp/common/alerts.jsp" />

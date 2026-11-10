@@ -2,6 +2,7 @@ package com.wedding.member03_vendor.controller;
 
 import com.wedding.common.exceptions.AppException;
 import com.wedding.common.model.User;
+import com.wedding.common.utils.FileUtil;
 import com.wedding.member03_vendor.model.Vendor;
 import com.wedding.member03_vendor.model.VendorCategory;
 import com.wedding.member03_vendor.service.VendorService;
@@ -9,12 +10,27 @@ import com.wedding.member06_review_feedback.service.ReviewService;
 import com.wedding.member04_booking.service.BookingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Locale;
 
 /**
@@ -29,6 +45,31 @@ public class VendorController {
  private final VendorService vendorService;
  private final ReviewService reviewService;
  private final BookingService bookingService;
+ private static final long MAX_VENDOR_IMAGE_BYTES = 5L * 1024 * 1024;
+ private static final int MAX_VENDOR_IMAGES = 8;
+ private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
+ private static final java.util.regex.Pattern VENDOR_IMAGE_PATTERN = java.util.regex.Pattern.compile("^([A-Za-z0-9_-]{1,100})-([0-7])\\.(jpg|jpeg|png|gif)$");
+ private static final Map<VendorCategory, String> CATEGORY_DEMO_IMAGES = Map.ofEntries(
+  Map.entry(VendorCategory.PHOTOGRAPHY, "/images/photography.jpg"),
+  Map.entry(VendorCategory.VIDEOGRAPHY, "/images/photography.jpg"),
+  Map.entry(VendorCategory.CATERING, "/images/catering.jpg"),
+  Map.entry(VendorCategory.DECORATION, "/images/decoration.jpg"),
+  Map.entry(VendorCategory.MUSIC_DJ, "/images/music-dj.jpg"),
+  Map.entry(VendorCategory.WEDDING_DRESSES, "/images/wedding-dress.jpg"),
+  Map.entry(VendorCategory.WEDDING_CAKES, "/images/decoration.jpg"),
+  Map.entry(VendorCategory.BEAUTY_SALON, "/images/wedding-dress.jpg"),
+  Map.entry(VendorCategory.WEDDING_PLANNERS, "/images/other-services.jpg"),
+  Map.entry(VendorCategory.VENUES, "/images/venue.jpg"),
+  Map.entry(VendorCategory.MAKEUP_ARTISTS, "/images/wedding-dress.jpg"),
+  Map.entry(VendorCategory.BRIDAL_SALONS, "/images/wedding-dress.jpg"),
+  Map.entry(VendorCategory.HAIR_STYLISTS, "/images/wedding-dress.jpg"),
+  Map.entry(VendorCategory.PHOTO_BOOTH, "/images/photography.jpg"),
+  Map.entry(VendorCategory.CONTENT_CREATOR, "/images/photography.jpg"),
+  Map.entry(VendorCategory.WEDDING_OFFICIANTS, "/images/other-services.jpg"),
+  Map.entry(VendorCategory.FLORISTS, "/images/florist.jpg"),
+  Map.entry(VendorCategory.OTHER, "/images/other-services.jpg")
+ );
+
 
  public VendorController(VendorService vendorService, ReviewService reviewService, BookingService bookingService) {
  this.vendorService = vendorService;
@@ -88,6 +129,7 @@ public class VendorController {
  }
 
  model.addAttribute("vendors", vendors);
+ model.addAttribute("vendorImageSources", vendors.stream().collect(java.util.stream.Collectors.toMap(Vendor::getVendorId, this::getVendorImageSource)));
  model.addAttribute("categories", VendorCategory.values());
  model.addAttribute("selectedCategory", categoryStr);
  model.addAttribute("query", query);
@@ -104,6 +146,7 @@ public class VendorController {
  User user = (User) httpSession.getAttribute("currentUser");
  if (user == null) return "redirect:/login";
 
+ model.addAttribute("vendorPhotoLimitBytes", MAX_VENDOR_IMAGE_BYTES);
  model.addAttribute("isEdit", false);
  model.addAttribute("categories", VendorCategory.values());
  model.addAttribute("pageTitle", "Register Vendor - Éclat");
@@ -120,14 +163,18 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
+ MultipartHttpServletRequest multipartRequest,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null) return "redirect:/login";
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
+ List<MultipartFile> vendorImages = getVendorImageFiles(multipartRequest);
+ validateVendorImages(vendorImages);
  Vendor vendor = vendorService.addVendor(
  vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
+ saveVendorImages(vendor.getVendorId(), vendorImages);
  redirectAttributes.addFlashAttribute("successMessage",
  "Vendor '" + vendor.getVendorName() + "' registered successfully! (Awaiting admin approval)");
  return "redirect:/vendors";
@@ -152,6 +199,8 @@ public class VendorController {
  int reviewCount = reviewService.getByVendor(id).size();
 
  model.addAttribute("vendor", vendor);
+ model.addAttribute("vendorImageSource", getVendorImageSource(vendor));
+ model.addAttribute("vendorGallerySources", getVendorGallerySources(vendor));
  model.addAttribute("avgRating", avgRating);
  model.addAttribute("reviewCount", reviewCount);
  model.addAttribute("pageTitle", vendor.getVendorName() + " - Vendor Details");
@@ -168,6 +217,7 @@ public class VendorController {
 
  Vendor vendor = vendorService.getById(id);
  model.addAttribute("vendor", vendor);
+ model.addAttribute("vendorImageSource", getVendorImageSource(vendor));
  model.addAttribute("categories", VendorCategory.values());
  model.addAttribute("isEdit", true);
  model.addAttribute("pageTitle", "Edit Vendor - " + vendor.getVendorName());
@@ -185,13 +235,17 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
+ MultipartHttpServletRequest multipartRequest,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null || !"ADMIN".equalsIgnoreCase(actor.getRole())) return "redirect:/login";
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
+ List<MultipartFile> vendorImages = getVendorImageFiles(multipartRequest);
+ validateVendorImages(vendorImages);
  vendorService.updateVendor(id, vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
+ saveVendorImages(id, vendorImages);
  redirectAttributes.addFlashAttribute("successMessage", "Vendor details updated successfully!");
  } catch (AppException | IllegalArgumentException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -270,12 +324,150 @@ public class VendorController {
  vendorService.deleteVendor(id);
  redirectAttributes.addFlashAttribute("successMessage", "Vendor archived successfully. Historical booking and review records remain available.");
  } catch (AppException e) {
- redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  }
  return "redirect:/vendors";
  }
 
- private BigDecimal parseBasePrice(String value) {
+ private Path getVendorImageDirectory() {
+  return Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
+ }
+
+ private List<Path> findUploadedVendorImages(String id) {
+  List<Path> results = new ArrayList<>();
+  if (id == null || !id.matches("[A-Za-z0-9_-]{1,100}")) return results;
+  Path directory = getVendorImageDirectory();
+  if (!Files.isDirectory(directory)) return results;
+  try (java.util.stream.Stream<Path> files = Files.list(directory)) {
+   files.filter(path -> {
+    java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+    return matcher.matches() && id.equals(matcher.group(1));
+   }).sorted(Comparator.comparingInt(path -> {
+    java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+    return matcher.matches() ? Integer.parseInt(matcher.group(2)) : 99;
+   })).forEach(results::add);
+  } catch (IOException ignored) { }
+  return results;
+ }
+
+ private String getVendorImageSource(Vendor vendor) {
+  List<Path> uploaded = findUploadedVendorImages(vendor.getVendorId());
+  if (!uploaded.isEmpty()) return "/vendor-images/" + vendor.getVendorId() + "/0";
+  return CATEGORY_DEMO_IMAGES.getOrDefault(vendor.getCategory(), "/images/other-services.jpg");
+ }
+
+ private List<String> getVendorGallerySources(Vendor vendor) {
+  List<Path> uploaded = findUploadedVendorImages(vendor.getVendorId());
+  if (!uploaded.isEmpty()) {
+   List<String> urls = new ArrayList<>();
+   for (int i = 0; i < uploaded.size(); i++) urls.add("/vendor-images/" + vendor.getVendorId() + "/" + i);
+   return urls;
+  }
+  return List.of(getVendorImageSource(vendor));
+ }
+
+ @GetMapping("/vendor-images/{id}/{index}")
+ @ResponseBody
+ public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id, @PathVariable("index") int index,
+                                               HttpSession session) throws IOException {
+  if (!canViewVendorPortfolio(id, session)) return ResponseEntity.notFound().build();
+  List<Path> images = findUploadedVendorImages(id);
+  if (index < 0 || index >= images.size()) return ResponseEntity.notFound().build();
+  Path image = images.get(index);
+  String filename = image.getFileName().toString().toLowerCase(Locale.ROOT);
+  MediaType type = filename.endsWith(".png") ? MediaType.IMAGE_PNG
+          : filename.endsWith(".gif") ? MediaType.IMAGE_GIF : MediaType.IMAGE_JPEG;
+  return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "public, max-age=300")
+          .contentType(type).body(Files.readAllBytes(image));
+ }
+
+ @GetMapping("/vendor-images/{id}")
+ @ResponseBody
+ public ResponseEntity<byte[]> getVendorCoverImage(@PathVariable("id") String id, HttpSession session) throws IOException {
+  return getVendorImage(id, 0, session);
+ }
+
+ @GetMapping("/api/vendors/{id}/photos")
+ @ResponseBody
+ public ResponseEntity<List<String>> getVendorPhotos(@PathVariable("id") String id, HttpSession session) {
+  if (!canViewVendorPortfolio(id, session)) return ResponseEntity.notFound().build();
+  Vendor vendor = vendorService.getById(id);
+  List<String> photos = getVendorGallerySources(vendor);
+  return ResponseEntity.ok(photos);
+ }
+
+ @GetMapping("/vendor-images/category/{category}")
+ @ResponseBody
+ public ResponseEntity<byte[]> getCategoryDemoImage(@PathVariable("category") String category) throws IOException {
+  VendorCategory selected;
+  try { selected = VendorCategory.fromStringStrict(category); }
+  catch (IllegalArgumentException ex) { return ResponseEntity.notFound().build(); }
+  String resource = CATEGORY_DEMO_IMAGES.getOrDefault(selected, "/images/other-services.jpg");
+  Path image = Path.of("src/main/resources/static" + resource).toAbsolutePath().normalize();
+  if (!Files.isRegularFile(image)) return ResponseEntity.notFound().build();
+  MediaType type = resource.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.IMAGE_JPEG;
+  return ResponseEntity.ok().contentType(type).body(Files.readAllBytes(image));
+ }
+
+ private boolean canViewVendorPortfolio(String vendorId, HttpSession session) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer != null && "ADMIN".equalsIgnoreCase(viewer.getRole())) return true;
+  try {
+   Vendor vendor = vendorService.getById(vendorId);
+   return vendor.isActive() && "APPROVED".equalsIgnoreCase(vendor.getApprovalStatus());
+  } catch (AppException ex) {
+   return false;
+  }
+ }
+
+ private String validateVendorImage(MultipartFile image) {
+  if (image == null || image.isEmpty()) return null;
+  if (image.getSize() > MAX_VENDOR_IMAGE_BYTES) throw new IllegalArgumentException("Each vendor image must be 5 MB or smaller.");
+  String original = image.getOriginalFilename() == null ? "" : image.getOriginalFilename();
+  int dot = original.lastIndexOf('.');
+  String extension = dot < 0 ? "" : original.substring(dot + 1).toLowerCase(Locale.ROOT);
+  if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) throw new IllegalArgumentException("Only JPG, PNG or GIF images are allowed.");
+  try {
+   if (ImageIO.read(new ByteArrayInputStream(image.getBytes())) == null) throw new IllegalArgumentException("A selected file is not a valid image.");
+  } catch (IOException ex) { throw new IllegalArgumentException("Unable to read a selected image.", ex); }
+  return extension;
+ }
+
+ private List<MultipartFile> getVendorImageFiles(MultipartHttpServletRequest request) {
+  return request.getFiles("vendorImage").stream().filter(file -> file != null && !file.isEmpty()).toList();
+ }
+
+ private void validateVendorImages(List<MultipartFile> images) {
+  if (images.size() > MAX_VENDOR_IMAGES) throw new IllegalArgumentException("Choose up to 8 portfolio photos.");
+  for (MultipartFile image : images) validateVendorImage(image);
+ }
+
+ private void saveVendorImages(String vendorId, List<MultipartFile> images) {
+  if (images == null || images.isEmpty()) return;
+  try {
+   Path directory = getVendorImageDirectory();
+   Files.createDirectories(directory);
+   for (int i = 0; i < images.size(); i++) {
+    MultipartFile image = images.get(i);
+    String extension = validateVendorImage(image);
+    Path target = directory.resolve(vendorId + "-" + i + "." + extension).normalize();
+    if (!target.startsWith(directory)) throw new IllegalArgumentException("Invalid image name.");
+    Files.write(target, image.getBytes());
+   }
+   try (java.util.stream.Stream<Path> existing = Files.list(directory)) {
+    existing.filter(path -> {
+      java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+      return matcher.matches() && vendorId.equals(matcher.group(1));
+     }).filter(path -> {
+       java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+       return !matcher.matches() || Integer.parseInt(matcher.group(2)) >= images.size();
+      })
+      .forEach(path -> { try { Files.deleteIfExists(path); } catch (IOException ignored) { } });
+   }
+  } catch (IOException ex) { throw new IllegalStateException("Unable to save vendor photos. Please try again.", ex); }
+ }
+
+  private BigDecimal parseBasePrice(String value) {
   if (value == null || value.trim().isEmpty()) {
    throw new com.wedding.common.exceptions.ValidationException("Base price is required.");
   }

@@ -42,9 +42,22 @@
 .vendor-directory-empty{grid-column:1/-1;text-align:center;padding:55px 20px;background:#fff;border:1px solid #eadfd1;border-radius:15px;color:#82796f}
 @media(max-width:1050px){.vendor-directory-filter{grid-template-columns:1.4fr 1fr 1.2fr}.vendor-filter-actions{grid-column:1/-1;justify-content:flex-end}.vendor-directory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.vendor-directory-page{width:calc(100% - 22px);padding-top:18px}.vendor-directory-heading{align-items:flex-start;flex-direction:column}.vendor-directory-register{width:100%}.vendor-directory-filter{grid-template-columns:1fr;padding:13px}.vendor-filter-actions{grid-column:auto}.vendor-filter-actions .btn{flex:1}.vendor-directory-grid{grid-template-columns:1fr;gap:16px}.vendor-directory-card{min-height:285px}.vendor-directory-card h2{font-size:1.2rem}}
+/* Vendor photography cards */
+.vendor-directory-card{padding:0;overflow:hidden;min-height:390px}
+.vendor-directory-card-media{height:190px;position:relative;overflow:hidden;background:#eee8df}
+.vendor-directory-card-media img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.vendor-directory-card:hover .vendor-directory-card-media img{transform:scale(1.045)}
+.vendor-directory-card-content{display:flex;flex:1;flex-direction:column;justify-content:space-between;padding:17px 18px 16px}
+.vendor-directory-card h2{font-size:1.18rem}
+.vendor-directory-card .vendor-directory-description{min-height:44px}
+.vendor-directory-card .vendor-directory-card-actions{padding-top:10px}
+.vendor-directory-category{position:absolute;left:13px;bottom:12px;padding:5px 10px;border-radius:30px;background:rgba(39,36,31,.78);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.04em;backdrop-filter:blur(8px)}
+@media(max-width:680px){.vendor-directory-card{min-height:360px}.vendor-directory-card-media{height:180px}}
+@media(prefers-reduced-motion:reduce){.vendor-directory-card-media img{transition:none}}
+
 </style>
 
-<main class="vendor-directory-page">
+<section class="vendor-directory-page">
     <div class="vendor-directory-heading">
         <div>
             <h1><i class="bi bi-shop"></i> Wedding Vendors Directory</h1>
@@ -76,7 +89,13 @@
     <section class="vendor-directory-grid" aria-label="Available wedding vendors">
         <c:forEach var="v" items="${vendors}">
             <article class="vendor-directory-card">
-                <div>
+                <div class="vendor-directory-card-media">
+                    <img src="${pageContext.request.contextPath}${vendorImageSources[v.vendorId]}"
+                         alt="${v.vendorName} wedding service portfolio" loading="lazy">
+                    <span class="vendor-directory-category"><c:out value="${v.category.displayName}"/></span>
+                </div>
+                <div class="vendor-directory-card-content">
+                    <div>
                     <h2>${v.vendorName}</h2>
                     <p class="vendor-directory-location"><i class="bi bi-geo-alt"></i> ${v.address}</p>
                     <c:if test="${v.approvalStatus != 'APPROVED'}">
@@ -115,6 +134,7 @@
                         </form>
                     </c:if>
                 </div>
+                </div>
             </article>
         </c:forEach>
         <c:if test="${empty vendors}">
@@ -125,6 +145,6 @@
             </div>
         </c:if>
     </section>
-</main>
+</section>
 
 <jsp:include page="/WEB-INF/jsp/common/footer.jsp" />
