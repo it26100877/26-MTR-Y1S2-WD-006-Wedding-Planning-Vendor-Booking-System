@@ -8,7 +8,7 @@
 body{font-family:Georgia,serif;color:#352f27;background:#f7f3ed}.sheet{max-width:900px;margin:32px auto;background:#fff;padding:48px;border:1px solid #eadfce}
 .brand{font-size:30px;color:#8d6a22;font-weight:bold}.muted{color:#776f64}.total{font-size:28px;font-weight:bold}
 @media print{body{background:#fff}.sheet{margin:0 auto;border:0;padding:20px;max-width:none}.no-print{display:none!important}}
-</style></head><body><main class="sheet">
+</style></head><body><section class="sheet">
 <div class="d-flex justify-content-between align-items-start"><div><div class="brand">Éclat.</div><div class="muted">Wedding Planning &amp; Vendor Booking System</div></div><div class="text-end"><strong>VENDOR SERVICE CONTRACT</strong><br><span class="muted">Contract copy</span></div></div>
 <hr><h2 class="mt-4">Contract <c:out value="${contract.contractId}"/></h2>
 <p class="muted">Generated: <c:out value="${contract.contractDate}"/> &nbsp; | &nbsp; Status: <c:out value="${contract.status}"/></p>
@@ -20,4 +20,4 @@ body{font-family:Georgia,serif;color:#352f27;background:#f7f3ed}.sheet{max-width
 <div class="d-flex justify-content-between mt-5"><div>________________________<br>Customer signature</div><div>________________________<br>Authorized vendor / admin</div></div>
 <p class="muted small mt-5">This document is generated from the system's stored contract and payment records. For demo purposes it is not a digitally signed agreement.</p>
 <div class="no-print text-center mt-4"><button class="btn btn-dark" onclick="window.print()">Print / Save as PDF</button></div>
-</main></body></html>
+</section></body></html>
