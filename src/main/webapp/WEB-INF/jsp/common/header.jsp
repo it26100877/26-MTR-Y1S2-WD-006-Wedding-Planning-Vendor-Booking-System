@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">\n    <meta name="theme-color" content="#faf8f4">
     <title>${pageTitle != null ? pageTitle : "Wedding Planning System"}</title>
 
     <!-- Bootstrap 5 CSS -->
@@ -13,7 +13,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-    <!-- Éclat Styles -->
+    <!-- Fonts: preconnected to avoid the CSS @import request chain -->\n    <link rel="preconnect" href="https://fonts.googleapis.com">\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">\n\n    <!-- Éclat Styles -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-royal.css?v=20261104-final">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-premium-pages.css?v=20261105-full-ui">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/member05-contracts.css?v=20261109-ui1">
@@ -23,13 +23,13 @@
 
     <!-- Éclat global typography: Inter, Playfair Display and Roboto Mono -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-typography.css?v=20261109-fonts1">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-1">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-2">
 </head>
 
-<body>
+<body>\n<a class="eclat-skip-link" href="#mainContent">Skip to main content</a>
 
 <!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-light eclat-topbar shadow-sm sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light eclat-topbar shadow-sm sticky-top" aria-label="Main navigation">
     <div class="container-fluid px-4">
 
         <a class="navbar-brand" href="${pageContext.request.contextPath}/">
@@ -37,7 +37,7 @@
         </a>
 
         <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#navContent">
+                data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
