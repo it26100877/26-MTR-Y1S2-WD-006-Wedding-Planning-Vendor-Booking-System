@@ -156,7 +156,7 @@ public class DemoDataSeeder implements ApplicationRunner {
         }
         if (guests.getGuestsByPlan(plan.getPlanId()).isEmpty()) {
             guests.addGuest(plan.getPlanId(), "Amara Perera", "FAMILY", "amara@example.test", "3", "CONFIRMED", "Demo guest");
-            guests.addGuest(plan.getPlanId(), "Kavish Fernando", "FRIENDS", "kavish@example.test", "2", "PENDING", "Demo guest");
+            guests.addGuest(plan.getPlanId(), "Kavish Fernando", "FRIENDS", "kavish@example.test", "2", "INVITED", "Demo guest");
             guests.addGuest(plan.getPlanId(), "Nimali Silva", "COLLEAGUES", "nimali@example.test", "1", "DECLINED", "Demo guest");
         }
 
