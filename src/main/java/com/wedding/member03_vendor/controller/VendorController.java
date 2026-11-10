@@ -141,6 +141,7 @@ public class VendorController {
  User user = (User) httpSession.getAttribute("currentUser");
  if (user == null) return "redirect:/login";
 
+ model.addAttribute("vendorPhotoLimitBytes", MAX_VENDOR_IMAGE_BYTES);
  model.addAttribute("isEdit", false);
  model.addAttribute("categories", VendorCategory.values());
  model.addAttribute("pageTitle", "Register Vendor - Éclat");
