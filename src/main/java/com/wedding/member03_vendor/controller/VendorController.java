@@ -330,9 +330,13 @@ public class VendorController {
   Path directory = getVendorImageDirectory();
   if (!Files.isDirectory(directory)) return results;
   try (java.util.stream.Stream<Path> files = Files.list(directory)) {
-   files.filter(path -> path.getFileName().toString().matches(java.util.regex.Pattern.quote(id) + "-[0-7]\\.(jpg|jpeg|png|gif)"))
-        .sorted(Comparator.comparing(path -> path.getFileName().toString()))
-        .forEach(results::add);
+   files.filter(path -> {
+    java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+    return matcher.matches() && id.equals(matcher.group(1));
+   }).sorted(Comparator.comparingInt(path -> {
+    java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+    return matcher.matches() ? Integer.parseInt(matcher.group(2)) : 99;
+   })).forEach(results::add);
   } catch (IOException ignored) { }
   return results;
  }
@@ -428,11 +432,12 @@ public class VendorController {
     Files.write(target, image.getBytes());
    }
    try (java.util.stream.Stream<Path> existing = Files.list(directory)) {
-    existing.filter(path -> path.getFileName().toString().matches(java.util.regex.Pattern.quote(vendorId) + "-[0-7]\\.(jpg|jpeg|png|gif)"))
-      .filter(path -> {
-       String name = path.getFileName().toString();
-       for (int i = 0; i < images.size(); i++) if (name.startsWith(vendorId + "-" + i + ".")) return false;
-       return true;
+    existing.filter(path -> {
+      java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+      return matcher.matches() && vendorId.equals(matcher.group(1));
+     }).filter(path -> {
+       java.util.regex.Matcher matcher = VENDOR_IMAGE_PATTERN.matcher(path.getFileName().toString());
+       return !matcher.matches() || Integer.parseInt(matcher.group(2)) >= images.size();
       })
       .forEach(path -> { try { Files.deleteIfExists(path); } catch (IOException ignored) { } });
    }
