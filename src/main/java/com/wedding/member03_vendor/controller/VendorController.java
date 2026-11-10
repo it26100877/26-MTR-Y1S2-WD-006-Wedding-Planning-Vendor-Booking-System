@@ -141,6 +141,7 @@ public class VendorController {
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
+ validateVendorImage(vendorImage);
  Vendor vendor = vendorService.addVendor(
  vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
  saveVendorImage(vendor.getVendorId(), vendorImage);
@@ -208,6 +209,7 @@ public class VendorController {
  try {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
+ validateVendorImage(vendorImage);
  vendorService.updateVendor(id, vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
  saveVendorImage(id, vendorImage);
  redirectAttributes.addFlashAttribute("successMessage", "Vendor details updated successfully!");
@@ -313,8 +315,8 @@ public class VendorController {
   return ResponseEntity.notFound().build();
  }
 
- private void saveVendorImage(String vendorId, MultipartFile image) {
-  if (image == null || image.isEmpty()) return;
+ private String validateVendorImage(MultipartFile image) {
+  if (image == null || image.isEmpty()) return null;
   if (image.getSize() > MAX_VENDOR_IMAGE_BYTES) {
    throw new IllegalArgumentException("Vendor image must be 5 MB or smaller.");
   }
@@ -325,10 +327,20 @@ public class VendorController {
    throw new IllegalArgumentException("Only JPG, PNG or GIF images are allowed.");
   }
   try {
-   byte[] bytes = image.getBytes();
-   if (ImageIO.read(new ByteArrayInputStream(bytes)) == null) {
+   if (ImageIO.read(new ByteArrayInputStream(image.getBytes())) == null) {
     throw new IllegalArgumentException("The selected file is not a valid image.");
    }
+  } catch (IOException ex) {
+   throw new IllegalArgumentException("Unable to read the selected image.", ex);
+  }
+  return extension;
+ }
+
+ private void saveVendorImage(String vendorId, MultipartFile image) {
+  if (image == null || image.isEmpty()) return;
+  String extension = validateVendorImage(image);
+  try {
+   byte[] bytes = image.getBytes();
    Path directory = Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
    Files.createDirectories(directory);
    Path target = directory.resolve(vendorId + "." + extension).normalize();
