@@ -51,16 +51,16 @@ Return to the Codespaces terminal where Spring Boot is running and press **Ctrl 
 
 A local/demo run automatically creates a realistic sample dataset unless demo seeding is disabled. The seeder is excluded from the `prod` profile and is idempotent; it checks stable demo emails before adding records.
 
-The sample dataset includes:
-- **30 approved vendor profiles** across the available wedding-service categories.
-- A demo customer and a wedding plan with checklist, budget items and guest RSVP records.
-- A linked booking, contract, advance-payment record, completed booking and verified review.
+The current demo seeder creates:
+- **55 approved vendor profiles** across Sri Lankan wedding-service categories and districts.
+- **10 linked wedding-planning journeys** for the demo customer. Each journey includes a wedding plan, checklist, budget and guest records, plus a linked booking, contract, advance-payment record and verified review.
+- A single demo customer account shared by the ten journeys.
 
 Demo customer:
 - **Email:** `demo.customer@example.test`
 - **Password:** `DemoWedding#2026`
 
-All sample vendors, customer details, payments and reviews are fictional. The payment is a demonstration record only; it does not represent a real bank transaction.
+All sample vendors, customer details, payments and reviews are fictional. The payment is a demonstration record only; it does not represent a real bank transaction. Existing local CSV data is retained, so the total records visible in a reused data directory can be higher than the number newly created by one seeding run.
 
 To disable demo seeding locally, set `ECLAT_DEMO_DATA_ENABLED=false` or `app.demo-data.enabled=false`.
 
