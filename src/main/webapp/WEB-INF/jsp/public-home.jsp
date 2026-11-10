@@ -11,6 +11,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-royal.css?v=20261105-marketplace">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-marketplace.css?v=20261105">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-ui-2026.css?v=20261110-1">
 
 <style id="eclat-vendor-picker-final-override">
   /* Isolated marketplace dropdown; deliberately loaded after every stylesheet. */
@@ -61,8 +62,8 @@
 <body class="marketplace-body">
 <header class="market-nav">
   <a class="market-brand" href="${pageContext.request.contextPath}/">Éclat<span>.</span></a>
-  <button class="market-menu-toggle" type="button" onclick="document.querySelector('.market-links').classList.toggle('show')"><i class="bi bi-list"></i></button>
-  <nav class="market-links">
+  <button class="market-menu-toggle" type="button" aria-label="Toggle navigation" aria-controls="marketLinks" aria-expanded="false"><i class="bi bi-list"></i></button>
+  <nav class="market-links" id="marketLinks">
     <div class="dropdown">
       <a href="${pageContext.request.contextPath}/vendors" class="dropdown-toggle" data-bs-toggle="dropdown">Vendors</a>
       <div class="dropdown-menu market-dropdown">
@@ -191,6 +192,18 @@
 
 <script>
 (() => {
+  const mobileToggle = document.querySelector('.market-menu-toggle');
+  const mobileLinks = document.getElementById('marketLinks');
+  if (mobileToggle && mobileLinks) {
+    mobileToggle.addEventListener('click', () => {
+      const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+      mobileToggle.setAttribute('aria-expanded', String(!expanded));
+      mobileLinks.classList.toggle('show', !expanded);
+    });
+    mobileLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      mobileLinks.classList.remove('show'); mobileToggle.setAttribute('aria-expanded', 'false');
+    }));
+  }
   const trigger = document.getElementById('vendorPickerTrigger');
   const menu = document.getElementById('vendorPickerMenu');
   const label = document.getElementById('vendorPickerLabel');
