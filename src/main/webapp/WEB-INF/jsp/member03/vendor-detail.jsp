@@ -63,6 +63,9 @@
         background: #ffebee;
         color: #c62828;
     }
+    .vendor-detail-photo{width:100%;height:clamp(250px,38vw,440px);object-fit:cover;border-radius:14px;margin-bottom:26px;border:1px solid #eadfD1}
+    .vendor-detail-gallery-note{color:#8a8177;font-size:.82rem;margin-top:8px}
+
 </style>
 
 <div class="vendor-detail-wrapper">
@@ -78,6 +81,9 @@
         <c:when test="${not empty vendor}">
 
             <div class="vendor-detail-card">
+
+                <img class="vendor-detail-photo" src="${pageContext.request.contextPath}${vendorImageSource}"
+                     alt="${vendor.vendorName} portfolio" loading="lazy">
 
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
 
