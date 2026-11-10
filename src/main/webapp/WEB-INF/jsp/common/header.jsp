@@ -195,5 +195,5 @@
     </div>
 </nav>
 
-<div class="container py-4 flex-grow-1">
+<main id="mainContent" class="container py-4 flex-grow-1" tabindex="-1">
     <jsp:include page="/WEB-INF/jsp/common/alerts.jsp" />
