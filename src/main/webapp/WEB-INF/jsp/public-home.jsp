@@ -75,6 +75,7 @@
     <a href="#destinations">Destinations</a><a href="#inspiration">Inspiration</a>
     <a href="#real-weddings">Real Weddings</a>
     <a href="#stories">Stories</a>
+    <a href="#contact">Contact Us</a>
   </nav>
   <div class="market-account">
     <a href="${pageContext.request.contextPath}/register" class="market-signup">Sign Up</a>
@@ -235,9 +236,32 @@
   <p class="destination-disclaimer">These are fictional demonstration stories, not real customer reviews or verified weddings.</p>
 </section>
 
+<section class="market-contact-section" id="contact">
+  <div class="market-contact-copy">
+    <p class="eyebrow">WE'RE HERE TO HELP</p>
+    <h2>Let's make your day<br><em>beautifully yours.</em></h2>
+    <p>Have a question about Éclat, wedding planning or finding the right vendor? Send us a WhatsApp message and our team will be happy to help.</p>
+    <div class="market-contact-details">
+      <span class="market-contact-label">WHATSAPP CONTACT</span>
+      <a href="https://wa.me/94773044801" target="_blank" rel="noopener noreferrer">+94 77 304 4801</a>
+    </div>
+    <a class="market-whatsapp-cta" href="https://wa.me/94773044801?text=Hello%20%C3%89clat%2C%20I%20would%20like%20to%20know%20more%20about%20your%20wedding%20planning%20services." target="_blank" rel="noopener noreferrer" aria-label="Contact Éclat on WhatsApp">
+      <i class="bi bi-whatsapp" aria-hidden="true"></i> Chat with us on WhatsApp
+    </a>
+  </div>
+  <div class="market-contact-note">
+    <span class="market-contact-mark"><i class="bi bi-chat-heart" aria-hidden="true"></i></span>
+    <p>One message is all it takes to get your planning started.</p>
+    <span>ÉCLAT · WEDDING PLANNING & VENDOR BOOKING</span>
+  </div>
+</section>
+
 <section class="market-cta"><p class="eyebrow light">YOUR NEXT CHAPTER STARTS HERE</p><h2>Let the planning<br><em>feel as special as the day.</em></h2><a href="${pageContext.request.contextPath}/register">Create your free account <i class="bi bi-arrow-right"></i></a></section>
 </main>
-<footer class="market-footer"><a class="market-brand" href="${pageContext.request.contextPath}/">Éclat<span>.</span></a><p>Wedding Planning & Vendor Booking · SE1020 OOP Project</p><div><a href="${pageContext.request.contextPath}/vendors">Vendors</a><a href="${pageContext.request.contextPath}/login">Log In</a><a href="${pageContext.request.contextPath}/register">Sign Up</a></div></footer>
+<footer class="market-footer"><a class="market-brand" href="${pageContext.request.contextPath}/">Éclat<span>.</span></a><p>Wedding Planning & Vendor Booking · SE1020 OOP Project</p><div><a href="${pageContext.request.contextPath}/vendors">Vendors</a><a href="${pageContext.request.contextPath}/login">Log In</a><a href="${pageContext.request.contextPath}/register">Sign Up</a><a href="#contact">Contact Us</a></div></footer>
+<a class="market-whatsapp-float" href="https://wa.me/94773044801?text=Hello%20%C3%89clat%2C%20I%20have%20a%20question." target="_blank" rel="noopener noreferrer" aria-label="Chat with Éclat on WhatsApp">
+  <i class="bi bi-whatsapp" aria-hidden="true"></i><span>WhatsApp</span>
+</a>
 
 <script>
 (() => {
