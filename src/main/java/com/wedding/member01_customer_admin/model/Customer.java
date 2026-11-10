@@ -37,7 +37,6 @@ public class Customer extends User {
  public Customer(String userId, String name, String email, String phone,
  String passwordHash, String createdAt, boolean active,
  String address, String weddingDate) {
- super(userId, name, email, phone, passwordHash, createdAt, active);
  this(userId, name, email, phone, passwordHash, createdAt, active, address, weddingDate, true);
  }
 
