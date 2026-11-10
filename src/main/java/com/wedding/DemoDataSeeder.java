@@ -177,9 +177,10 @@ public class DemoDataSeeder implements ApplicationRunner {
         if (booking.getStatus() == com.wedding.member04_booking.model.BookingStatus.PENDING) {
             booking = bookings.confirmBooking(booking.getBookingId());
         }
+        String linkedBookingId = booking.getBookingId();
 
         VendorContract contract = contracts.getAllContracts().stream()
-                .filter(c -> booking.getBookingId().equals(c.getBookingId()))
+                .filter(c -> linkedBookingId.equals(c.getBookingId()))
                 .findFirst().orElse(null);
         if (contract == null) {
             contract = contracts.createContract(booking.getBookingId(), customer.getUserId(),
@@ -196,7 +197,6 @@ public class DemoDataSeeder implements ApplicationRunner {
         if (booking.getStatus() == com.wedding.member04_booking.model.BookingStatus.CONFIRMED) {
             bookings.completeBooking(booking.getBookingId());
         }
-        String linkedBookingId = booking.getBookingId();
         if (reviews.getByVendor(featured.getVendorId()).stream()
                 .noneMatch(r -> linkedBookingId.equals(r.getBookingId()))) {
             reviews.submitReview(customer.getUserId(), featured.getVendorId(), linkedBookingId,
