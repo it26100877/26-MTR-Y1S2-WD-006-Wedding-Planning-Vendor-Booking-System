@@ -90,30 +90,11 @@
         <c:forEach var="v" items="${vendors}">
             <article class="vendor-directory-card">
                 <div class="vendor-directory-card-media">
-                    <c:choose>
-                        <c:when test="${v.category == 'PHOTOGRAPHY' || v.category == 'VIDEOGRAPHY'}">
-                            <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding photography in Sri Lanka" loading="lazy">
-                        </c:when>
-                        <c:when test="${v.category == 'DECORATION' || v.category == 'FLORISTS'}">
-                            <img src="https://images.unsplash.com/photo-1507504031003-b417219a0fda?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding floral decorations" loading="lazy">
-                        </c:when>
-                        <c:when test="${v.category == 'CATERING'}">
-                            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding reception catering" loading="lazy">
-                        </c:when>
-                        <c:when test="${v.category == 'MUSIC_DJ'}">
-                            <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding DJ and sound setup" loading="lazy">
-                        </c:when>
-                        <c:when test="${v.category == 'WEDDING_CAKES'}">
-                            <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding cake" loading="lazy">
-                        </c:when>
-                        <c:when test="${v.category == 'VENUES'}">
-                            <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding reception venue" loading="lazy">
-                        </c:when>
-                        <c:otherwise>
-                            <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&amp;fit=crop&amp;w=900&amp;q=82" alt="Wedding celebration in Sri Lanka" loading="lazy">
-                        </c:otherwise>
-                    </c:choose>
-                    <span class="vendor-directory-category">${v.category.displayName}</span>
+                    <img src="${pageContext.request.contextPath}/vendor-images/${v.vendorId}"
+                         alt="${v.vendorName} wedding service portfolio"
+                         loading="lazy"
+                         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&amp;fit=crop&amp;w=900&amp;q=82';">
+                    <span class="vendor-directory-category"><c:out value="${v.category.displayName}"/></span>
                 </div>
                 <div class="vendor-directory-card-content">
                     <div>
