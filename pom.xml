@@ -84,6 +84,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <eclat.data.dir>${project.build.directory}/test-data</eclat.data.dir>
+                        <app.demo-data.enabled>false</app.demo-data.enabled>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
