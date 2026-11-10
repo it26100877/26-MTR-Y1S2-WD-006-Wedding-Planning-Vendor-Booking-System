@@ -212,6 +212,36 @@ public class BookingController {
  }
 
 
+ @GetMapping("/bookings/receipt/{id}")
+ public String printBookingReceipt(@PathVariable("id") String id, HttpSession httpSession,
+                                   Model model, RedirectAttributes redirectAttributes) {
+  User viewer = (User) httpSession.getAttribute("currentUser");
+  if (viewer == null) return "redirect:/login";
+  try {
+   Booking booking = bookingService.getById(id);
+   if (!"ADMIN".equalsIgnoreCase(viewer.getRole())
+       && (!"CUSTOMER".equalsIgnoreCase(viewer.getRole())
+           || !booking.getCustomerId().equalsIgnoreCase(viewer.getUserId()))) {
+    redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this booking receipt.");
+    return "redirect:/bookings";
+   }
+   if (booking.getStatus() != BookingStatus.CONFIRMED && booking.getStatus() != BookingStatus.COMPLETED) {
+    redirectAttributes.addFlashAttribute("errorMessage", "A receipt is available only after a booking is confirmed.");
+    return "redirect:/bookings/view/" + id;
+   }
+   model.addAttribute("booking", booking);
+   model.addAttribute("customerName", customerName(booking.getCustomerId()));
+   model.addAttribute("vendor", vendorService.getById(booking.getVendorId()));
+   model.addAttribute("plan", booking.getPlanId() == null || booking.getPlanId().isBlank()
+           ? null : planService.getById(booking.getPlanId()));
+   model.addAttribute("pageTitle", "Booking Receipt - " + booking.getBookingId());
+   return "member04/booking-receipt";
+  } catch (AppException ex) {
+   redirectAttributes.addFlashAttribute("errorMessage", ex.getMessage());
+   return "redirect:/bookings";
+  }
+ }
+
  @GetMapping("/bookings/edit/{id}")
  public String showEditBookingForm(@PathVariable("id") String id, HttpSession httpSession,
                                    Model model, RedirectAttributes redirectAttributes) {

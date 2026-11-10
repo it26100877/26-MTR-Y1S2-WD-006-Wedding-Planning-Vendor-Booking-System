@@ -368,7 +368,9 @@ public class VendorController {
 
  @GetMapping("/vendor-images/{id}/{index}")
  @ResponseBody
- public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id, @PathVariable("index") int index) throws IOException {
+ public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id, @PathVariable("index") int index,
+                                               HttpSession session) throws IOException {
+  if (!canViewVendorPortfolio(id, session)) return ResponseEntity.notFound().build();
   List<Path> images = findUploadedVendorImages(id);
   if (index < 0 || index >= images.size()) return ResponseEntity.notFound().build();
   Path image = images.get(index);
@@ -381,13 +383,14 @@ public class VendorController {
 
  @GetMapping("/vendor-images/{id}")
  @ResponseBody
- public ResponseEntity<byte[]> getVendorCoverImage(@PathVariable("id") String id) throws IOException {
-  return getVendorImage(id, 0);
+ public ResponseEntity<byte[]> getVendorCoverImage(@PathVariable("id") String id, HttpSession session) throws IOException {
+  return getVendorImage(id, 0, session);
  }
 
  @GetMapping("/api/vendors/{id}/photos")
  @ResponseBody
- public ResponseEntity<List<String>> getVendorPhotos(@PathVariable("id") String id) {
+ public ResponseEntity<List<String>> getVendorPhotos(@PathVariable("id") String id, HttpSession session) {
+  if (!canViewVendorPortfolio(id, session)) return ResponseEntity.notFound().build();
   Vendor vendor = vendorService.getById(id);
   List<String> photos = getVendorGallerySources(vendor);
   return ResponseEntity.ok(photos);
@@ -404,6 +407,17 @@ public class VendorController {
   if (!Files.isRegularFile(image)) return ResponseEntity.notFound().build();
   MediaType type = resource.endsWith(".png") ? MediaType.IMAGE_PNG : MediaType.IMAGE_JPEG;
   return ResponseEntity.ok().contentType(type).body(Files.readAllBytes(image));
+ }
+
+ private boolean canViewVendorPortfolio(String vendorId, HttpSession session) {
+  User viewer = (User) session.getAttribute("currentUser");
+  if (viewer != null && "ADMIN".equalsIgnoreCase(viewer.getRole())) return true;
+  try {
+   Vendor vendor = vendorService.getById(vendorId);
+   return vendor.isActive() && "APPROVED".equalsIgnoreCase(vendor.getApprovalStatus());
+  } catch (AppException ex) {
+   return false;
+  }
  }
 
  private String validateVendorImage(MultipartFile image) {

@@ -67,10 +67,10 @@ public class CustomerAdminController {
             }
             if ("CUSTOMER".equalsIgnoreCase(role)) {
                 Customer customer = customerService.login(email, password);
-                request.changeSessionId();
-                httpSession.setAttribute("currentUser", customer);
-                redirectAttributes.addFlashAttribute("successMessage", "Welcome back, " + customer.getName() + "!");
-                return "redirect:/dashboard";
+                otpService.start(httpSession, customer);
+                redirectAttributes.addFlashAttribute("successMessage",
+                        "Password accepted. Verify the one-time code to finish signing in.");
+                return "redirect:/login/otp";
             }
             throw new com.wedding.common.exceptions.ValidationException("Select a valid account type.");
         } catch (AppException e) {

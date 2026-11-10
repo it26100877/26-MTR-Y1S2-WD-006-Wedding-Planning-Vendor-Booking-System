@@ -108,7 +108,6 @@
                     </li>
 
                     <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
-                        <c:if test="${sessionScope.currentUser.role == 'ADMIN'}">
                     <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/admin/payment-proofs"><i class="bi bi-shield-check"></i> Payment Proofs</a></li>
                 </c:if>
 
