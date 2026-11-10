@@ -178,20 +178,31 @@ public class BookingInsightsController {
         response.getOutputStream().write(csv.toString().getBytes(StandardCharsets.UTF_8));
     }
     @GetMapping("/bookings/receipt/{id}")
-    public void receipt(@PathVariable("id") String id,HttpSession session,HttpServletResponse response) throws IOException {
-        User actor=user(session);
-        if(actor==null) {response.sendError(401);return;}
+    public String receipt(@PathVariable("id") String id, HttpSession session, Model model,
+                          RedirectAttributes redirectAttributes) {
+        User actor = user(session);
+        if (actor == null) return "redirect:/login";
         Booking booking;
-        try {booking=bookings.getById(id);} catch(AppException ex) {response.sendError(404);return;}
-        if(!admin(actor) && !actor.getUserId().equalsIgnoreCase(booking.getCustomerId())) {response.sendError(403);return;}
-        if(booking.getStatus()!=BookingStatus.CONFIRMED && booking.getStatus()!=BookingStatus.COMPLETED) {
-            response.sendError(409,"Only confirmed or completed bookings have receipts"); return;
+        try {
+            booking = bookings.getById(id);
+        } catch (AppException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Booking not found.");
+            return "redirect:/bookings";
         }
-        byte[] pdf=BookingPdfReceipt.generate(booking,customerName(booking.getCustomerId()),
-                 vendorName(booking.getVendorId()),planName(booking.getPlanId()));
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition","attachment; filename=Eclat-Booking-"+booking.getBookingId().replaceAll("[^A-Za-z0-9_-]", "")+".pdf");
-        response.setContentLength(pdf.length);
-        response.getOutputStream().write(pdf);
+        if (!admin(actor) && !actor.getUserId().equalsIgnoreCase(booking.getCustomerId())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "You are not allowed to view this receipt.");
+            return "redirect:/bookings";
+        }
+        if (booking.getStatus() != BookingStatus.CONFIRMED && booking.getStatus() != BookingStatus.COMPLETED) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Only confirmed or completed bookings have receipts.");
+            return "redirect:/bookings/view/" + id;
+        }
+        model.addAttribute("booking", booking);
+        model.addAttribute("customerName", customerName(booking.getCustomerId()));
+        model.addAttribute("vendor", vendors.getById(booking.getVendorId()));
+        model.addAttribute("plan", booking.getPlanId() == null || booking.getPlanId().isBlank()
+                ? null : plans.getById(booking.getPlanId()));
+        model.addAttribute("pageTitle", "Booking Receipt - " + booking.getBookingId());
+        return "member04/booking-receipt";
     }
 }
