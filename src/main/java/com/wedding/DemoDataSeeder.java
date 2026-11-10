@@ -206,14 +206,15 @@ public class DemoDataSeeder implements ApplicationRunner {
         int[] vendorNumbers = {1, 31, 32, 33, 34, 35, 36, 37, 38, 39};
 
         for (int i = 0; i < planNames.length; i++) {
-            final String planName = planNames[i];
-            LocalDate eventDate = LocalDate.now().plusDays(180L + (i * 7L));
+            final int index = i;
+            final String planName = planNames[index];
+            LocalDate eventDate = LocalDate.now().plusDays(180L + (index * 7L));
             WeddingPlan plan = plans.getByCustomerId(customer.getUserId()).stream()
                     .filter(p -> planName.equalsIgnoreCase(p.getPlanName()))
                     .findFirst().orElseGet(() -> plans.createPlan(
-                            customer.getUserId(), planName, eventDate.toString(), venues[i],
-                            themes[i], "Fictional Sri Lankan wedding demo record for the "
-                                    + themes[i] + " celebration.", budgets[i], guestCounts[i]));
+                            customer.getUserId(), planName, eventDate.toString(), venues[index],
+                            themes[index], "Fictional Sri Lankan wedding demo record for the "
+                                    + themes[index] + " celebration.", budgets[index], guestCounts[index]));
 
             if (checklist.getTasksByPlan(plan.getPlanId()).isEmpty()) {
                 checklist.generateFromTemplate(plan);
@@ -252,8 +253,9 @@ public class DemoDataSeeder implements ApplicationRunner {
                 booking = bookings.confirmBooking(booking.getBookingId());
             }
 
+            final String bookingIdForContract = booking.getBookingId();
             VendorContract contract = contracts.getAllContracts().stream()
-                    .filter(c -> booking.getBookingId().equals(c.getBookingId()))
+                    .filter(c -> bookingIdForContract.equals(c.getBookingId()))
                     .findFirst().orElse(null);
             if (contract == null) {
                 contract = contracts.createContract(booking.getBookingId(), customer.getUserId(),
