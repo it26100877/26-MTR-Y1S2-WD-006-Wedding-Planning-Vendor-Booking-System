@@ -48,6 +48,7 @@ public class VendorController {
  private static final long MAX_VENDOR_IMAGE_BYTES = 5L * 1024 * 1024;
  private static final int MAX_VENDOR_IMAGES = 8;
  private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
+ private static final java.util.regex.Pattern VENDOR_IMAGE_PATTERN = java.util.regex.Pattern.compile("^([A-Za-z0-9_-]{1,100})-([0-7])\\.(jpg|jpeg|png|gif)$");
  private static final Map<VendorCategory, String> CATEGORY_DEMO_IMAGES = Map.ofEntries(
   Map.entry(VendorCategory.PHOTOGRAPHY, "/images/photography.jpg"),
   Map.entry(VendorCategory.VIDEOGRAPHY, "/images/photography.jpg"),
