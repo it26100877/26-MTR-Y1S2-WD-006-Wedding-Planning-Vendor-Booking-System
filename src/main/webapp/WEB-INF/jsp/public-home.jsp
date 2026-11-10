@@ -147,12 +147,12 @@
 <section class="market-section category-section">
   <div class="section-heading"><p class="eyebrow">EXPLORE THE DIRECTORY</p><h2>Everything you need,<br><em>all in one place.</em></h2><p>Meet talented people who make every detail feel like you.</p></div>
   <div class="category-grid">
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=PHOTOGRAPHY"><img src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=700&q=85" alt="Wedding photography"><span>Photography</span></a>
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=WEDDING_PLANNERS"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=700&q=85" alt="Wedding planning"><span>Wedding Planners</span></a>
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=VENUES"><img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=700&q=85" alt="Wedding venue"><span>Venues</span></a>
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=FLORISTS"><img src="https://images.unsplash.com/photo-1497250681960-ef046c08a56e?auto=format&fit=crop&w=700&q=85" alt="Wedding flowers"><span>Florists & Decor</span></a>
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=BEAUTY_SALON"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?auto=format&fit=crop&w=700&q=85" alt="Bridal makeup"><span>Beauty</span></a>
-    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=CATERING"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=700&q=85" alt="Wedding reception"><span>Catering</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=PHOTOGRAPHY"><img src="${pageContext.request.contextPath}/images/photography.jpg" alt="Wedding photography"><span>Photography</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=WEDDING_PLANNERS"><img src="${pageContext.request.contextPath}/images/member02/wedding-arch.jpg" alt="Wedding planning"><span>Wedding Planners</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=VENUES"><img src="${pageContext.request.contextPath}/images/venue.jpg" alt="Wedding venue"><span>Venues</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=FLORISTS"><img src="${pageContext.request.contextPath}/images/florist.jpg" alt="Wedding flowers"><span>Florists & Decor</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=BEAUTY_SALON"><img src="${pageContext.request.contextPath}/images/wedding-dress.jpg" alt="Bridal makeup"><span>Beauty</span></a>
+    <a class="category-tile" href="${pageContext.request.contextPath}/vendors?category=CATERING"><img src="${pageContext.request.contextPath}/images/catering.jpg" alt="Wedding reception"><span>Catering</span></a>
   </div>
 </section>
 
@@ -161,7 +161,17 @@
   <div class="vendor-feature-grid">
     <c:forEach var="v" items="${featuredVendors}">
       <article class="feature-vendor-card">
-        <div class="feature-vendor-image"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=85" alt="Wedding portfolio"><span>${v.category.displayName}</span></div>
+        <div class="feature-vendor-image">
+          <c:choose>
+            <c:when test="${v.category.name() == 'PHOTOGRAPHY' || v.category.name() == 'VIDEOGRAPHY' || v.category.name() == 'PHOTO_BOOTH' || v.category.name() == 'CONTENT_CREATOR'}"><img src="${pageContext.request.contextPath}/images/photography.jpg" alt="Photography portfolio" loading="lazy"></c:when>
+            <c:when test="${v.category.name() == 'CATERING'}"><img src="${pageContext.request.contextPath}/images/catering.jpg" alt="Wedding catering portfolio" loading="lazy"></c:when>
+            <c:when test="${v.category.name() == 'DECORATION' || v.category.name() == 'FLORISTS'}"><img src="${pageContext.request.contextPath}/images/decoration.jpg" alt="Wedding decor portfolio" loading="lazy"></c:when>
+            <c:when test="${v.category.name() == 'MUSIC_DJ'}"><img src="${pageContext.request.contextPath}/images/music-dj.jpg" alt="Wedding DJ portfolio" loading="lazy"></c:when>
+            <c:when test="${v.category.name() == 'WEDDING_DRESSES' || v.category.name() == 'BRIDAL_SALONS' || v.category.name() == 'MAKEUP_ARTISTS' || v.category.name() == 'HAIR_STYLISTS' || v.category.name() == 'BEAUTY_SALON'}"><img src="${pageContext.request.contextPath}/images/wedding-dress.jpg" alt="Bridal styling portfolio" loading="lazy"></c:when>
+            <c:when test="${v.category.name() == 'VENUES'}"><img src="${pageContext.request.contextPath}/images/venue.jpg" alt="Wedding venue portfolio" loading="lazy"></c:when>
+            <c:otherwise><img src="${pageContext.request.contextPath}/images/member02/wedding-arch.jpg" alt="Wedding service portfolio" loading="lazy"></c:otherwise>
+          </c:choose>
+          <span>${v.category.displayName}</span></div>
         <div class="feature-vendor-info"><div><h3>${v.vendorName}</h3><p><i class="bi bi-geo-alt"></i> ${v.address}</p></div><strong>LKR ${v.basePrice}</strong></div>
         <a class="vendor-view-link" href="${pageContext.request.contextPath}/vendors/view/${v.vendorId}">View profile <i class="bi bi-arrow-right"></i></a>
       </article>
@@ -172,18 +182,57 @@
   </div>
 </section>
 
-<section class="editorial-band" id="destinations">
-  <div class="editorial-photo"><img src="https://images.unsplash.com/photo-1530023367847-a6839330742e?auto=format&fit=crop&w=1200&q=90" alt="Romantic destination wedding"></div>
-  <div class="editorial-copy"><p class="eyebrow">A LITTLE INSPIRATION</p><h2>Your story deserves<br><em>a beautiful setting.</em></h2><p>From oceanfront celebrations to garden ceremonies, explore ideas for a wedding that feels uniquely yours.</p><a href="${pageContext.request.contextPath}/vendors?category=VENUES" class="dark-link">Discover wedding venues <i class="bi bi-arrow-up-right"></i></a></div>
+<section class="market-section destination-section" id="destinations">
+  <div class="section-heading">
+    <p class="eyebrow">SAY “I DO” IN SRI LANKA</p>
+    <h2>Beautiful places for<br><em>your beginning.</em></h2>
+    <p>From the southern coastline to the misty hill country, discover real Sri Lankan wedding destinations.</p>
+  </div>
+  <div class="destination-grid">
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.jetwinghotels.com/jetwinglighthouse/weddings/" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-beach.jpg" alt="Coastal wedding setting in Galle" loading="lazy"><span>Southern Coast</span></a>
+      <div class="destination-copy"><p class="eyebrow">GALLE</p><h3>Jetwing Lighthouse</h3><p>Ocean views, coastal lawns and elegant halls beside the historic city of Galle.</p><a href="https://www.jetwinghotels.com/jetwinglighthouse/weddings/" target="_blank" rel="noopener">Explore wedding venue <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.heritancehotels.com/kandalama/weddings/" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-garden.jpg" alt="Garden wedding setting surrounded by nature" loading="lazy"><span>Cultural Triangle</span></a>
+      <div class="destination-copy"><p class="eyebrow">DAMBULLA · SIGIRIYA</p><h3>Heritance Kandalama</h3><p>A nature-rich celebration framed by forest, water and the Sigiriya landscape.</p><a href="https://www.heritancehotels.com/kandalama/weddings/" target="_blank" rel="noopener">Explore wedding venue <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.anantara.com/en/peace-haven-tangalle/weddings" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-beach.jpg" alt="Beach wedding inspiration on Sri Lanka's southern coast" loading="lazy"><span>Oceanfront Escape</span></a>
+      <div class="destination-copy"><p class="eyebrow">TANGALLE</p><h3>Anantara Peace Haven</h3><p>Clifftop ocean views and tropical gardens for a memorable destination celebration.</p><a href="https://www.anantara.com/en/peace-haven-tangalle/weddings" target="_blank" rel="noopener">Explore wedding venue <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.jetwinghotels.com/jetwingblue/" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-ballroom.jpg" alt="Elegant wedding reception venue" loading="lazy"><span>West Coast</span></a>
+      <div class="destination-copy"><p class="eyebrow">NEGOMBO</p><h3>Jetwing Blue</h3><p>A relaxed coastal setting with spaces for celebrations by the sea.</p><a href="https://www.jetwinghotels.com/jetwingblue/" target="_blank" rel="noopener">Explore hotel <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.heritancehotels.com/teafactory/" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-classic.jpg" alt="Romantic highland wedding inspiration" loading="lazy"><span>Hill Country</span></a>
+      <div class="destination-copy"><p class="eyebrow">NUWARA ELIYA</p><h3>Heritance Tea Factory</h3><p>A distinctive highland atmosphere surrounded by tea country and misty hills.</p><a href="https://www.heritancehotels.com/teafactory/" target="_blank" rel="noopener">Explore hotel <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+    <article class="destination-card">
+      <a class="destination-image" href="https://www.gallefacehotel.com/" target="_blank" rel="noopener"><img src="${pageContext.request.contextPath}/images/member02/wedding-ballroom.jpg" alt="Classic hotel wedding reception inspiration in Colombo" loading="lazy"><span>City Heritage</span></a>
+      <div class="destination-copy"><p class="eyebrow">COLOMBO</p><h3>The Galle Face Hotel</h3><p>Colonial character and a timeless seaside city setting for a classic celebration.</p><a href="https://www.gallefacehotel.com/" target="_blank" rel="noopener">Explore hotel <i class="bi bi-arrow-up-right"></i></a></div>
+    </article>
+  </div>
+  <p class="destination-disclaimer">Venue details and wedding arrangements are subject to confirmation directly with each hotel.</p>
 </section>
 
 <section class="market-section inspiration-section" id="inspiration">
-  <div class="section-heading"><p class="eyebrow">IDEAS TO FALL IN LOVE WITH</p><h2>Make it <em>meaningful.</em></h2><p>Thoughtful details, beautiful settings and inspiration for your celebration.</p></div>
-  <div class="inspiration-grid" id="real-weddings">
-    <article><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=85" alt="Wedding ceremony"><div><small>REAL WEDDINGS</small><h3>Moments worth remembering</h3></div></article>
-    <article><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=900&q=85" alt="Wedding table styling"><div><small>STYLE & DETAILS</small><h3>The beauty is in the details</h3></div></article>
-    <article id="stories"><img src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=900&q=85" alt="Wedding couple"><div><small>LOVE STORIES</small><h3>Celebrate your kind of love</h3></div></article>
+  <div class="section-heading"><p class="eyebrow">IDEAS TO FALL IN LOVE WITH</p><h2>Make it <em>meaningful.</em></h2><p>Wedding themes and little details to inspire a celebration that feels like you.</p></div>
+  <div class="inspiration-grid">
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-traditional.jpg" alt="Traditional Sri Lankan wedding inspiration" loading="lazy"><div><small>STYLE GUIDE · SRI LANKAN TRADITION</small><h3>A celebration rooted in tradition</h3><p>Poruwa details, warm gold tones and meaningful family moments create a day filled with heritage.</p></div></article>
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-flowers.jpg" alt="Garden wedding floral styling inspiration" loading="lazy"><div><small>STYLE GUIDE · GARDEN ROMANCE</small><h3>Flowers, soft light and garden vows</h3><p>Natural textures, seasonal blooms and gentle colours bring an outdoor celebration to life.</p></div></article>
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-beach.jpg" alt="Beach wedding styling inspiration" loading="lazy"><div><small>STYLE GUIDE · COASTAL ELEGANCE</small><h3>Say hello to a seaside celebration</h3><p>Ocean views, airy fabrics and sunset-inspired details set the mood for a relaxed coastal day.</p></div></article>
   </div>
+</section>
+<section class="market-section sample-stories-section" id="stories">
+  <div class="section-heading"><p class="eyebrow">THE ÉCLAT STORYBOOK</p><h2>Little stories, <em>big feelings.</em></h2><p>Illustrative sample stories created to show the kinds of celebrations couples can plan with Éclat.</p></div>
+  <div class="sample-story-grid" id="real-weddings">
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-classic.jpg" alt="Classic wedding inspiration" loading="lazy"><div><span>DEMO STORY · COLOMBO</span><h3>An intimate city celebration</h3><p>A small guest list, a timeless palette and thoughtful details made this sample celebration feel personal and warm.</p></div></article>
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-garden.jpg" alt="Garden wedding inspiration" loading="lazy"><div><span>DEMO STORY · KANDY</span><h3>A garden filled with colour</h3><p>This fictional inspiration story imagines a garden ceremony with fresh florals, soft music and a relaxed reception.</p></div></article>
+    <article><img src="${pageContext.request.contextPath}/images/member02/wedding-beach.jpg" alt="Coastal wedding inspiration" loading="lazy"><div><span>DEMO STORY · SOUTH COAST</span><h3>Golden hour by the ocean</h3><p>A sample destination-wedding idea with coastal views, candlelight and an evening celebration under the stars.</p></div></article>
+  </div>
+  <p class="destination-disclaimer">These are fictional demonstration stories, not real customer reviews or verified weddings.</p>
 </section>
 
 <section class="market-cta"><p class="eyebrow light">YOUR NEXT CHAPTER STARTS HERE</p><h2>Let the planning<br><em>feel as special as the day.</em></h2><a href="${pageContext.request.contextPath}/register">Create your free account <i class="bi bi-arrow-right"></i></a></section>
