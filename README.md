@@ -47,14 +47,24 @@ The browser address is the forwarded Codespaces URL, not necessarily `http://loc
 ### 4. Stop the application
 Return to the Codespaces terminal where Spring Boot is running and press **Ctrl + C**.
 
-## Demo sign-in
+## Demo sign-in and sample data
 
-The application seeds a default administrator when the admin data file is empty:
+A local/demo run automatically creates a realistic sample dataset unless demo seeding is disabled. The seeder is excluded from the `prod` profile and is idempotent; it checks stable demo emails before adding records.
 
-- **Email:** `admin@wedding.com`
-- **Password:** `admin123`
+The sample dataset includes:
+- **30 approved vendor profiles** across the available wedding-service categories.
+- A demo customer and a wedding plan with checklist, budget items and guest RSVP records.
+- A linked booking, contract, advance-payment record, completed booking and verified review.
 
-This is a development/demo account only. Do not use these credentials for a public or production deployment. You can also use the registration page to create a customer account.
+Demo customer:
+- **Email:** `demo.customer@example.test`
+- **Password:** `DemoWedding#2026`
+
+All sample vendors, customer details, payments and reviews are fictional. The payment is a demonstration record only; it does not represent a real bank transaction.
+
+To disable demo seeding locally, set `ECLAT_DEMO_DATA_ENABLED=false` or `app.demo-data.enabled=false`.
+
+There is **no published/default administrator password**. To bootstrap the first administrator, configure `ECLAT_BOOTSTRAP_ADMIN_EMAIL`, `ECLAT_BOOTSTRAP_ADMIN_PASSWORD` (at least 12 characters), `ECLAT_BOOTSTRAP_ADMIN_NAME` and `ECLAT_BOOTSTRAP_ADMIN_PHONE` before starting the application.
 
 ## Main system modules
 
@@ -109,10 +119,11 @@ Run the full verification suite from the Codespaces terminal:
 
 The integrated project was verified successfully in Codespaces on 9 November 2026:
 
-- **38 tests executed**
+- **49 tests executed**
 - **0 failures**
 - **0 errors**
 - **WAR package built successfully**
+- GitHub Actions run on **10 November 2026** completed successfully after the Éclat 2026 integration.
 
 To build without running tests:
 
@@ -124,7 +135,7 @@ To build without running tests:
 
 The application stores runtime CSV records in the root-level `data/` directory. This directory is intentionally excluded from Git to avoid committing personal information, account details or changing demo records.
 
-A fresh Codespace may therefore start with empty module data (the default administrator is seeded automatically). Prepare non-sensitive sample records in the running Codespace before the lecturer demonstration. Do not commit real customer information, password data, API keys or personal records.
+A fresh local/demo Codespace seeds the fictional sample records at startup. The seeder is disabled during Maven tests and is excluded from the `prod` profile. Runtime data remains local and is not committed. Do not commit real customer information, password data, API keys or personal records.
 
 ## Academic project notes
 
