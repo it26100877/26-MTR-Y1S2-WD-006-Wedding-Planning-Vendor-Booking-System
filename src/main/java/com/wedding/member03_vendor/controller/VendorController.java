@@ -216,6 +216,7 @@ public class VendorController {
 
  Vendor vendor = vendorService.getById(id);
  model.addAttribute("vendor", vendor);
+ model.addAttribute("vendorImageSource", getVendorImageSource(vendor));
  model.addAttribute("categories", VendorCategory.values());
  model.addAttribute("isEdit", true);
  model.addAttribute("pageTitle", "Edit Vendor - " + vendor.getVendorName());
