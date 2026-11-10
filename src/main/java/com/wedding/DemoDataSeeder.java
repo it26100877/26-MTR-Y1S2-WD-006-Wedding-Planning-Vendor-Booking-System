@@ -178,7 +178,9 @@ public class DemoDataSeeder implements ApplicationRunner {
             booking = bookings.confirmBooking(booking.getBookingId());
         }
 
-        VendorContract contract = contracts.getByBooking(booking.getBookingId());
+        VendorContract contract = contracts.getAllContracts().stream()
+                .filter(c -> booking.getBookingId().equals(c.getBookingId()))
+                .findFirst().orElse(null);
         if (contract == null) {
             contract = contracts.createContract(booking.getBookingId(), customer.getUserId(),
                     featured.getVendorId(), LocalDate.now().toString(), eventDate.toString(),
@@ -194,9 +196,10 @@ public class DemoDataSeeder implements ApplicationRunner {
         if (booking.getStatus() == com.wedding.member04_booking.model.BookingStatus.CONFIRMED) {
             bookings.completeBooking(booking.getBookingId());
         }
+        String linkedBookingId = booking.getBookingId();
         if (reviews.getByVendor(featured.getVendorId()).stream()
-                .noneMatch(r -> booking.getBookingId().equals(r.getBookingId()))) {
-            reviews.submitReview(customer.getUserId(), featured.getVendorId(), booking.getBookingId(),
+                .noneMatch(r -> linkedBookingId.equals(r.getBookingId()))) {
+            reviews.submitReview(customer.getUserId(), featured.getVendorId(), linkedBookingId,
                     5, "Beautiful demo experience",
                     "A sample verified review showing the completed booking feedback workflow.");
         }
