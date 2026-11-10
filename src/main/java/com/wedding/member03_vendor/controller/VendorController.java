@@ -235,7 +235,7 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
- @RequestParam(value = "vendorImage", required = false) MultipartFile vendorImage,
+ MultipartHttpServletRequest multipartRequest,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null || !"ADMIN".equalsIgnoreCase(actor.getRole())) return "redirect:/login";
