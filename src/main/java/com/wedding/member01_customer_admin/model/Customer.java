@@ -13,6 +13,7 @@ public class Customer extends User {
  // ─── Additional Fields ───────────────────────────────────────────────────────
  private String address;
  private String weddingDate; // yyyy-MM-dd
+ private boolean phoneVerified = true;
 
  // ─── Constructors ────────────────────────────────────────────────────────────
 
@@ -37,8 +38,16 @@ public class Customer extends User {
  String passwordHash, String createdAt, boolean active,
  String address, String weddingDate) {
  super(userId, name, email, phone, passwordHash, createdAt, active);
+ this(userId, name, email, phone, passwordHash, createdAt, active, address, weddingDate, true);
+ }
+
+ public Customer(String userId, String name, String email, String phone,
+                 String passwordHash, String createdAt, boolean active,
+                 String address, String weddingDate, boolean phoneVerified) {
+ super(userId, name, email, phone, passwordHash, createdAt, active);
  this.address = address;
  this.weddingDate = weddingDate;
+ this.phoneVerified = phoneVerified;
  }
 
  // ─── Polymorphism ────────────────────────────────────────────────────────────
@@ -55,6 +64,8 @@ public class Customer extends User {
 
  public String getWeddingDate() { return weddingDate; }
  public void setWeddingDate(String v){ this.weddingDate = v; }
+ public boolean isPhoneVerified() { return phoneVerified; }
+ public void setPhoneVerified(boolean verified) { this.phoneVerified = verified; }
 
  @Override
  public String toString() {
