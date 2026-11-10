@@ -320,6 +320,15 @@ public class VendorController {
  if (!bookingService.getByVendor(id).isEmpty()) {
   redirectAttributes.addFlashAttribute("errorMessage", "This vendor has booking history. Deactivate the vendor instead of deleting it.");
   return "redirect:/vendors";
+ }
+ vendorService.deleteVendor(id);
+ redirectAttributes.addFlashAttribute("successMessage", "Vendor archived successfully. Historical booking and review records remain available.");
+ } catch (AppException e) {
+  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+ }
+ return "redirect:/vendors";
+ }
+
  private Path getVendorImageDirectory() {
   return Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
  }
