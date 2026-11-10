@@ -56,7 +56,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                           BudgetService budget, GuestService guests,
                           BookingService bookings, ContractService contracts,
                           PaymentService payments, ReviewService reviews,
-                          @Value("${app.demo-data.enabled:true}") boolean enabled) {
+                          @Value("${app.demo-data.enabled:false}") boolean enabled) {
         this.customers = customers;
         this.vendors = vendors;
         this.plans = plans;
