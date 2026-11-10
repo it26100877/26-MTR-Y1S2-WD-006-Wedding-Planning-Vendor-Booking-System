@@ -2,6 +2,7 @@ package com.wedding.member03_vendor.controller;
 
 import com.wedding.common.exceptions.AppException;
 import com.wedding.common.model.User;
+import com.wedding.common.utils.FileUtil;
 import com.wedding.member03_vendor.model.Vendor;
 import com.wedding.member03_vendor.model.VendorCategory;
 import com.wedding.member03_vendor.service.VendorService;
@@ -9,6 +10,17 @@ import com.wedding.member06_review_feedback.service.ReviewService;
 import com.wedding.member04_booking.service.BookingService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Set;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -29,6 +41,8 @@ public class VendorController {
  private final VendorService vendorService;
  private final ReviewService reviewService;
  private final BookingService bookingService;
+ private static final long MAX_VENDOR_IMAGE_BYTES = 5L * 1024 * 1024;
+ private static final Set<String> ALLOWED_IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "gif");
 
  public VendorController(VendorService vendorService, ReviewService reviewService, BookingService bookingService) {
  this.vendorService = vendorService;
@@ -120,6 +134,7 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
+ @RequestParam(value = "vendorImage", required = false) MultipartFile vendorImage,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null) return "redirect:/login";
@@ -128,6 +143,7 @@ public class VendorController {
  BigDecimal basePrice = parseBasePrice(basePriceValue);
  Vendor vendor = vendorService.addVendor(
  vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
+ saveVendorImage(vendor.getVendorId(), vendorImage);
  redirectAttributes.addFlashAttribute("successMessage",
  "Vendor '" + vendor.getVendorName() + "' registered successfully! (Awaiting admin approval)");
  return "redirect:/vendors";
@@ -185,6 +201,7 @@ public class VendorController {
  @RequestParam("address") String address,
  @RequestParam("serviceDescription") String serviceDescription,
  @RequestParam(value = "basePrice", required = false) String basePriceValue,
+ @RequestParam(value = "vendorImage", required = false) MultipartFile vendorImage,
  HttpSession httpSession, RedirectAttributes redirectAttributes) {
  User actor = (User) httpSession.getAttribute("currentUser");
  if (actor == null || !"ADMIN".equalsIgnoreCase(actor.getRole())) return "redirect:/login";
@@ -192,6 +209,7 @@ public class VendorController {
  VendorCategory category = VendorCategory.fromStringStrict(categoryStr);
  BigDecimal basePrice = parseBasePrice(basePriceValue);
  vendorService.updateVendor(id, vendorName, category, contactPerson, email, phone, address, serviceDescription, basePrice);
+ saveVendorImage(id, vendorImage);
  redirectAttributes.addFlashAttribute("successMessage", "Vendor details updated successfully!");
  } catch (AppException | IllegalArgumentException e) {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -273,6 +291,55 @@ public class VendorController {
  redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
  }
  return "redirect:/vendors";
+ }
+
+
+ // Vendor portfolio images are stored separately from CSV records so existing vendor data stays compatible.
+ @GetMapping("/vendor-images/{id}")
+ @ResponseBody
+ public ResponseEntity<byte[]> getVendorImage(@PathVariable("id") String id) throws IOException {
+  if (id == null || !id.matches("[A-Za-z0-9_-]{1,100}")) return ResponseEntity.notFound().build();
+  Path directory = Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
+  for (String extension : ALLOWED_IMAGE_EXTENSIONS) {
+   Path image = directory.resolve(id + "." + extension).normalize();
+   if (image.startsWith(directory) && Files.isRegularFile(image)) {
+    byte[] bytes = Files.readAllBytes(image);
+    MediaType type = extension.equals("png") ? MediaType.IMAGE_PNG
+            : extension.equals("gif") ? MediaType.IMAGE_GIF : MediaType.IMAGE_JPEG;
+    return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "public, max-age=300")
+            .contentType(type).body(bytes);
+   }
+  }
+  return ResponseEntity.notFound().build();
+ }
+
+ private void saveVendorImage(String vendorId, MultipartFile image) {
+  if (image == null || image.isEmpty()) return;
+  if (image.getSize() > MAX_VENDOR_IMAGE_BYTES) {
+   throw new IllegalArgumentException("Vendor image must be 5 MB or smaller.");
+  }
+  String original = image.getOriginalFilename() == null ? "" : image.getOriginalFilename();
+  int dot = original.lastIndexOf('.');
+  String extension = dot < 0 ? "" : original.substring(dot + 1).toLowerCase(Locale.ROOT);
+  if (!ALLOWED_IMAGE_EXTENSIONS.contains(extension)) {
+   throw new IllegalArgumentException("Only JPG, PNG or GIF images are allowed.");
+  }
+  try {
+   byte[] bytes = image.getBytes();
+   if (ImageIO.read(new ByteArrayInputStream(bytes)) == null) {
+    throw new IllegalArgumentException("The selected file is not a valid image.");
+   }
+   Path directory = Path.of(FileUtil.getFilePath("vendor-images")).toAbsolutePath().normalize();
+   Files.createDirectories(directory);
+   Path target = directory.resolve(vendorId + "." + extension).normalize();
+   if (!target.startsWith(directory)) throw new IllegalArgumentException("Invalid image name.");
+   Files.write(target, bytes);
+   for (String oldExtension : ALLOWED_IMAGE_EXTENSIONS) {
+    if (!oldExtension.equals(extension)) Files.deleteIfExists(directory.resolve(vendorId + "." + oldExtension));
+   }
+  } catch (IOException ex) {
+   throw new IllegalStateException("Unable to save vendor image. Please try again.", ex);
+  }
  }
 
  private BigDecimal parseBasePrice(String value) {
