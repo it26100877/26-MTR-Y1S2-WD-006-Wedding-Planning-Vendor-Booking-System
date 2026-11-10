@@ -44,6 +44,16 @@ public class CustomerService extends BaseService {
  */
  public Customer register(String name, String email, String phone,
  String password, String address, String weddingDate) {
+  return register(name, email, phone, password, address, weddingDate, true);
+ }
+
+ public Customer registerPendingPhoneVerification(String name, String email, String phone,
+ String password, String address, String weddingDate) {
+  return register(name, email, phone, password, address, weddingDate, false);
+ }
+
+ private Customer register(String name, String email, String phone,
+ String password, String address, String weddingDate, boolean phoneVerified) {
  requireNonEmpty(name, "Full Name");
  requireNonEmpty(email, "Email");
  requireNonEmpty(phone, "Phone");
@@ -76,7 +86,8 @@ public class CustomerService extends BaseService {
  ValidationUtil.nowDateTime(),
  true,
  address == null ? "" : address.trim(),
- weddingDate == null ? "" : weddingDate.trim()
+ weddingDate == null ? "" : weddingDate.trim(),
+ phoneVerified
  );
  customerRepository.save(customer);
  log("Registered customer: " + customer.getUserId());
@@ -104,6 +115,9 @@ public class CustomerService extends BaseService {
  }
  if (!customer.isActive()) {
  throw new BusinessRuleException("Your account has been deactivated. Please contact support.");
+ }
+ if (!customer.isPhoneVerified()) {
+ throw new BusinessRuleException("Please complete phone verification from the registration process before signing in.");
  }
  if (customer.needsPasswordHashUpgrade()) { customer.setPasswordHash(User.hashPassword(password)); customerRepository.save(customer); }
  log("Customer logged in: " + customer.getUserId());
@@ -171,6 +185,13 @@ public class CustomerService extends BaseService {
  * @param id Customer ID
  * @throws EntityNotFoundException if not found
  */
+ public void markPhoneVerified(String id) {
+  Customer customer = getById(id);
+  customer.setPhoneVerified(true);
+  customerRepository.save(customer);
+  log("Verified phone for customer: " + id);
+ }
+
  public void deactivate(String id) {
  Customer customer = getById(id);
  customer.setActive(false);
