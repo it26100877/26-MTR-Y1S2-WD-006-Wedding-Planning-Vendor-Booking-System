@@ -58,6 +58,11 @@
 </style>
 
 <section class="vendor-directory-page">
+<section class="eclat-photo-hero" style="background-image:url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1900&q=85')" aria-label="Wedding vendor directory introduction">
+<div class="eclat-photo-hero-copy"><span class="eclat-photo-eyebrow">ÉCLAT · CURATED WEDDING PROFESSIONALS</span>
+<h1>Find the people behind your perfect day.</h1>
+<p>Explore trusted photographers, venues, caterers and wedding specialists to bring every detail of your celebration together.</p>
+<a class="eclat-photo-action" href="${pageContext.request.contextPath}/vendors/new"><i class="bi bi-person-plus"></i> Register as Vendor</a></div></section>
     <div class="vendor-directory-heading">
         <div>
             <h1><i class="bi bi-shop"></i> Wedding Vendors Directory</h1>
