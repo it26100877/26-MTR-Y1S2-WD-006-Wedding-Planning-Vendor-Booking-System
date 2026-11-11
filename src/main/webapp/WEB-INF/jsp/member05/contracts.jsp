@@ -2,6 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
 
+<section class="eclat-photo-hero" style="background-image:url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1900&q=85')" aria-label="Contracts and payments introduction">
+<div class="eclat-photo-hero-copy"><span class="eclat-photo-eyebrow">ÉCLAT · FINANCIAL MANAGEMENT</span>
+<h1>Every agreement, beautifully in order.</h1>
+<p>Keep vendor contracts, installment payments and outstanding balances clear and organised throughout your wedding planning journey.</p></div></section>
 <div class="m05-page-head d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
     <div>
         <div class="m05-eyebrow">FINANCIAL MANAGEMENT</div>
