@@ -214,7 +214,7 @@ hr{border-color:var(--ep-line);opacity:1}
 .eclat-photo-hero p{color:#f4eee6!important;font-size:.96rem;line-height:1.7;margin:0;max-width:630px}
 .eclat-photo-hero .eclat-photo-action{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:12px 18px;border:1px solid rgba(255,255,255,.72);border-radius:5px;background:#b99a68;color:#fff;text-decoration:none;font-size:.88rem;font-weight:600}
 .eclat-photo-hero .eclat-photo-action:hover{background:#98764a;color:#fff}
-.eclat-dashboard-hero.eclat-dashboard-photo{position:relative;isolation:isolate;min-height:250px;align-items:flex-end;background:#635748 url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1900&q=85') center 48%/cover no-repeat;border-color:#e8dece}
+.eclat-dashboard-hero.eclat-dashboard-photo{position:relative;isolation:isolate;min-height:250px;align-items:flex-end;background-color:#635748;background-image:url('/images/member02/wedding-editorial-banner.jpg');background-position:center 48%;background-size:cover;background-repeat:no-repeat;border-color:#e8dece}
 .eclat-dashboard-hero.eclat-dashboard-photo:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(28,24,20,.74),rgba(28,24,20,.30) 68%,rgba(28,24,20,.10))}
 .eclat-dashboard-photo .eclat-dashboard-copy h1,.eclat-dashboard-photo .eclat-dashboard-copy p{color:#fff!important}
 .eclat-dashboard-photo .eclat-dashboard-copy .eclat-eyebrow{color:#e6cda4}
