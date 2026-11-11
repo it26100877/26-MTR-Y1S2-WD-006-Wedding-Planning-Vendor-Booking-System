@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
 
-<section class="eclat-dashboard-hero">
+<section class="eclat-dashboard-hero eclat-dashboard-photo">
     <div class="eclat-dashboard-copy">
         <span class="eclat-eyebrow">ÉCLAT · YOUR WEDDING WORKSPACE</span>
         <h1>Welcome, ${sessionScope.currentUser.name}</h1>
