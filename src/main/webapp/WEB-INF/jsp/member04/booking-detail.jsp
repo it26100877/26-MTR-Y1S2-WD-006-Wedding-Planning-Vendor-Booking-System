@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-bookings.css?v=20261111-booking-hero">
 <div class="booking-studio">
     <section class="bk-hero mb-4 d-flex align-items-center justify-content-between gap-3 flex-wrap"><div><div class="bk-eyebrow">BOOKING STUDIO / REFERENCE <c:out value="${booking.bookingId}"/></div><h1><c:out value="${vendor != null ? vendor.vendorName : booking.vendorId}"/></h1><p>All the essential details for your wedding vendor reservation.</p></div><a class="bk-btn-ghost position-relative" href="${pageContext.request.contextPath}/bookings"><i class="bi bi-arrow-left"></i> All Bookings</a></section>
     <div class="row g-4">
