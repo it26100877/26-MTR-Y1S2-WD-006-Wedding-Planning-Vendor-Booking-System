@@ -203,3 +203,20 @@ hr{border-color:var(--ep-line);opacity:1}
  .eclat-dashboard-note{padding:22px 20px}
  .eclat-note-mark{font-size:2.8rem}
 }
+
+
+/* Shared responsive photographic hero banners */
+.eclat-photo-hero{position:relative;isolation:isolate;display:flex;align-items:flex-end;min-height:260px;margin:8px 0 30px;padding:clamp(26px,4vw,46px);overflow:hidden;border:1px solid #e8dece;border-radius:14px;background-color:#66594b;background-position:center 48%;background-size:cover;box-shadow:0 14px 36px rgba(47,37,25,.10)}
+.eclat-photo-hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(24,22,20,.76),rgba(30,27,23,.46) 62%,rgba(30,27,23,.12)),linear-gradient(0deg,rgba(22,19,16,.26),transparent 70%)}
+.eclat-photo-hero-copy{max-width:760px;color:#fff}
+.eclat-photo-hero .eclat-photo-eyebrow{display:block;color:#e6cda4;font-size:.68rem;font-weight:700;letter-spacing:.2em}
+.eclat-photo-hero h1{color:#fff!important;font:500 clamp(2.25rem,4vw,3.5rem)/1.08 'Playfair Display',Georgia,serif;margin:12px 0}
+.eclat-photo-hero p{color:#f4eee6!important;font-size:.96rem;line-height:1.7;margin:0;max-width:630px}
+.eclat-photo-hero .eclat-photo-action{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:12px 18px;border:1px solid rgba(255,255,255,.72);border-radius:5px;background:#b99a68;color:#fff;text-decoration:none;font-size:.88rem;font-weight:600}
+.eclat-photo-hero .eclat-photo-action:hover{background:#98764a;color:#fff}
+.eclat-dashboard-hero.eclat-dashboard-photo{position:relative;isolation:isolate;min-height:250px;align-items:flex-end;background:#635748 url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1900&q=85') center 48%/cover no-repeat;border-color:#e8dece}
+.eclat-dashboard-hero.eclat-dashboard-photo:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(28,24,20,.74),rgba(28,24,20,.30) 68%,rgba(28,24,20,.10))}
+.eclat-dashboard-photo .eclat-dashboard-copy h1,.eclat-dashboard-photo .eclat-dashboard-copy p{color:#fff!important}
+.eclat-dashboard-photo .eclat-dashboard-copy .eclat-eyebrow{color:#e6cda4}
+.eclat-dashboard-photo .eclat-role-label{background:rgba(255,255,255,.92)}
+@media(max-width:767px){.eclat-photo-hero{min-height:230px;padding:24px 20px;margin-top:4px}.eclat-dashboard-hero.eclat-dashboard-photo{min-height:275px;align-items:flex-end}.eclat-dashboard-photo .eclat-dashboard-actions{justify-content:flex-start;min-width:0}}
