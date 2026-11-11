@@ -1,6 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-bookings.css?v=20261111-booking-hero">
+
 <div class="booking-studio">
     <section class="bk-hero bk-hero-visual mb-4 d-flex flex-wrap gap-4 justify-content-between align-items-center">
         <div class="bk-hero-copy">

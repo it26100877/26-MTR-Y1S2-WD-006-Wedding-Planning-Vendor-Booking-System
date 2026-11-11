@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-bookings.css?v=20261111-booking-hero">
 <div class="booking-studio">
     <div class="bk-hero mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div><p class="bk-eyebrow">PLANNING TOOLS / AVAILABILITY</p><h1>Vendor Availability Calendar</h1><p>View confirmed dates and pending requests before you plan your event.</p></div>

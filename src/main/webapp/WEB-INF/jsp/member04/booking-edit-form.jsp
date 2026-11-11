@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-bookings.css?v=20261111-booking-hero">
 <div class="booking-studio">
     <section class="bk-hero mb-4"><div class="bk-eyebrow">BOOKING STUDIO / EDIT REQUEST</div><h1>Refine Your Booking Request</h1><p>Update your service requirements and agreed fee while the booking is pending.</p></section>
     <div class="row justify-content-center"><div class="col-lg-9 col-xl-8"><div class="bk-panel mb-4">
