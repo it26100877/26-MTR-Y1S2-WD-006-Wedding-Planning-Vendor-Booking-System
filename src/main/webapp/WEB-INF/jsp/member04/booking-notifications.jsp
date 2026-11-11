@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <jsp:include page="/WEB-INF/jsp/common/header.jsp" />
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/eclat-bookings.css?v=20261111-booking-hero">
 <div class="booking-studio">
     <section class="bk-hero mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3"><div><div class="bk-eyebrow">YOUR ACTIVITY</div><h1>Booking Notifications</h1><p>Stay informed about requests, approvals and completed bookings.</p></div><a class="bk-btn-ghost position-relative" href="${pageContext.request.contextPath}/bookings"><i class="bi bi-arrow-left"></i> Back to Bookings</a></section>
     <section class="bk-panel mb-4">
