@@ -9,8 +9,17 @@
     margin: 0 auto;
 }
 .vendor-form-hero {
-    background: linear-gradient(120deg, #302820, #65513a);
-    color: white;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background:
+        linear-gradient(90deg, rgba(32, 25, 20, .78) 0%, rgba(45, 34, 25, .57) 58%, rgba(45, 34, 25, .18) 100%),
+        url('/images/member02/wedding-editorial-banner.jpg') center 48% / cover no-repeat;
+    color: #fff;
     padding: 35px;
     border-radius: 14px;
     margin-bottom: 25px;
@@ -23,6 +32,7 @@
 }
 .vendor-form-hero h1 {
     font-family: 'Playfair Display', serif;
+    color: #fff;
 }
 .vendor-form-label {
     font-weight: 600;
